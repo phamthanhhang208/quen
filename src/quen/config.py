@@ -46,6 +46,9 @@ class QuenConfig:
     compress_min_chars: int = 600
 
     # --- trust gate (§4.7) ---
+    # below this top-relevance, the engine abstains instead of answering
+    # from memories that are merely fresh but irrelevant
+    abstain_relevance_floor: float = 0.10
     trust_threshold: float = 0.55
     freshness_half_life_days: float = 30.0
     verify_max_per_ask: int = 3

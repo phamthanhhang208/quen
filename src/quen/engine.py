@@ -153,7 +153,14 @@ class QuenEngine:
             model_hint="chat",
         ).strip()
         conf = answer_confidence(rr.used, verifications)
-        abstained = (not rr.used) or conf < 0.25
+        max_relevance = max((sm.relevance for sm in rr.used), default=0.0)
+        abstained = (
+            not rr.used
+            or conf < 0.25
+            or max_relevance < self.cfg.abstain_relevance_floor
+        )
+        if abstained:
+            conf = min(conf, 0.25)  # stated confidence must track the abstention
         if not rr.used:
             answer = "I don't have a reliable memory about that."
 
