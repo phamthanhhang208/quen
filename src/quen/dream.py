@@ -5,7 +5,7 @@ fully audited: every action lands in dream_actions and the audit log.
 
 from __future__ import annotations
 
-import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
@@ -87,8 +87,13 @@ def self_test_memory(
         llm_mod.render_selftest_answer(probe, context), model_hint="fast"
     )
 
-    # 3. grade — exact containment first, LLM judge fallback
-    passed = expected.strip().casefold() in answer.casefold()
+    # 3. grade — word-boundary match first (bare containment lets short
+    # objects like "no" match inside "UNKNOWN"), LLM judge fallback
+    passed = bool(
+        re.search(
+            rf"(?<!\w){re.escape(expected.strip())}(?!\w)", answer, re.IGNORECASE
+        )
+    )
     if not passed and answer.strip().upper() != "UNKNOWN":
         verdict = llm.complete(
             llm_mod.render_judge(probe, expected, answer), model_hint="fast"
@@ -105,7 +110,9 @@ def self_test_memory(
     mem.review_count += 1
     if not passed:
         # re-expand verbatim + do-not-forget nudge
-        mem.content = mem.content_verbatim
+        if mem.content != mem.content_verbatim:
+            mem.content = mem.content_verbatim
+            mem.embedding = embedder.embed([mem.content])[0]  # keep ranking honest
         mem.importance = min(10.0, mem.importance + 1.0)
         mem.last_accessed_at = now
     store.update(
@@ -243,8 +250,13 @@ def run_dream(
         log("error", {"phase": "evict", "error": repr(exc)})
 
     # ---- 5. compress (keep verbatim) ---------------------------------------
+    # Memories re-expanded by a failed self-test THIS run are exempt —
+    # compressing them again would undo the do-not-forget recovery.
+    reexpanded = {t.memory_id for t in report.self_tests if not t.passed}
     try:
         for mem in store.active():
+            if mem.id in reexpanded:
+                continue
             if len(mem.content) > cfg.compress_min_chars:
                 compressed = llm.complete(
                     llm_mod.render_compress(mem.content), model_hint="fast"
@@ -332,9 +344,15 @@ def _reabstract(
             continue
         sources = [uncovered[i] for i in indices]
         triple = item.get("triple")
-        triple_t = tuple(str(p) for p in triple) if (
-            isinstance(triple, list) and len(triple) == 3
-        ) else None
+        # same validation bar as the write path — a degenerate triple (empty
+        # or non-string part) would mint a slot that supersedes real facts
+        triple_t: Optional[tuple[str, str, str]] = None
+        if (
+            isinstance(triple, (list, tuple))
+            and len(triple) == 3
+            and all(isinstance(p, str) and p.strip() for p in triple)
+        ):
+            triple_t = (triple[0], triple[1], triple[2])
 
         # dedup before storing: triple slot first, cosine second
         if triple_t is not None and store.find_by_triple(triple_t) is not None:
@@ -356,10 +374,14 @@ def _reabstract(
             confidence=min(s.confidence for s in sources),
             source_ref=f"dream:{run_id}",
             provenance=[s.id for s in sources],
+            # a generalization is only as current as its newest evidence —
+            # dating it `now` would let stale episodics supersede newer facts
+            valid_from=max(s.valid_from for s in sources),
             now=now,
         )
         store.add(gen, actor=actor, detail={"run_id": run_id, "phase": "reabstract"})
         created.append(gen.id)
+        actives.append(gen)  # later items this run dedup against it too
         log(
             "reabstract",
             {

@@ -192,13 +192,22 @@ def ingest_observation(
         return WriteResult(stored=stored, skipped=skipped, reinforced=reinforced)
 
     # --- cosine dedup second (one batched embed call), then store -------
+    # A fact carrying a DIFFERENT triple than the candidate is a distinct
+    # claim, never a cosine-duplicate: same-(s,r)-new-o updates are exactly
+    # what near-paraphrase embeddings cannot distinguish (MemStrata's
+    # AUROC-0.59 failure) — they must reach the store so the deterministic
+    # supersession rule can see them.
     embeddings = embedder.embed([f.content for f in survivors])
     actives = store.active()
 
     for fact, emb in zip(survivors, embeddings):
+        fact_key = _triple_key(fact.triple)
         best: Optional[MemoryItem] = None
         best_cos = 0.0  # cosine can be negative for unrelated texts; clamp at 0
         for candidate in actives:
+            if fact_key is not None and candidate.triple_key is not None \
+                    and candidate.triple_key != fact_key:
+                continue  # distinct claim — dedup would swallow a contradiction
             c = cosine(emb, candidate.embedding)
             if c > best_cos:
                 best, best_cos = candidate, c
@@ -236,6 +245,7 @@ def ingest_observation(
             detail={"source_kind": source_kind, "source_ref": source_ref},
         )
         stored.append(mem)
+        actives.append(mem)  # later batch members dedup against this one too
 
     return WriteResult(stored=stored, skipped=skipped, reinforced=reinforced)
 

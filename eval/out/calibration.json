@@ -11,7 +11,7 @@
       },
       {
         "bin": "0.6-0.7",
-        "predicted_mean": 0.6587,
+        "predicted_mean": 0.6584,
         "empirical": 1.0,
         "count": 4
       },
@@ -22,8 +22,8 @@
         "count": 5
       }
     ],
-    "ece": 0.2618,
-    "log_loss": 0.3237
+    "ece": 0.2619,
+    "log_loss": 0.3239
   },
   "confidence": {
     "events": 3,
@@ -33,7 +33,7 @@
         "bins": [
           {
             "bin": "0.5-0.6",
-            "predicted_mean": 0.5728,
+            "predicted_mean": 0.5691,
             "empirical": 1.0,
             "count": 1
           },
@@ -44,7 +44,7 @@
             "count": 1
           }
         ],
-        "ece": 0.4105,
+        "ece": 0.4123,
         "count": 2
       },
       {
@@ -67,7 +67,7 @@
         "count": 0
       }
     ],
-    "overall_ece": 0.4288,
+    "overall_ece": 0.43,
     "selective_accuracy": [
       {
         "threshold": 0.0,

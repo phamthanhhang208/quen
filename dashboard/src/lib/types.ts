@@ -126,7 +126,8 @@ export interface RecallTrace {
   answer_confidence: number | null;
   abstained: boolean;
   token_budget: number;
-  tokens_used: number;
+  tokens_used: number; // memory-content tokens (budget accounting)
+  prompt_tokens: number | null; // incl. trust tags — what the reader saw
   used: UsedMemory[];
   excluded: ExcludedMemory[];
   counterfactual: { memory_id: string; snippet: string; status: MemStatus }[];

@@ -125,7 +125,12 @@ def test_winner_object_duplicates_untouched_while_loser_falls(
     events = deterministic_pass(store, now=clock.now())
 
     [ev] = events
-    assert (ev.old_id, ev.new_id) == (loser.id, winner.id)
+    # bi-temporal chain: the loser is closed by its IMMEDIATE successor —
+    # the first distinct-object arrival (day 3), not the final winner —
+    # so the ledger records when the fact actually stopped being current
+    assert ev.old_id == loser.id
+    assert ev.new_id == dup_of_winner.id
+    assert store.get(loser.id).valid_to == dup_of_winner.valid_from
     # same-o-as-winner member is a duplicate, NOT a contradiction
     assert store.get(dup_of_winner.id).status == "active"
     assert store.get(winner.id).status == "active"

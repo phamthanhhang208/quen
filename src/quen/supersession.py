@@ -78,13 +78,42 @@ def supersede(
     run_id: Optional[str] = None,
     label: Optional[str] = None,
     nli_confidence: Optional[float] = None,
-) -> SupersessionEvent:
+) -> Optional[SupersessionEvent]:
     """Tombstone ``old`` as superseded by ``new`` (spec §4.6.3).
 
     Sets ``old.valid_to = new.valid_from`` (bi-temporal close), flips status
     to "superseded" and records the successor id. The mutation goes through
     the audited ``MemoryStore.update`` path; ``new`` is untouched.
+
+    Both rows are re-fetched first: passes hold instances across slow LLM
+    calls, and a concurrent mutation (a pin landing, an eviction, another
+    supersession) must neither be overwritten by a stale full-row write nor
+    escape the pinned bar. Returns None when the supersession no longer
+    applies (either side inactive, or a freshly-pinned ``old`` under the
+    bar).
     """
+    old = store.get(old.id) or old
+    fresh_new = store.get(new.id)
+    if fresh_new is not None:
+        new = fresh_new
+    if old.status != "active" or new.status != "active":
+        return None  # settled elsewhere while this pass was running
+    if old.pinned:
+        bar_ok = (
+            nli_confidence is not None and nli_confidence >= PINNED_NLI_BAR
+            if rule == "nli"
+            else new.confidence >= old.confidence
+        )
+        if not bar_ok:
+            store.audit(
+                actor,
+                "supersede_blocked_pinned",
+                memory_id=old.id,
+                run_id=run_id,
+                detail={"new_id": new.id, "rule": rule},
+                at=now,
+            )
+            return None
     old.valid_to = new.valid_from
     old.status = "superseded"
     old.superseded_by = new.id
@@ -141,28 +170,41 @@ def deterministic_pass(
         winner_o = winner.triple_key[2]  # type: ignore[index]
         losers = [m for m in members if m.triple_key[2] != winner_o]  # type: ignore[index]
         for old in sorted(losers, key=lambda m: m.id):
-            if old.pinned and winner.confidence < old.confidence:
-                store.audit(
-                    actor,
-                    "supersede_blocked_pinned",
-                    memory_id=old.id,
-                    run_id=run_id,
-                    detail={"new_id": winner.id, "rule": "deterministic"},
-                    at=now,
-                )
-                continue
-            events.append(
-                supersede(
-                    old,
-                    winner,
-                    store=store,
-                    now=now,
-                    actor=actor,
-                    rule="deterministic",
-                    run_id=run_id,
-                )
+            # bi-temporal chain: each loser is closed by its IMMEDIATE
+            # successor (the next-newer distinct-object member), not by the
+            # final winner — otherwise intermediate reigns are erased from
+            # the ledger (jenkins→circleci→gha must not claim jenkins was
+            # valid until gha arrived).
+            successor = _successor_of(old, members) or winner
+            event = supersede(
+                old,
+                successor,
+                store=store,
+                now=now,
+                actor=actor,
+                rule="deterministic",
+                run_id=run_id,
             )
+            if event is not None:
+                events.append(event)
     return events
+
+
+def _successor_of(
+    old: MemoryItem, members: list[MemoryItem]
+) -> Optional[MemoryItem]:
+    """The next-newer member holding a different object than ``old``."""
+    old_o = old.triple_key[2]  # type: ignore[index]
+    newer = [
+        m
+        for m in members
+        if _recency(m) > _recency(old) and m.triple_key[2] != old_o  # type: ignore[index]
+    ]
+    return min(newer, key=_recency) if newer else None
+
+
+def _recency(m: MemoryItem) -> tuple:
+    return (m.valid_from, m.created_at, m.confidence, m.id)
 
 
 def _slot_winner(members: list[MemoryItem]) -> MemoryItem:
@@ -237,30 +279,20 @@ def nli_pass(
             continue
         if label != "contradicts" or confidence < cfg.nli_confidence_gate:
             continue  # entails / neutral / under-confident contradiction
-        if a.pinned and confidence < PINNED_NLI_BAR:
-            store.audit(
-                actor,
-                "supersede_blocked_pinned",
-                memory_id=a.id,
-                run_id=run_id,
-                detail={"new_id": b.id, "rule": "nli"},
-                at=now,
-            )
-            continue
-        events.append(
-            supersede(
-                a,
-                b,
-                store=store,
-                now=now,
-                actor=actor,
-                rule="nli",
-                run_id=run_id,
-                label=label,
-                nli_confidence=confidence,
-            )
+        event = supersede(
+            a,
+            b,
+            store=store,
+            now=now,
+            actor=actor,
+            rule="nli",
+            run_id=run_id,
+            label=label,
+            nli_confidence=confidence,
         )
-        dead.add(a.id)
+        if event is not None:
+            events.append(event)
+            dead.add(a.id)
     return events
 
 

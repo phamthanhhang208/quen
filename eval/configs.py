@@ -74,7 +74,10 @@ class AppendOnlyRAG:
         answer = self.llm.complete(
             llm_mod.render_answer(question, lines, ""), model_hint="chat"
         )
-        return AnswerOut(answer, None, used, abstained=not lines)
+        # report what the reader actually saw (same accounting as Quen's
+        # prompt_tokens — trust tags and all)
+        prompt_tokens = sum(estimate_tokens(line) for line in lines)
+        return AnswerOut(answer, None, prompt_tokens, abstained=not lines)
 
 
 class FullContext:
@@ -105,7 +108,8 @@ class FullContext:
         answer = self.llm.complete(
             llm_mod.render_answer(question, lines, ""), model_hint="chat"
         )
-        return AnswerOut(answer, None, used, abstained=not lines)
+        prompt_tokens = sum(estimate_tokens(line) for line in lines)
+        return AnswerOut(answer, None, prompt_tokens, abstained=not lines)
 
 
 class Quen:
@@ -148,6 +152,8 @@ class Quen:
 
     def answer(self, question, budget) -> AnswerOut:
         res = self.engine.ask(question, token_budget=budget)
+        # prompt_tokens includes the trust tags/hedges Quen adds — the same
+        # what-the-reader-saw accounting the baselines report
         return AnswerOut(
-            res.answer, res.answer_confidence, res.tokens_used, res.abstained
+            res.answer, res.answer_confidence, res.prompt_tokens, res.abstained
         )

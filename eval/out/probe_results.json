@@ -34,7 +34,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 39,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The api gateway runs on Kubernetes.\n- [trust 0.86 | confidence 0.90 | 2d old] Terraform for the old EC2 hosts is gone.",
     "forgetting": {
@@ -53,7 +53,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 39,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The api gateway runs on Kubernetes.\n- [trust 0.86 | confidence 0.90 | 2d old] Terraform for the old EC2 hosts is gone.",
     "forgetting": {
@@ -72,7 +72,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 16,
+    "tokens_used": 17,
     "answer_confidence": null,
     "answer": "Based on memory: - The team fetches data via useApi.\n- The team fetches data via useQuery."
   },
@@ -85,7 +85,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 16,
+    "tokens_used": 17,
     "answer_confidence": null,
     "answer": "Based on memory: - The team fetches data via useApi.\n- The team fetches data via useQuery."
   },
@@ -98,7 +98,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The team fetches data via useQuery.",
     "forgetting": {
@@ -117,7 +117,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The team fetches data via useQuery.",
     "forgetting": {
@@ -162,7 +162,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] Payments service runs on Node20.",
     "forgetting": {
@@ -181,7 +181,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] Payments service runs on Node20.",
     "forgetting": {
@@ -200,7 +200,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 26,
+    "tokens_used": 28,
     "answer_confidence": null,
     "answer": "Based on memory: - User sessions stored in Redis.\n- User sessions stored in DynamoDB. The Redis session cluster is decommissioned."
   },
@@ -213,7 +213,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 26,
+    "tokens_used": 28,
     "answer_confidence": null,
     "answer": "Based on memory: - User sessions stored in Redis.\n- User sessions stored in DynamoDB. The Redis session cluster is decommissioned."
   },
@@ -226,7 +226,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 19,
+    "tokens_used": 39,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] User sessions stored in DynamoDB.\n- [trust 0.86 | confidence 0.90 | 2d old] The Redis session cluster is decommissioned.",
     "forgetting": {
@@ -245,7 +245,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 19,
+    "tokens_used": 39,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] User sessions stored in DynamoDB.\n- [trust 0.86 | confidence 0.90 | 2d old] The Redis session cluster is decommissioned.",
     "forgetting": {
@@ -290,7 +290,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The docs site deploys to Vercel.",
     "forgetting": {
@@ -309,7 +309,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The docs site deploys to Vercel.",
     "forgetting": {
@@ -328,7 +328,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - The team prefers yarn.\n- The team prefers pnpm. The yarn lockfiles were dropped."
   },
@@ -341,7 +341,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - The team prefers yarn.\n- The team prefers pnpm. The yarn lockfiles were dropped."
   },
@@ -354,7 +354,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 53,
     "answer_confidence": 0.5729,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] The team prefers pnpm. (hedge: likely, but worth re-checking)\n- [trust 0.57 | confidence 0.60 | 2d old] The yarn lockfiles were dropped. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -373,7 +373,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 53,
     "answer_confidence": 0.5729,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] The team prefers pnpm. (hedge: likely, but worth re-checking)\n- [trust 0.57 | confidence 0.60 | 2d old] The yarn lockfiles were dropped. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -392,7 +392,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - The default branch is master.\n- The default branch is main."
   },
@@ -405,7 +405,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - The default branch is master.\n- The default branch is main."
   },
@@ -418,7 +418,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 6,
+    "tokens_used": 17,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] The default branch is main.",
     "forgetting": {
@@ -437,7 +437,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 6,
+    "tokens_used": 17,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] The default branch is main.",
     "forgetting": {
@@ -456,7 +456,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 16,
     "answer_confidence": null,
     "answer": "Based on memory: - Avatar images stored in S3.\n- Avatar images stored in CloudflareR2."
   },
@@ -469,7 +469,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 16,
     "answer_confidence": null,
     "answer": "Based on memory: - Avatar images stored in S3.\n- Avatar images stored in CloudflareR2."
   },
@@ -482,7 +482,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 9,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Avatar images stored in CloudflareR2.",
     "forgetting": {
@@ -501,7 +501,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 9,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Avatar images stored in CloudflareR2.",
     "forgetting": {
@@ -546,7 +546,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 11,
+    "tokens_used": 21,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The staging database lives in ap-southeast-1.",
     "forgetting": {
@@ -565,7 +565,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 11,
+    "tokens_used": 21,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The staging database lives in ap-southeast-1.",
     "forgetting": {
@@ -584,7 +584,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 22,
+    "tokens_used": 23,
     "answer_confidence": null,
     "answer": "Based on memory: - The auth service uses JWT.\n- The auth service uses PASETO. The JWT middleware was ripped out."
   },
@@ -597,7 +597,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 22,
+    "tokens_used": 23,
     "answer_confidence": null,
     "answer": "Based on memory: - The auth service uses JWT.\n- The auth service uses PASETO. The JWT middleware was ripped out."
   },
@@ -610,7 +610,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 36,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The auth service uses PASETO.\n- [trust 0.86 | confidence 0.90 | 2d old] The JWT middleware was ripped out.",
     "forgetting": {
@@ -629,7 +629,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 36,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] The auth service uses PASETO.\n- [trust 0.86 | confidence 0.90 | 2d old] The JWT middleware was ripped out.",
     "forgetting": {
@@ -648,7 +648,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 17,
+    "tokens_used": 18,
     "answer_confidence": null,
     "answer": "Based on memory: - Background jobs go through Sidekiq.\n- Background jobs go through Temporal."
   },
@@ -661,7 +661,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 17,
+    "tokens_used": 18,
     "answer_confidence": null,
     "answer": "Based on memory: - Background jobs go through Sidekiq.\n- Background jobs go through Temporal."
   },
@@ -674,7 +674,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 9,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Background jobs go through Temporal.",
     "forgetting": {
@@ -693,7 +693,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 9,
+    "tokens_used": 19,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Background jobs go through Temporal.",
     "forgetting": {
@@ -712,7 +712,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - MAX_RETRIES is set to three.\n- MAX_RETRIES is set to five."
   },
@@ -725,7 +725,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - MAX_RETRIES is set to three.\n- MAX_RETRIES is set to five."
   },
@@ -738,7 +738,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 6,
+    "tokens_used": 17,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] MAX_RETRIES is set to five.",
     "forgetting": {
@@ -757,7 +757,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 6,
+    "tokens_used": 17,
     "answer_confidence": 0.8794,
     "answer": "Based on memory: - [trust 0.88 | confidence 0.90 | 1d old] MAX_RETRIES is set to five.",
     "forgetting": {
@@ -802,7 +802,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 56,
     "answer_confidence": 0.5729,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] Crash reporting uses Bugsnag. (hedge: likely, but worth re-checking)\n- [trust 0.57 | confidence 0.60 | 2d old] Nobody renewed the Sentry contract. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -821,7 +821,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 56,
     "answer_confidence": 0.5729,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] Crash reporting uses Bugsnag. (hedge: likely, but worth re-checking)\n- [trust 0.57 | confidence 0.60 | 2d old] Nobody renewed the Sentry contract. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -840,7 +840,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 17,
+    "tokens_used": 18,
     "answer_confidence": null,
     "answer": "Based on memory: - Feature flags go through LaunchDarkly.\n- Feature flags go through Unleash."
   },
@@ -853,7 +853,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 17,
+    "tokens_used": 18,
     "answer_confidence": null,
     "answer": "Based on memory: - Feature flags go through LaunchDarkly.\n- Feature flags go through Unleash."
   },
@@ -866,7 +866,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Feature flags go through Unleash.",
     "forgetting": {
@@ -885,7 +885,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 8,
+    "tokens_used": 18,
     "answer_confidence": 0.8594,
     "answer": "Based on memory: - [trust 0.86 | confidence 0.90 | 2d old] Feature flags go through Unleash.",
     "forgetting": {
@@ -904,7 +904,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - The search service uses Elasticsearch.\n- The analytics service uses ClickHouse."
   },
@@ -917,7 +917,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - The search service uses Elasticsearch.\n- The analytics service uses ClickHouse."
   },
@@ -930,7 +930,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 53,
     "answer_confidence": 0.6375,
     "answer": "Based on memory: - [trust 0.45 | confidence 0.60 | 12d old] The search service uses Elasticsearch. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.86 | confidence 0.90 | 2d old] The analytics service uses ClickHouse.",
     "forgetting": {
@@ -949,7 +949,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 53,
     "answer_confidence": 0.6375,
     "answer": "Based on memory: - [trust 0.45 | confidence 0.60 | 12d old] The search service uses Elasticsearch. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.86 | confidence 0.90 | 2d old] The analytics service uses ClickHouse.",
     "forgetting": {
@@ -968,7 +968,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 13,
     "answer_confidence": null,
     "answer": "Based on memory: - The mobile app uses Flutter.\n- The web app uses React."
   },
@@ -981,7 +981,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 13,
     "answer_confidence": null,
     "answer": "Based on memory: - The web app uses React.\n- The mobile app uses Flutter."
   },
@@ -994,7 +994,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 56,
     "answer_confidence": 0.5234,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] The mobile app uses Flutter. (hedge: likely, but worth re-checking)\n- [trust 0.47 | confidence 0.60 | 11d old] The web app uses React. (hedge: as of an old observation \u2014 may have changed)",
     "forgetting": {
@@ -1013,7 +1013,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 56,
     "answer_confidence": 0.5234,
     "answer": "Based on memory: - [trust 0.57 | confidence 0.60 | 2d old] The mobile app uses Flutter. (hedge: likely, but worth re-checking)\n- [trust 0.47 | confidence 0.60 | 11d old] The web app uses React. (hedge: as of an old observation \u2014 may have changed)",
     "forgetting": {
@@ -1032,7 +1032,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - Exports go through the reports service.\n- Imports go through the ingest service."
   },
@@ -1045,7 +1045,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 20,
     "answer_confidence": null,
     "answer": "Based on memory: - Exports go through the reports service.\n- Imports go through the ingest service."
   },
@@ -1058,7 +1058,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 50,
     "answer_confidence": 0.6943,
     "answer": "Based on memory: - [trust 0.60 | confidence 0.85 | 15d old] Exports go through the reports service. (hedge: likely, but worth re-checking)\n- [trust 0.81 | confidence 0.85 | 2d old] Imports go through the ingest service.",
     "forgetting": {
@@ -1077,7 +1077,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 18,
+    "tokens_used": 50,
     "answer_confidence": 0.6943,
     "answer": "Based on memory: - [trust 0.60 | confidence 0.85 | 15d old] Exports go through the reports service. (hedge: likely, but worth re-checking)\n- [trust 0.81 | confidence 0.85 | 2d old] Imports go through the ingest service.",
     "forgetting": {
@@ -1096,7 +1096,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - The primary database is Postgres.\n- The hot cache is Redis."
   },
@@ -1109,7 +1109,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 14,
     "answer_confidence": null,
     "answer": "Based on memory: - The primary database is Postgres.\n- The hot cache is Redis."
   },
@@ -1122,7 +1122,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 58,
     "answer_confidence": 0.5147,
     "answer": "Based on memory: - [trust 0.48 | confidence 0.60 | 10d old] The primary database is Postgres. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.57 | confidence 0.60 | 2d old] The hot cache is Redis. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -1141,7 +1141,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 13,
+    "tokens_used": 58,
     "answer_confidence": 0.5147,
     "answer": "Based on memory: - [trust 0.48 | confidence 0.60 | 10d old] The primary database is Postgres. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.57 | confidence 0.60 | 2d old] The hot cache is Redis. (hedge: likely, but worth re-checking)",
     "forgetting": {
@@ -1186,7 +1186,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 45,
     "answer_confidence": 0.6931,
     "answer": "Based on memory: - [trust 0.63 | confidence 0.85 | 13d old] CI runs on GitHubActions. (hedge: likely, but worth re-checking)\n- [trust 0.81 | confidence 0.85 | 2d old] Nightly benchmarks run on Buildkite.",
     "forgetting": {
@@ -1205,7 +1205,7 @@
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
-    "tokens_used": 15,
+    "tokens_used": 45,
     "answer_confidence": 0.6931,
     "answer": "Based on memory: - [trust 0.63 | confidence 0.85 | 13d old] CI runs on GitHubActions. (hedge: likely, but worth re-checking)\n- [trust 0.81 | confidence 0.85 | 2d old] Nightly benchmarks run on Buildkite.",
     "forgetting": {
@@ -1250,9 +1250,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 30,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.53 | confidence 0.60 | 5d old] The team prefers trunk-based development. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1269,9 +1269,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 30,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.53 | confidence 0.60 | 5d old] The team prefers trunk-based development. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1288,7 +1288,7 @@
     "abstain_ok": false,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 11,
     "answer_confidence": null,
     "answer": "Based on memory: - The changelog lives in docs slash releases."
   },
@@ -1301,7 +1301,7 @@
     "abstain_ok": false,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 11,
     "answer_confidence": null,
     "answer": "Based on memory: - The changelog lives in docs slash releases."
   },
@@ -1314,9 +1314,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 31,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.55 | confidence 0.60 | 4d old] The changelog lives in docs slash releases. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1333,9 +1333,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 10,
+    "tokens_used": 31,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.55 | confidence 0.60 | 4d old] The changelog lives in docs slash releases. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1352,7 +1352,7 @@
     "abstain_ok": false,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 15,
+    "tokens_used": 17,
     "answer_confidence": null,
     "answer": "Based on memory: - The team prefers squash merges.\n- Design reviews happen on Thursdays."
   },
@@ -1365,7 +1365,7 @@
     "abstain_ok": false,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 15,
+    "tokens_used": 17,
     "answer_confidence": null,
     "answer": "Based on memory: - Design reviews happen on Thursdays.\n- The team prefers squash merges."
   },
@@ -1378,9 +1378,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 15,
+    "tokens_used": 57,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.55 | confidence 0.60 | 4d old] The team prefers squash merges. (hedge: likely, but worth re-checking)\n- [trust 0.52 | confidence 0.60 | 6d old] Design reviews happen on Thursdays. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1397,9 +1397,9 @@
     "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
-    "tokens_used": 15,
+    "tokens_used": 57,
     "answer_confidence": 0.25,
-    "answer": "Based on memory: - [trust 0.55 | confidence 0.60 | 4d old] The team prefers squash merges. (hedge: likely, but worth re-checking)\n- [trust 0.52 | confidence 0.60 | 6d old] Design reviews happen on Thursdays. (hedge: likely, but worth re-checking)",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1416,7 +1416,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 10,
+    "tokens_used": 11,
     "answer_confidence": null,
     "answer": "Based on memory: - Uploads go through the uploadLegacy helper."
   },
@@ -1429,7 +1429,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 10,
+    "tokens_used": 11,
     "answer_confidence": null,
     "answer": "Based on memory: - Uploads go through the uploadLegacy helper."
   },
@@ -1444,7 +1444,7 @@
     "expects_abstain": false,
     "tokens_used": 0,
     "answer_confidence": 0.25,
-    "answer": "I don't have a reliable memory about that.",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -1461,7 +1461,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 10,
+    "tokens_used": 34,
     "answer_confidence": 0.2121,
     "answer": "Based on memory: - [trust 0.21 | confidence 0.60 | 45d old] Uploads go through the uploadLegacy helper. (hedge: as of an old observation \u2014 may have changed)",
     "forgetting": {
@@ -1480,7 +1480,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 13,
     "answer_confidence": null,
     "answer": "Based on memory: - Billing crons go through the runNightlyBilling job."
   },
@@ -1493,7 +1493,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 13,
     "answer_confidence": null,
     "answer": "Based on memory: - Billing crons go through the runNightlyBilling job."
   },
@@ -1508,7 +1508,7 @@
     "expects_abstain": false,
     "tokens_used": 0,
     "answer_confidence": 0.25,
-    "answer": "I don't have a reliable memory about that.",
+    "answer": "I don't have a reliable memory that answers that.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -1525,7 +1525,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 12,
+    "tokens_used": 36,
     "answer_confidence": 0.2121,
     "answer": "Based on memory: - [trust 0.21 | confidence 0.60 | 45d old] Billing crons go through the runNightlyBilling job. (hedge: as of an old observation \u2014 may have changed)",
     "forgetting": {
@@ -1570,7 +1570,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 14,
+    "tokens_used": 35,
     "answer_confidence": 0.9,
     "answer": "Based on memory: - [trust 0.90 | confidence 0.60 | 45d old | verified against live source just now] Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts.",
     "forgetting": {
@@ -1589,7 +1589,7 @@
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
-    "tokens_used": 14,
+    "tokens_used": 38,
     "answer_confidence": 0.2121,
     "answer": "Based on memory: - [trust 0.21 | confidence 0.60 | 45d old] Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts. (hedge: as of an old observation \u2014 may have changed)",
     "forgetting": {

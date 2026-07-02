@@ -6,7 +6,10 @@ Invariants:
   ``status`` transitions (active → deprecated | superseded) are the only way
   a memory leaves circulation. A test greps the source tree for the SQL
   delete statement to keep it that way.
-- Every mutation writes an audit row.
+- Every semantic mutation writes an audit row. (Sole exemption:
+  ``touch_access`` — pure access statistics updated on every recall; auditing
+  it would bury the log in noise. It feeds the eviction TTL, whose decision
+  is itself audited via the ``evict`` action.)
 - One connection guarded by a lock held per-statement (never across LLM
   calls); WAL mode so the API process tolerates concurrent readers.
 """
@@ -107,6 +110,7 @@ CREATE TABLE IF NOT EXISTS recall_traces (
   abstained INTEGER NOT NULL DEFAULT 0,
   token_budget INTEGER,
   tokens_used INTEGER,
+  prompt_tokens INTEGER,
   used TEXT,
   excluded TEXT,
   counterfactual TEXT,
@@ -486,9 +490,9 @@ class MemoryStore:
             self._conn.execute(
                 """INSERT OR REPLACE INTO recall_traces (
                     trace_id, at, query, answer, answer_confidence, abstained,
-                    token_budget, tokens_used, used, excluded, counterfactual,
-                    verifications
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    token_budget, tokens_used, prompt_tokens, used, excluded,
+                    counterfactual, verifications
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     trace["trace_id"],
                     trace["at"],
@@ -498,6 +502,7 @@ class MemoryStore:
                     1 if trace.get("abstained") else 0,
                     trace.get("token_budget"),
                     trace.get("tokens_used"),
+                    trace.get("prompt_tokens"),
                     json.dumps(trace.get("used", []), default=str),
                     json.dumps(trace.get("excluded", []), default=str),
                     json.dumps(trace.get("counterfactual", []), default=str),
@@ -531,6 +536,7 @@ class MemoryStore:
             "abstained": bool(r["abstained"]),
             "token_budget": r["token_budget"],
             "tokens_used": r["tokens_used"],
+            "prompt_tokens": r["prompt_tokens"],
             "used": json.loads(r["used"]) if r["used"] else [],
             "excluded": json.loads(r["excluded"]) if r["excluded"] else [],
             "counterfactual": json.loads(r["counterfactual"]) if r["counterfactual"] else [],

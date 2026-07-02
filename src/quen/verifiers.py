@@ -123,6 +123,14 @@ class RepoGrepVerifier:
 
     _SKIP_DIRS = frozenset({".git", "node_modules", "dist", "__pycache__", ".venv"})
 
+    # A grep can only verify positive existence claims: "we no longer use X"
+    # would be CONFIRMED by finding X — outcome inverted. Such memories are
+    # unverifiable by this verifier.
+    _NEGATIVE_RE = re.compile(
+        r"\b(no longer|not|never|removed|deleted|dropped|stopped|deprecated|gone)\b",
+        re.IGNORECASE,
+    )
+
     def __init__(self, repo_path: str, *, max_file_kb: int = 256):
         self.repo_path = repo_path
         self.max_file_kb = max_file_kb
@@ -130,14 +138,29 @@ class RepoGrepVerifier:
     # ------------------------------------------------------------- protocol
 
     def can_verify(self, mem: MemoryItem) -> bool:
-        return os.path.isdir(self.repo_path) and bool(self._identifiers(mem))
+        return (
+            os.path.isdir(self.repo_path)
+            and not self._NEGATIVE_RE.search(mem.content)
+            and bool(self._identifiers(mem))
+        )
 
     def verify(self, mem: MemoryItem) -> tuple[str, Optional[str]]:
+        if self._NEGATIVE_RE.search(mem.content):
+            return ("unverifiable", "negative claims are not grep-verifiable")
         idents = self._identifiers(mem)
         if not idents:
             return ("unverifiable", "no greppable identifier in memory")
         if not os.path.isdir(self.repo_path):
             return ("unverifiable", f"repo path not found: {self.repo_path}")
+        # word-boundary matching — 'useApi' must not confirm against a repo
+        # that only contains 'useApiV2' (rename refactors are the core
+        # staleness case)
+        patterns = [
+            re.compile(
+                rf"(?<![A-Za-z0-9_]){re.escape(ident)}(?![A-Za-z0-9_])"
+            )
+            for ident in idents
+        ]
         files_scanned = 0
         for path in self._iter_files():
             lines = self._read_text_lines(path)
@@ -145,8 +168,8 @@ class RepoGrepVerifier:
                 continue
             files_scanned += 1
             for lineno, line in enumerate(lines, start=1):
-                for ident in idents:
-                    if ident in line:
+                for pattern in patterns:
+                    if pattern.search(line):
                         rel = os.path.relpath(path, self.repo_path)
                         return ("confirmed", f"{rel}:{lineno}: {line.strip()}")
         if files_scanned == 0:

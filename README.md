@@ -103,16 +103,24 @@ implicit reversals; ~20% augmentation distractors; abstention cases;
 `live_files` cases exercising verify-before-answer). Headline metric:
 **FAMA** = presence-of-valid ∧ absence-of-invalidated (Memora, 2604.20006):
 
-| config | FAMA | presence | absence | tokens/query |
+| config | FAMA | presence | absence | prompt tokens/query¹ |
 |---|---|---|---|---|
-| append-only RAG | 0.28 | 0.88 | 0.40 | 16.2 |
-| full-context (truncate oldest) | 0.28 | 0.88 | 0.40 | 16.2 |
-| **Quên (ours)** | **1.00** | 1.00 | 1.00 | **11.1** |
-| ours − verify (ablation) | 0.92 | 1.00 | 0.92 | 12.0 |
+| append-only RAG | 0.28 | 0.88 | 0.40 | 17.1 |
+| full-context (truncate oldest) | 0.28 | 0.88 | 0.40 | 17.1 |
+| **Quên (ours)** | **1.00** | 1.00 | 1.00 | 32.2 |
+| ours − verify (ablation) | 0.92 | 1.00 | 0.92 | 35.1 |
 
 The ablation gap (0.92 → 1.00) is exactly the two cases where the *only*
 signal that a memory went stale is the live repo — no ingested event ever
 contradicted it. That's the verify-before-answer beat.
+
+¹ Counted symmetrically as *what the reader actually saw*. Quên retrieves
+**fewer content tokens** than the baselines (11.1 vs 16.2 — forgetting works)
+but spends ~20 tokens/memory on trust tags and hedges — the trust channel is
+not free, and we report it rather than hiding it in uncounted prompt
+scaffolding. With realistic memory sizes (100+ tokens) the fixed tag overhead
+amortizes; the abstention subset is likewise scored from the delivered answer
+text only, never from our own internal abstention flag.
 
 Charts: [`eval/out/`](eval/out) — FAMA by config, accuracy-vs-budget curve,
 retention calibration (predicted R vs empirical recall), and the
@@ -131,7 +139,7 @@ retention calibration (predicted R vs empirical recall), and the
 
 ```bash
 uv venv .venv && uv pip install -e ".[dev]"
-.venv/bin/pytest                    # 137 offline, deterministic tests
+.venv/bin/pytest                    # 143 offline, deterministic tests
 
 # seed the full demo narrative (no API key needed) and serve it
 .venv/bin/python scripts/seed_demo.py
@@ -228,7 +236,7 @@ src/quen/          engine: models · fsrs · store · llm · embeddings ·
                    write_pipeline · retrieval · supersession · dream ·
                    trust · verifiers · engine · api · mcp_server ·
                    alibaba_client (THE proof artifact)
-tests/             137 offline deterministic tests (TDD list from the spec)
+tests/             143 offline deterministic tests (TDD list from the spec)
 eval/              FAMA probe · LongMemEval · calibrations · budget curve
 dashboard/         the glass box
 scripts/           seed_demo.py + demo_repo fixture

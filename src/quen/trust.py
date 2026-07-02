@@ -135,6 +135,31 @@ def apply_verification(
     if outcome not in _OUTCOMES:
         raise ValueError(f"unknown verification outcome: {outcome!r}")
 
+    # Work on the freshest row: the caller's instance may predate this ask's
+    # touch_access (or a concurrent pin) and a full-row write would silently
+    # revert those fields.
+    fresh = store.get(mem.id)
+    if fresh is not None:
+        mem = fresh
+
+    # Settled tombstones are never rewritten: verifying a superseded or
+    # deprecated memory must not move its recorded valid_to, retarget
+    # superseded_by, or land reviews on a dead row. Audit the attempt only.
+    if mem.status != "active":
+        store.audit(
+            actor,
+            "verify",
+            memory_id=mem.id,
+            detail={
+                "outcome": outcome,
+                "evidence": evidence,
+                "verifier": verifier,
+                "ignored": f"memory is {mem.status}; tombstones are settled",
+            },
+            at=now,
+        )
+        return VerificationEvent(mem.id, verifier, outcome, evidence, now)
+
     if outcome == "unverifiable":
         store.audit(
             actor,

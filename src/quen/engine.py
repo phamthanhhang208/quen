@@ -22,7 +22,7 @@ from quen.embeddings import Embedder, HashingEmbedder
 from quen.fsrs import Grade
 from quen.llm import ChatLLM, ScriptedLLM
 from quen.models import MemoryItem, new_id, utcnow
-from quen.retrieval import RecallResult, ScoredMemory, recall
+from quen.retrieval import RecallResult, ScoredMemory, estimate_tokens, recall
 from quen.store import MemoryStore, iso
 from quen.trust import (
     answer_confidence,
@@ -42,7 +42,8 @@ class AskResult:
     abstained: bool
     used: list[ScoredMemory] = field(default_factory=list)
     verifications: list[VerificationEvent] = field(default_factory=list)
-    tokens_used: int = 0
+    tokens_used: int = 0    # memory-content tokens (budget accounting)
+    prompt_tokens: int = 0  # what the reader actually saw (incl. trust tags)
 
 
 class QuenEngine:
@@ -105,23 +106,41 @@ class QuenEngine:
         )
 
         # ---- trust gate + verify-before-answer (spec §4.7) ----
+        # Loops so that memories backfilled after a refutation face the same
+        # gate — otherwise the re-recall would smuggle unverified stale
+        # memories into the answer. Bounded by verify_max_per_ask total.
         verifications: list[VerificationEvent] = []
         if self.verifiers:
-            low_trust = sorted(
-                (sm for sm in rr.used if sm.trust < self.cfg.trust_threshold),
-                key=lambda sm: sm.trust,
-            )[: self.cfg.verify_max_per_ask]
-            any_refuted = False
-            for sm in low_trust:
-                event = self._run_verifiers(sm.memory, now)
-                if event is None:
-                    continue
-                verifications.append(event)
-                if event.outcome == "refuted":
-                    any_refuted = True
-            if any_refuted:
+            attempted: set[str] = set()
+            for _ in range(1 + self.cfg.verify_max_per_ask):
+                remaining = self.cfg.verify_max_per_ask - len(verifications)
+                if remaining <= 0:
+                    break
+                low_trust = sorted(
+                    (
+                        sm
+                        for sm in rr.used
+                        if sm.trust < self.cfg.trust_threshold
+                        and sm.memory.id not in attempted
+                    ),
+                    key=lambda sm: sm.trust,
+                )[:remaining]
+                if not low_trust:
+                    break
+                any_refuted = False
+                for sm in low_trust:
+                    attempted.add(sm.memory.id)
+                    event = self._run_verifiers(sm.memory, now)
+                    if event is None:
+                        continue
+                    verifications.append(event)
+                    if event.outcome == "refuted":
+                        any_refuted = True
+                if not any_refuted:
+                    break
                 # answer from the corrected state: refuted memories are now
-                # tombstoned, so one re-recall backfills the freed budget.
+                # tombstoned, so a re-recall backfills the freed budget (and
+                # the next loop iteration gates the backfill).
                 rr = recall(
                     query,
                     token_budget=budget,
@@ -152,17 +171,19 @@ class QuenEngine:
             llm_mod.render_answer(query, context_lines, hedging_instruction()),
             model_hint="chat",
         ).strip()
+        prompt_tokens = sum(estimate_tokens(line) for line in context_lines)
         conf = answer_confidence(rr.used, verifications)
+        # Abstain when nothing RELEVANT survives — low-trust-but-relevant
+        # memories are hedged (spec §4.7 "unverifiable → hedge"), not dropped.
         max_relevance = max((sm.relevance for sm in rr.used), default=0.0)
         abstained = (
-            not rr.used
-            or conf < 0.25
-            or max_relevance < self.cfg.abstain_relevance_floor
+            not rr.used or max_relevance < self.cfg.abstain_relevance_floor
         )
         if abstained:
-            conf = min(conf, 0.25)  # stated confidence must track the abstention
-        if not rr.used:
-            answer = "I don't have a reliable memory about that."
+            # the delivered answer must BE an abstention, not just be
+            # flagged as one — stated confidence tracks it
+            answer = "I don't have a reliable memory that answers that."
+            conf = min(conf, 0.25)
 
         trace_id = f"trace-{new_id()}"
         self.store.save_trace(
@@ -175,6 +196,7 @@ class QuenEngine:
                 "abstained": abstained,
                 "token_budget": budget,
                 "tokens_used": rr.tokens_used,
+                "prompt_tokens": prompt_tokens,
                 "used": [
                     {
                         "memory_id": sm.memory.id,
@@ -203,6 +225,7 @@ class QuenEngine:
             used=rr.used,
             verifications=verifications,
             tokens_used=rr.tokens_used,
+            prompt_tokens=prompt_tokens,
         )
 
     def _run_verifiers(

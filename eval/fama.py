@@ -73,13 +73,17 @@ def score_answer(
     expects_abstain: bool = False,
     abstained: bool = False,
 ) -> FamaScore:
-    if expects_abstain:
-        # the honest move is to say "I don't know" — any confident fabricated
-        # fact fails; hedged non-answers pass.
-        ok = abstained or _looks_like_abstention(answer)
-        return FamaScore(presence=ok, absence=True, fama=ok, abstain_ok=ok)
-    presence = all(word_present(f, answer) for f in valid_facts)
     absence = not any(mentioned_positively(f, answer) for f in invalidated_facts)
+    if expects_abstain:
+        # Judged from the DELIVERED TEXT only — a system's self-reported
+        # abstention flag is not credited (that would score our own config
+        # by a signal the baselines cannot emit). The honest move is an
+        # answer that says "I don't know"; and even an abstention must not
+        # rely on an invalidated fact.
+        ok = _looks_like_abstention(answer)
+        return FamaScore(presence=ok, absence=absence,
+                         fama=ok and absence, abstain_ok=ok)
+    presence = all(word_present(f, answer) for f in valid_facts)
     return FamaScore(presence=presence, absence=absence, fama=presence and absence)
 
 

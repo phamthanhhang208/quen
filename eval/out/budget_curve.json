@@ -3,120 +3,120 @@
     "budget": 30,
     "config": "append_only",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 30,
     "config": "full_context",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 30,
     "config": "quen",
     "fama": 1.0,
-    "avg_tokens": 11.1
+    "avg_tokens": 32.2
   },
   {
     "budget": 30,
     "config": "quen_no_verify",
     "fama": 0.92,
-    "avg_tokens": 12.0
+    "avg_tokens": 35.1
   },
   {
     "budget": 60,
     "config": "append_only",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 60,
     "config": "full_context",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 60,
     "config": "quen",
     "fama": 1.0,
-    "avg_tokens": 11.1
+    "avg_tokens": 32.2
   },
   {
     "budget": 60,
     "config": "quen_no_verify",
     "fama": 0.92,
-    "avg_tokens": 12.0
+    "avg_tokens": 35.1
   },
   {
     "budget": 120,
     "config": "append_only",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 120,
     "config": "full_context",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 120,
     "config": "quen",
     "fama": 1.0,
-    "avg_tokens": 11.1
+    "avg_tokens": 32.2
   },
   {
     "budget": 120,
     "config": "quen_no_verify",
     "fama": 0.92,
-    "avg_tokens": 12.0
+    "avg_tokens": 35.1
   },
   {
     "budget": 300,
     "config": "append_only",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 300,
     "config": "full_context",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 300,
     "config": "quen",
     "fama": 1.0,
-    "avg_tokens": 11.1
+    "avg_tokens": 32.2
   },
   {
     "budget": 300,
     "config": "quen_no_verify",
     "fama": 0.92,
-    "avg_tokens": 12.0
+    "avg_tokens": 35.1
   },
   {
     "budget": 600,
     "config": "append_only",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 600,
     "config": "full_context",
     "fama": 0.28,
-    "avg_tokens": 16.2
+    "avg_tokens": 17.1
   },
   {
     "budget": 600,
     "config": "quen",
     "fama": 1.0,
-    "avg_tokens": 11.1
+    "avg_tokens": 32.2
   },
   {
     "budget": 600,
     "config": "quen_no_verify",
     "fama": 0.92,
-    "avg_tokens": 12.0
+    "avg_tokens": 35.1
   }
 ]
