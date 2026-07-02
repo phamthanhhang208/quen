@@ -1,0 +1,38 @@
+[project]
+name = "quen"
+version = "0.1.0"
+description = "Quên — trust-calibrated forgetting: an agent memory that knows what to forget, says how sure it is, and verifies before it asserts. Powered by Qwen on Alibaba Cloud DashScope."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "openai>=1.30",
+    "mcp>=1.2",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+eval = [
+    "matplotlib>=3.8",
+]
+
+[project.scripts]
+quen-api = "quen.api:main"
+quen-mcp = "quen.mcp_server:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
