@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from quen.models import MemoryItem, utcnow
+from quen.models import MemoryItem, _norm, utcnow
 
 SEP = "\x1f"  # slot/triple key joiner — cannot collide with content text
 
@@ -144,11 +144,11 @@ def parse_dt(s: Optional[str]) -> Optional[datetime]:
 
 
 def slot_key_str(slot: Optional[tuple[str, str]]) -> Optional[str]:
-    return SEP.join(slot) if slot else None
+    return SEP.join(_norm(p) for p in slot) if slot else None
 
 
 def triple_key_str(triple: Optional[tuple[str, str, str]]) -> Optional[str]:
-    return SEP.join(triple) if triple else None
+    return SEP.join(_norm(p) for p in triple) if triple else None
 
 
 class MemoryStore:
