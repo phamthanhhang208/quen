@@ -1,0 +1,94 @@
+{
+  "db": "data/demo.db",
+  "retention": {
+    "events": 10,
+    "bins": [
+      {
+        "bin": "0.4-0.5",
+        "predicted_mean": 0.4421,
+        "empirical": 1.0,
+        "count": 1
+      },
+      {
+        "bin": "0.6-0.7",
+        "predicted_mean": 0.6587,
+        "empirical": 1.0,
+        "count": 4
+      },
+      {
+        "bin": "0.8-0.9",
+        "predicted_mean": 0.861,
+        "empirical": 1.0,
+        "count": 5
+      }
+    ],
+    "ece": 0.2618,
+    "log_loss": 0.3237
+  },
+  "confidence": {
+    "events": 3,
+    "by_freshness": [
+      {
+        "freshness_bucket": "<7d",
+        "bins": [
+          {
+            "bin": "0.5-0.6",
+            "predicted_mean": 0.5728,
+            "empirical": 1.0,
+            "count": 1
+          },
+          {
+            "bin": "0.6-0.7",
+            "predicted_mean": 0.6062,
+            "empirical": 1.0,
+            "count": 1
+          }
+        ],
+        "ece": 0.4105,
+        "count": 2
+      },
+      {
+        "freshness_bucket": "7-30d",
+        "bins": [
+          {
+            "bin": "0.4-0.5",
+            "predicted_mean": 0.4653,
+            "empirical": 0.0,
+            "count": 1
+          }
+        ],
+        "ece": 0.4653,
+        "count": 1
+      },
+      {
+        "freshness_bucket": ">30d",
+        "bins": [],
+        "ece": null,
+        "count": 0
+      }
+    ],
+    "overall_ece": 0.4288,
+    "selective_accuracy": [
+      {
+        "threshold": 0.0,
+        "coverage": 1.0,
+        "accuracy": 0.6667
+      },
+      {
+        "threshold": 0.25,
+        "coverage": 1.0,
+        "accuracy": 0.6667
+      },
+      {
+        "threshold": 0.5,
+        "coverage": 0.6667,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 0.75,
+        "coverage": 0.0,
+        "accuracy": null
+      }
+    ]
+  }
+}

@@ -15,13 +15,18 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-NEGATION_WINDOW = 8
+NEGATION_WINDOW = 8       # tokens looked at BEFORE a mention
+LOOKAHEAD_WINDOW = 6      # tokens looked at AFTER a mention (passives:
+                          # "the Redis cluster is decommissioned")
 
+# NOTE: "old" is deliberately absent — answers carry trust tags like
+# "[... 45d old]" and a weak cue there would blind the absence check.
 NEGATION_CUES = frozenset(
     """
-    not no never n't dont don't stop stopped drop dropped longer instead
-    deprecated removed deleted replaced retired legacy old former previously
-    was were migrated away superseded obsolete
+    not no never n't dont don't nobody stop stopped drop dropped longer
+    instead deprecated removed deleted replaced retired legacy former
+    previously was were migrated away superseded obsolete gone ripped
+    decommissioned
     """.split()
 )
 
@@ -45,8 +50,9 @@ def mentioned_positively(fact: str, text: str) -> bool:
     n = len(fact_toks)
     for i in range(len(toks) - n + 1):
         if toks[i : i + n] == fact_toks:
-            window = toks[max(0, i - NEGATION_WINDOW) : i]
-            if not any(t in NEGATION_CUES for t in window):
+            before = toks[max(0, i - NEGATION_WINDOW) : i]
+            after = toks[i + n : i + n + LOOKAHEAD_WINDOW]
+            if not any(t in NEGATION_CUES for t in before + after):
                 return True
     return False
 

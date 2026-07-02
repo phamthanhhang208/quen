@@ -168,7 +168,9 @@ def test_pin_and_inspect(engine, store):
     assert isinstance(detail["reviews"], list)
 
 
-def test_vitals_shape(engine, store, clock):
+def test_vitals_shape(engine, store, clock, monkeypatch, tmp_path):
+    # isolate from any real eval run in the working tree
+    monkeypatch.setenv("QUEN_EVAL_SUMMARY", str(tmp_path / "none.json"))
     engine.ingest("The team fetches data via useApi.")
     clock.advance(days=2)
     engine.dream()

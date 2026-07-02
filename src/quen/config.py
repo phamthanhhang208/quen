@@ -46,9 +46,11 @@ class QuenConfig:
     compress_min_chars: int = 600
 
     # --- trust gate (§4.7) ---
-    # below this top-relevance, the engine abstains instead of answering
-    # from memories that are merely fresh but irrelevant
-    abstain_relevance_floor: float = 0.10
+    # Below this top-relevance the engine abstains instead of answering from
+    # memories that are merely fresh but irrelevant. Tuned for the hashing
+    # embedder (stopword-only overlap lands ~0.15-0.2); real embedding models
+    # sit on a different cosine scale — retune when switching embedders.
+    abstain_relevance_floor: float = 0.25
     trust_threshold: float = 0.55
     freshness_half_life_days: float = 30.0
     verify_max_per_ask: int = 3

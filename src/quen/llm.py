@@ -337,8 +337,9 @@ _TRIPLE_PATTERNS = [
     # "X uses/prefers/fetches data via Y" — slot-like phrasings
     re.compile(
         r"^(?P<s>[\w .#-]+?)\s+(?P<r>uses|use|prefers|prefer|is set to|is|equals|"
-        r"fetches data via|fetches data with|goes through|runs on|deploys to|"
-        r"stored in|lives in)\s+(?P<o>[\w./#@ -]+?)[.!]?$",
+        r"fetches data via|fetches data with|goes through|go through|runs on|"
+        r"run on|deploys to|deploy to|stored in|lives in)\s+"
+        r"(?P<o>[\w./#@ -]+?)[.!]?$",
         re.IGNORECASE,
     ),
 ]

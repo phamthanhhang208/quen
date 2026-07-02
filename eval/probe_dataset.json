@@ -1,0 +1,292 @@
+{
+  "description": "Code-domain autonomous-staleness probe. Facts are invalidated by evidence (refactor PRs, implicit reversals), never by explicit 'update:' sentences. ~20% augmentation distractors measure forgetting precision; abstention cases score knowing-when-you-don't-know; live_files cases exercise verify-before-answer against a repo snapshot.",
+  "cases": [
+    {
+      "id": "probe-001",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The api gateway runs on EC2."},
+        {"day": 21, "kind": "pr", "source_ref": "PR#88", "text": "The api gateway runs on Kubernetes. Terraform for the old EC2 hosts is gone."}
+      ],
+      "question": "The api gateway runs on what?",
+      "question_day": 23,
+      "valid_facts": ["Kubernetes"],
+      "invalidated_facts": ["EC2"]
+    },
+    {
+      "id": "probe-002",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The team fetches data via useApi."},
+        {"day": 14, "kind": "pr", "source_ref": "PR#42", "text": "The team fetches data via useQuery."}
+      ],
+      "question": "The team fetches data via which hook?",
+      "question_day": 16,
+      "valid_facts": ["useQuery"],
+      "invalidated_facts": ["useApi"]
+    },
+    {
+      "id": "probe-003",
+      "history": [
+        {"day": 0, "kind": "doc", "text": "Payments service runs on Node16."},
+        {"day": 30, "kind": "commit", "source_ref": "c0ffee1", "text": "Payments service runs on Node20."}
+      ],
+      "question": "Payments service runs on which Node version?",
+      "question_day": 31,
+      "valid_facts": ["Node20"],
+      "invalidated_facts": ["Node16"]
+    },
+    {
+      "id": "probe-004",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "User sessions stored in Redis."},
+        {"day": 18, "kind": "pr", "source_ref": "PR#301", "text": "User sessions stored in DynamoDB. The Redis session cluster is decommissioned."}
+      ],
+      "question": "Where are user sessions stored in?",
+      "question_day": 20,
+      "valid_facts": ["DynamoDB"],
+      "invalidated_facts": ["Redis"]
+    },
+    {
+      "id": "probe-005",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The docs site deploys to Netlify."},
+        {"day": 25, "kind": "pr", "source_ref": "PR#512", "text": "The docs site deploys to Vercel."}
+      ],
+      "question": "The docs site deploys to which platform?",
+      "question_day": 27,
+      "valid_facts": ["Vercel"],
+      "invalidated_facts": ["Netlify"]
+    },
+    {
+      "id": "probe-006",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The team prefers yarn."},
+        {"day": 40, "kind": "chat", "text": "The team prefers pnpm. The yarn lockfiles were dropped."}
+      ],
+      "question": "The team prefers which package manager?",
+      "question_day": 42,
+      "valid_facts": ["pnpm"],
+      "invalidated_facts": ["yarn"]
+    },
+    {
+      "id": "probe-007",
+      "history": [
+        {"day": 0, "kind": "doc", "text": "The default branch is master."},
+        {"day": 12, "kind": "commit", "source_ref": "a1b2c3", "text": "The default branch is main."}
+      ],
+      "question": "The default branch is what?",
+      "question_day": 13,
+      "valid_facts": ["main"],
+      "invalidated_facts": ["master"]
+    },
+    {
+      "id": "probe-008",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Avatar images stored in S3."},
+        {"day": 33, "kind": "pr", "source_ref": "PR#640", "text": "Avatar images stored in CloudflareR2."}
+      ],
+      "question": "Avatar images are stored in what?",
+      "question_day": 35,
+      "valid_facts": ["CloudflareR2"],
+      "invalidated_facts": ["S3"]
+    },
+    {
+      "id": "probe-009",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The staging database lives in eu-west-1."},
+        {"day": 22, "kind": "pr", "source_ref": "PR#77", "text": "The staging database lives in ap-southeast-1."}
+      ],
+      "question": "The staging database lives in which region?",
+      "question_day": 24,
+      "valid_facts": ["ap-southeast-1"],
+      "invalidated_facts": ["eu-west-1"]
+    },
+    {
+      "id": "probe-010",
+      "history": [
+        {"day": 0, "kind": "doc", "text": "The auth service uses JWT."},
+        {"day": 28, "kind": "pr", "source_ref": "PR#215", "text": "The auth service uses PASETO. The JWT middleware was ripped out."}
+      ],
+      "question": "The auth service uses which token format?",
+      "question_day": 30,
+      "valid_facts": ["PASETO"],
+      "invalidated_facts": ["JWT"]
+    },
+    {
+      "id": "probe-011",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Background jobs go through Sidekiq."},
+        {"day": 45, "kind": "pr", "source_ref": "PR#903", "text": "Background jobs go through Temporal."}
+      ],
+      "question": "What do background jobs go through?",
+      "question_day": 47,
+      "valid_facts": ["Temporal"],
+      "invalidated_facts": ["Sidekiq"]
+    },
+    {
+      "id": "probe-012",
+      "history": [
+        {"day": 0, "kind": "doc", "text": "MAX_RETRIES is set to three."},
+        {"day": 15, "kind": "commit", "source_ref": "deadbee", "text": "MAX_RETRIES is set to five."}
+      ],
+      "question": "What is MAX_RETRIES set to?",
+      "question_day": 16,
+      "valid_facts": ["five"],
+      "invalidated_facts": ["three"]
+    },
+    {
+      "id": "probe-013",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Crash reporting uses Sentry."},
+        {"day": 36, "kind": "chat", "text": "Crash reporting uses Bugsnag. Nobody renewed the Sentry contract."}
+      ],
+      "question": "Crash reporting uses which service?",
+      "question_day": 38,
+      "valid_facts": ["Bugsnag"],
+      "invalidated_facts": ["Sentry"]
+    },
+    {
+      "id": "probe-014",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Feature flags go through LaunchDarkly."},
+        {"day": 27, "kind": "pr", "source_ref": "PR#450", "text": "Feature flags go through Unleash."}
+      ],
+      "question": "What do feature flags go through?",
+      "question_day": 29,
+      "valid_facts": ["Unleash"],
+      "invalidated_facts": ["LaunchDarkly"]
+    },
+    {
+      "id": "probe-015",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The search service uses Elasticsearch."},
+        {"day": 10, "kind": "pr", "source_ref": "PR#120", "text": "The analytics service uses ClickHouse."}
+      ],
+      "question": "The search service uses what?",
+      "question_day": 12,
+      "valid_facts": ["Elasticsearch"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-016",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The web app uses React."},
+        {"day": 9, "kind": "chat", "text": "The mobile app uses Flutter."}
+      ],
+      "question": "The mobile app uses which framework?",
+      "question_day": 11,
+      "valid_facts": ["Flutter"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-017",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "doc", "text": "Exports go through the reports service."},
+        {"day": 13, "kind": "doc", "text": "Imports go through the ingest service."}
+      ],
+      "question": "What do exports go through?",
+      "question_day": 15,
+      "valid_facts": ["reports"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-018",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The primary database is Postgres."},
+        {"day": 8, "kind": "chat", "text": "The hot cache is Redis."}
+      ],
+      "question": "The primary database is what?",
+      "question_day": 10,
+      "valid_facts": ["Postgres"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-019",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "doc", "text": "CI runs on GitHubActions."},
+        {"day": 11, "kind": "doc", "text": "Nightly benchmarks run on Buildkite."}
+      ],
+      "question": "CI runs on what?",
+      "question_day": 13,
+      "valid_facts": ["GitHubActions"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-020",
+      "expects_abstain": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The team prefers trunk-based development."}
+      ],
+      "question": "Which region hosts the ML training cluster?",
+      "question_day": 5,
+      "valid_facts": [],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-021",
+      "expects_abstain": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The changelog lives in docs slash releases."}
+      ],
+      "question": "What is the on-call rotation schedule for payments?",
+      "question_day": 4,
+      "valid_facts": [],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-022",
+      "expects_abstain": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Design reviews happen on Thursdays."},
+        {"day": 2, "kind": "chat", "text": "The team prefers squash merges."}
+      ],
+      "question": "Which vendor supplies the SMS gateway?",
+      "question_day": 6,
+      "valid_facts": [],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-023",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Uploads go through the uploadLegacy helper."}
+      ],
+      "question": "What do uploads go through?",
+      "question_day": 45,
+      "valid_facts": [],
+      "invalidated_facts": ["uploadLegacy"],
+      "live_files": {
+        "src/api/upload.ts": "export async function uploadV3(file: Blob) {\n  return bucket.put(file);\n}\n"
+      }
+    },
+    {
+      "id": "probe-024",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Billing crons go through the runNightlyBilling job."}
+      ],
+      "question": "What do billing crons go through?",
+      "question_day": 45,
+      "valid_facts": [],
+      "invalidated_facts": ["runNightlyBilling"],
+      "live_files": {
+        "src/jobs/billing.ts": "export const runBillingV2 = () => schedule.nightly(billAll);\n"
+      }
+    },
+    {
+      "id": "probe-025",
+      "history": [
+        {"day": 0, "kind": "chat", "text": "Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts."}
+      ],
+      "question": "What does API_TIMEOUT_MS stay at in src/net.ts?",
+      "question_day": 45,
+      "valid_facts": ["API_TIMEOUT_MS"],
+      "invalidated_facts": [],
+      "live_files": {
+        "src/net.ts": "export const API_TIMEOUT_MS = 3000;\n"
+      }
+    }
+  ]
+}

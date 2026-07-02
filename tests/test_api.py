@@ -142,7 +142,8 @@ def test_trace_latest_404_when_empty(client):
     assert client.get("/recall/trace/latest").status_code == 404
 
 
-def test_vitals_shape(client):
+def test_vitals_shape(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("QUEN_EVAL_SUMMARY", str(tmp_path / "none.json"))
     client.post("/ingest", json={"text": "A fact for vitals."})
     v = client.get("/vitals").json()
     assert set(v["counts_by_status"]) == {"active", "deprecated", "superseded"}
