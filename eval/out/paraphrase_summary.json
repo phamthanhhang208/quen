@@ -1,0 +1,73 @@
+{
+  "by_config": {
+    "append_only": {
+      "cases": 30,
+      "fama": 0.3667,
+      "fama_ci95": [
+        0.2187,
+        0.5449
+      ],
+      "fama_excluding_verify_cases": 0.3704,
+      "presence": 0.9,
+      "absence": 0.4667,
+      "abstention_accuracy": 0.0,
+      "avg_tokens_per_query": 20.4
+    },
+    "full_context": {
+      "cases": 30,
+      "fama": 0.3667,
+      "fama_ci95": [
+        0.2187,
+        0.5449
+      ],
+      "fama_excluding_verify_cases": 0.3704,
+      "presence": 0.9,
+      "absence": 0.4667,
+      "abstention_accuracy": 0.0,
+      "avg_tokens_per_query": 20.4
+    },
+    "quen": {
+      "cases": 30,
+      "fama": 0.6333,
+      "fama_ci95": [
+        0.4551,
+        0.7813
+      ],
+      "fama_excluding_verify_cases": 0.5926,
+      "presence": 0.9,
+      "absence": 0.7333,
+      "abstention_accuracy": 1.0,
+      "avg_tokens_per_query": 35.2,
+      "forgetting_precision": 1.0,
+      "forgetting_recall": 0.4375
+    },
+    "quen_no_verify": {
+      "cases": 30,
+      "fama": 0.6,
+      "fama_ci95": [
+        0.4232,
+        0.7541
+      ],
+      "fama_excluding_verify_cases": 0.5926,
+      "presence": 0.9,
+      "absence": 0.7,
+      "abstention_accuracy": 1.0,
+      "avg_tokens_per_query": 37.8,
+      "forgetting_precision": 1.0,
+      "forgetting_recall": 0.3125
+    }
+  },
+  "paired_mcnemar": {
+    "quen_vs_append_only": {
+      "a_wins": 10,
+      "b_wins": 2,
+      "p_value": 0.03857
+    },
+    "quen_vs_full_context": {
+      "a_wins": 10,
+      "b_wins": 2,
+      "p_value": 0.03857
+    }
+  },
+  "mode": "dry-run"
+}
