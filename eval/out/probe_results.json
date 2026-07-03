@@ -12,7 +12,7 @@
     "tokens_used": 26,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The api gateway runs on EC2.\n- The api gateway runs on Kubernetes. Terraform for the old EC2 hosts is gone."
+    "answer": "Based on the provided memories, there is conflicting information regarding where the API gateway runs:\n\n*   One memory states it **runs on EC2**.\n*   Another memory states it **runs on Kubernetes** and notes that the Terraform for the old EC2 hosts is gone.\n\nBecause these memories contradict each other and the verification state or freshness of each specific claim is not detailed enough to definit"
   },
   {
     "case_id": "probe-001",
@@ -27,7 +27,7 @@
     "tokens_used": 26,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The api gateway runs on EC2.\n- The api gateway runs on Kubernetes. Terraform for the old EC2 hosts is gone."
+    "answer": "Based on the provided memories, there is conflicting information regarding where the API gateway runs:\n\n*   One memory states it **runs on EC2**.\n*   Another memory states it **runs on Kubernetes** and notes that the Terraform for the old EC2 hosts is gone.\n\nBecause these memories contradict each other and the verification state or freshness of each specific claim is not detailed enough to definit"
   },
   {
     "case_id": "probe-001",
@@ -42,7 +42,7 @@
     "tokens_used": 32,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The api gateway runs on Kubernetes.\n- [trust 0.88 conf 0.90 2d] Terraform for the old EC2 hosts is gone.",
+    "answer": "The API gateway runs on Kubernetes.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -63,7 +63,7 @@
     "tokens_used": 32,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The api gateway runs on Kubernetes.\n- [trust 0.88 conf 0.90 2d] Terraform for the old EC2 hosts is gone.",
+    "answer": "The API gateway runs on Kubernetes.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -84,7 +84,7 @@
     "tokens_used": 17,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team fetches data via useApi.\n- The team fetches data via useQuery."
+    "answer": "Based on the provided memories, there are conflicting records regarding which hook the team uses:\n\n*   One memory states the team fetches data via **`useQuery`**.\n*   Another memory states the team fetches data via **`useApi`**.\n\nSince the available data contains contradictory information and lacks metadata indicating which record is more confident, fresh, or verified, I cannot definitively state "
   },
   {
     "case_id": "probe-002",
@@ -99,7 +99,7 @@
     "tokens_used": 17,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team fetches data via useApi.\n- The team fetches data via useQuery."
+    "answer": "Based on the provided memories, there are conflicting or multiple records regarding which hook the team uses:\n\n*   One memory states the team fetches data via **`useApi`**.\n*   Another memory states the team fetches data via **`useQuery`**.\n\nSince the memories contain unverified and potentially contradictory information without metadata indicating which is more confident, fresh, or verified, I can"
   },
   {
     "case_id": "probe-002",
@@ -114,7 +114,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The team fetches data via useQuery.",
+    "answer": "The team fetches data via the `useQuery` hook.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -135,7 +135,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The team fetches data via useQuery.",
+    "answer": "The team fetches data via the `useQuery` hook.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -156,7 +156,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Payments service runs on Node16.\n- Payments service runs on Node20."
+    "answer": "Based on the provided memories, there are conflicting records regarding the Node version for the Payments service:\n\n*   One memory states it runs on **Node16**.\n*   Another memory states it runs on **Node20**.\n\nSince the available data contains a contradiction and lacks metadata indicating which record is current or verified, I cannot definitively state which single version is correct. The service"
   },
   {
     "case_id": "probe-003",
@@ -171,7 +171,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Payments service runs on Node16.\n- Payments service runs on Node20."
+    "answer": "Based on the provided memories, there are conflicting records regarding the Node version for the Payments service:\n\n*   One memory states it runs on **Node16**.\n*   Another memory states it runs on **Node20**.\n\nSince the available data contains a contradiction and lacks metadata indicating which record is more recent or verified, I cannot definitively state which single version is currently in use"
   },
   {
     "case_id": "probe-003",
@@ -186,7 +186,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] Payments service runs on Node20.",
+    "answer": "The Payments service runs on Node20.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -207,7 +207,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] Payments service runs on Node20.",
+    "answer": "The Payments service runs on Node20.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -228,7 +228,7 @@
     "tokens_used": 28,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - User sessions stored in Redis.\n- User sessions stored in DynamoDB. The Redis session cluster is decommissioned."
+    "answer": "Based on the provided memories, user sessions are currently stored in **DynamoDB**.\n\nThe memories indicate that while sessions were previously stored in Redis, the Redis session cluster has been decommissioned."
   },
   {
     "case_id": "probe-004",
@@ -243,7 +243,7 @@
     "tokens_used": 28,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - User sessions stored in Redis.\n- User sessions stored in DynamoDB. The Redis session cluster is decommissioned."
+    "answer": "Based on the provided memories, user sessions are currently stored in **DynamoDB**.\n\nThe memories indicate that while sessions were previously stored in Redis, the Redis session cluster has been decommissioned."
   },
   {
     "case_id": "probe-004",
@@ -255,10 +255,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 15,
+    "tokens_used": 34,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] User sessions stored in DynamoDB.",
+    "answer": "User sessions are stored in DynamoDB. The Redis session cluster has been decommissioned.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -269,19 +269,19 @@
   {
     "case_id": "probe-004",
     "config": "quen_no_verify",
-    "presence": true,
+    "presence": false,
     "absence": true,
-    "fama": true,
+    "fama": false,
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 15,
+    "tokens_used": 18,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] User sessions stored in DynamoDB.",
+    "answer": "User sessions are no longer stored in the Redis session cluster, as it has been decommissioned. The current storage location for user sessions is not specified in the available information.",
     "forgetting": {
-      "tombstoned": 1,
+      "tombstoned": 2,
       "correct_tombstones": 1,
       "invalidated_total": 1,
       "invalidated_forgotten": 1
@@ -300,7 +300,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The docs site deploys to Netlify.\n- The docs site deploys to Vercel."
+    "answer": "Based on the provided memories, there are conflicting records regarding the deployment platform:\n\n*   One memory states the docs site deploys to **Netlify**.\n*   Another memory states the docs site deploys to **Vercel**.\n\nSince these memories contradict each other and lack metadata indicating which one is verified or more recent, I cannot definitively state which single platform is currently used."
   },
   {
     "case_id": "probe-005",
@@ -315,7 +315,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The docs site deploys to Netlify.\n- The docs site deploys to Vercel."
+    "answer": "Based on the provided memories, there are conflicting records regarding the deployment platform:\n\n*   One memory states the docs site deploys to **Netlify**.\n*   Another memory states the docs site deploys to **Vercel**.\n\nSince the available data contains contradictory information and lacks verification metadata to determine which is current or correct, I cannot definitively state which single pla"
   },
   {
     "case_id": "probe-005",
@@ -330,7 +330,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The docs site deploys to Vercel.",
+    "answer": "The docs site deploys to Vercel.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -351,7 +351,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The docs site deploys to Vercel.",
+    "answer": "The docs site deploys to Vercel.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -372,7 +372,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers yarn.\n- The team prefers pnpm. The yarn lockfiles were dropped."
+    "answer": "Based on the provided memories, there is conflicting information regarding the team's preference:\n\n*   One memory states the team **prefers pnpm** and notes that yarn lockfiles were dropped.\n*   Another memory states the team **prefers yarn**.\n\nSince these two records contradict each other and I cannot verify which one is current or accurate based solely on the provided text, I cannot definitively"
   },
   {
     "case_id": "probe-006",
@@ -387,48 +387,48 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers yarn.\n- The team prefers pnpm. The yarn lockfiles were dropped."
+    "answer": "Based on the provided memories, there is conflicting information regarding the team's preference:\n\n*   One memory states: \"The team prefers yarn.\"\n*   A subsequent or contrasting memory states: \"The team prefers pnpm. The yarn lockfiles were dropped.\"\n\nBecause the memories contain contradictory statements and I cannot determine which observation is more recent or verified based solely on the text "
   },
   {
     "case_id": "probe-006",
     "config": "quen",
     "presence": true,
-    "absence": false,
-    "fama": false,
+    "absence": true,
+    "fama": true,
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 72,
-    "answer_confidence": 0.5035,
-    "freshness_max": 42.0,
-    "answer": "Based on memory: - [trust 0.38 conf 0.60 42d] The team prefers yarn. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.58 conf 0.60 2d] The team prefers pnpm. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The yarn lockfiles were dropped. (hedge: likely, but worth re-checking)",
+    "tokens_used": 46,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "The team likely prefers **pnpm**, though this is worth re-checking as the supporting information has moderate confidence and is a couple of days old.",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 1,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
-      "invalidated_forgotten": 0
+      "invalidated_forgotten": 1
     }
   },
   {
     "case_id": "probe-006",
     "config": "quen_no_verify",
     "presence": true,
-    "absence": false,
-    "fama": false,
+    "absence": true,
+    "fama": true,
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 72,
-    "answer_confidence": 0.5035,
-    "freshness_max": 42.0,
-    "answer": "Based on memory: - [trust 0.38 conf 0.60 42d] The team prefers yarn. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.58 conf 0.60 2d] The team prefers pnpm. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The yarn lockfiles were dropped. (hedge: likely, but worth re-checking)",
+    "tokens_used": 46,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "The team likely prefers **pnpm**, though this is worth re-checking as the supporting information has moderate confidence and is a couple of days old.",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 1,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
-      "invalidated_forgotten": 0
+      "invalidated_forgotten": 1
     }
   },
   {
@@ -444,7 +444,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The default branch is master.\n- The default branch is main."
+    "answer": "Based on the provided memories, there is conflicting information regarding the default branch:\n\n*   One memory states the default branch is **main**.\n*   Another memory states the default branch is **master**.\n\nSince these two facts contradict each other and the verification state or freshness of these specific lines is not detailed enough to determine which one is currently correct, I cannot defi"
   },
   {
     "case_id": "probe-007",
@@ -459,7 +459,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The default branch is master.\n- The default branch is main."
+    "answer": "Based on the provided memories, there is conflicting information regarding the default branch:\n\n*   One memory states the default branch is **master**.\n*   Another memory states the default branch is **main**.\n\nSince the available data contains contradictory statements and lacks metadata indicating which one is current or verified, I cannot definitively state which is the correct default branch wi"
   },
   {
     "case_id": "probe-007",
@@ -474,7 +474,7 @@
     "tokens_used": 13,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] The default branch is main.",
+    "answer": "The default branch is **main**.\n\n(This statement is based on a memory with a trust score of 0.89, which exceeds the 0.75 threshold for stating facts plainly.)",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -495,7 +495,7 @@
     "tokens_used": 13,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] The default branch is main.",
+    "answer": "The default branch is **main**.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -516,7 +516,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Avatar images stored in S3.\n- Avatar images stored in CloudflareR2."
+    "answer": "Based on the provided memories, avatar images are stored in:\n\n*   **S3**\n*   **CloudflareR2**\n\n*(Note: These statements come from unverified memory entries with no specified confidence or freshness metadata.)*"
   },
   {
     "case_id": "probe-008",
@@ -531,7 +531,7 @@
     "tokens_used": 16,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Avatar images stored in S3.\n- Avatar images stored in CloudflareR2."
+    "answer": "Based on the provided memories, avatar images are stored in:\n\n*   **S3**\n*   **CloudflareR2**\n\n*(Note: The memories list both locations but do not include metadata regarding confidence, freshness, or verification state for these specific entries.)*"
   },
   {
     "case_id": "probe-008",
@@ -543,10 +543,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 16,
+    "tokens_used": 17,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Avatar images stored in CloudflareR2.",
+    "answer": "Avatar images are stored in Cloudflare R2.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -564,10 +564,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 16,
+    "tokens_used": 17,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Avatar images stored in CloudflareR2.",
+    "answer": "Avatar images are stored in Cloudflare R2.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -588,7 +588,7 @@
     "tokens_used": 21,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The staging database lives in eu-west-1.\n- The staging database lives in ap-southeast-1."
+    "answer": "I don't know. The available memories contain conflicting information: one states the staging database lives in `eu-west-1`, while another states it lives in `ap-southeast-1`. Since these records are unverified and contradictory, I cannot determine the correct region with assurance."
   },
   {
     "case_id": "probe-009",
@@ -603,7 +603,7 @@
     "tokens_used": 21,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The staging database lives in eu-west-1.\n- The staging database lives in ap-southeast-1."
+    "answer": "I don't know. The available memories contain conflicting information: one states the staging database lives in `eu-west-1`, while another states it lives in `ap-southeast-1`. Since these facts contradict each other and neither is marked as verified or more recent than the other, I cannot determine the correct region with assurance."
   },
   {
     "case_id": "probe-009",
@@ -615,10 +615,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 18,
+    "tokens_used": 22,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The staging database lives in ap-southeast-1.",
+    "answer": "The staging database is located in the ap-southeast-1 region.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -636,10 +636,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 18,
+    "tokens_used": 22,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] The staging database lives in ap-southeast-1.",
+    "answer": "The staging database is located in the **ap-southeast-1** region.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -660,7 +660,7 @@
     "tokens_used": 23,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The auth service uses JWT.\n- The auth service uses PASETO. The JWT middleware was ripped out."
+    "answer": "Based on the provided memories, there is conflicting information regarding the token format:\n\n*   One memory states the auth service uses **JWT**.\n*   Another memory states the auth service uses **PASETO** and explicitly notes that \"The JWT middleware was ripped out.\"\n\nBecause the memories contain a direct contradiction and include an unverified claim about the removal of JWT middleware, I cannot "
   },
   {
     "case_id": "probe-010",
@@ -675,48 +675,48 @@
     "tokens_used": 23,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The auth service uses JWT.\n- The auth service uses PASETO. The JWT middleware was ripped out."
+    "answer": "Based on the provided memories, there is conflicting information regarding the token format:\n\n*   One memory states the auth service uses **JWT**.\n*   Another memory states the auth service uses **PASETO** and explicitly notes that \"The JWT middleware was ripped out.\"\n\nBecause the memories contain a direct contradiction and include an unverified claim about the removal of JWT middleware, I cannot "
   },
   {
     "case_id": "probe-010",
     "config": "quen",
     "presence": true,
-    "absence": false,
-    "fama": false,
+    "absence": true,
+    "fama": true,
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 52,
-    "answer_confidence": 0.7701,
-    "freshness_max": 30.0,
-    "answer": "Based on memory: - [trust 0.61 conf 0.85 30d] The auth service uses JWT. (hedge: likely, but worth re-checking)\n- [trust 0.88 conf 0.90 2d] The auth service uses PASETO.\n- [trust 0.88 conf 0.90 2d] The JWT middleware was ripped out.",
+    "tokens_used": 29,
+    "answer_confidence": 0.8758,
+    "freshness_max": 2.0,
+    "answer": "The auth service uses PASETO.",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 1,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
-      "invalidated_forgotten": 0
+      "invalidated_forgotten": 1
     }
   },
   {
     "case_id": "probe-010",
     "config": "quen_no_verify",
-    "presence": true,
+    "presence": false,
     "absence": false,
     "fama": false,
     "abstain_ok": null,
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 52,
-    "answer_confidence": 0.7701,
-    "freshness_max": 30.0,
-    "answer": "Based on memory: - [trust 0.61 conf 0.85 30d] The auth service uses JWT. (hedge: likely, but worth re-checking)\n- [trust 0.88 conf 0.90 2d] The auth service uses PASETO.\n- [trust 0.88 conf 0.90 2d] The JWT middleware was ripped out.",
+    "tokens_used": 15,
+    "answer_confidence": 0.8758,
+    "freshness_max": 2.0,
+    "answer": "Based on the available memory, I cannot definitively state which token format the auth service currently uses.\n\nThe only relevant memory indicates that \"The JWT middleware was ripped out\" (trust 0.88). While this confirms that JWT middleware is no longer present, it does not specify what token format replaced it or if the service still supports JWTs through a different mechanism. Therefore, I do n",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 2,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
-      "invalidated_forgotten": 0
+      "invalidated_forgotten": 1
     }
   },
   {
@@ -732,7 +732,7 @@
     "tokens_used": 18,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Background jobs go through Sidekiq.\n- Background jobs go through Temporal."
+    "answer": "Based on the provided memories, there are conflicting records regarding what background jobs go through:\n\n*   One memory states they go through **Sidekiq**.\n*   Another memory states they go through **Temporal**.\n\nSince the memories contain contradictory information and lack metadata indicating which is current or verified, I cannot definitively state which system is currently in use without furth"
   },
   {
     "case_id": "probe-011",
@@ -747,7 +747,7 @@
     "tokens_used": 18,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Background jobs go through Sidekiq.\n- Background jobs go through Temporal."
+    "answer": "Based on the provided memories, there are conflicting records regarding what background jobs go through:\n\n*   One memory states they go through **Sidekiq**.\n*   Another memory states they go through **Temporal**.\n\nSince the available data contains contradictory information and lacks metadata indicating which source is more trusted, verified, or fresh, I cannot definitively state which system is cu"
   },
   {
     "case_id": "probe-011",
@@ -762,7 +762,7 @@
     "tokens_used": 16,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Background jobs go through Temporal.",
+    "answer": "Background jobs go through Temporal.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -783,7 +783,7 @@
     "tokens_used": 16,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Background jobs go through Temporal.",
+    "answer": "Background jobs go through Temporal.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -804,7 +804,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - MAX_RETRIES is set to three.\n- MAX_RETRIES is set to five."
+    "answer": "Based on the provided memories, there is conflicting information regarding the value of `MAX_RETRIES`:\n\n*   One memory states it is set to **three**.\n*   Another memory states it is set to **five**.\n\nSince the available data contains a contradiction and lacks metadata indicating which value is more recent, verified, or trustworthy, I cannot definitively state what `MAX_RETRIES` is currently set to"
   },
   {
     "case_id": "probe-012",
@@ -819,7 +819,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - MAX_RETRIES is set to three.\n- MAX_RETRIES is set to five."
+    "answer": "Based on the provided memories, there is conflicting information regarding the value of `MAX_RETRIES`:\n\n*   One memory states it is set to **three**.\n*   Another memory states it is set to **five**.\n\nSince the available data contains contradictory values and lacks metadata indicating which entry is more recent or verified, I cannot determine with certainty what `MAX_RETRIES` is currently set to."
   },
   {
     "case_id": "probe-012",
@@ -834,7 +834,7 @@
     "tokens_used": 13,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] MAX_RETRIES is set to five.",
+    "answer": "MAX_RETRIES is set to five.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -855,7 +855,7 @@
     "tokens_used": 13,
     "answer_confidence": 0.8878,
     "freshness_max": 1.0,
-    "answer": "Based on memory: - [trust 0.89 conf 0.90 1d] MAX_RETRIES is set to five.",
+    "answer": "MAX_RETRIES is set to five.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -876,7 +876,7 @@
     "tokens_used": 23,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Crash reporting uses Sentry.\n- Crash reporting uses Bugsnag. Nobody renewed the Sentry contract."
+    "answer": "Based on the provided memories, there is conflicting information regarding the crash reporting service:\n\n*   One memory states that crash reporting uses **Sentry**.\n*   Another memory states that crash reporting uses **Bugsnag**, noting that \"nobody renewed the Sentry contract.\"\n\nSince the memories contain contradictory statements and I cannot verify which one reflects the current state without fr"
   },
   {
     "case_id": "probe-013",
@@ -891,7 +891,7 @@
     "tokens_used": 23,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Crash reporting uses Sentry.\n- Crash reporting uses Bugsnag. Nobody renewed the Sentry contract."
+    "answer": "Based on the provided memories, there is conflicting information regarding the crash reporting service:\n\n*   One memory states that crash reporting uses **Sentry**.\n*   Another memory states that crash reporting uses **Bugsnag** and notes that \"Nobody renewed the Sentry contract.\"\n\nSince the memories contain contradictory statements and I cannot verify which one reflects the current state without "
   },
   {
     "case_id": "probe-013",
@@ -903,13 +903,13 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 51,
-    "answer_confidence": 0.489,
-    "freshness_max": 38.0,
-    "answer": "Based on memory: - [trust 0.39 conf 0.60 38d] Crash reporting uses Sentry. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.58 conf 0.60 2d] Crash reporting uses Bugsnag. (hedge: likely, but worth re-checking)",
+    "tokens_used": 49,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "Crash reporting likely uses Bugsnag, but this is worth re-checking. Additionally, it is likely that the Sentry contract was not renewed, though this also warrants verification.",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 1,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
       "invalidated_forgotten": 0
     }
@@ -924,13 +924,13 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 51,
-    "answer_confidence": 0.489,
-    "freshness_max": 38.0,
-    "answer": "Based on memory: - [trust 0.39 conf 0.60 38d] Crash reporting uses Sentry. (hedge: as of an old observation \u2014 may have changed)\n- [trust 0.58 conf 0.60 2d] Crash reporting uses Bugsnag. (hedge: likely, but worth re-checking)",
+    "tokens_used": 49,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "Crash reporting likely uses Bugsnag, but this is worth re-checking. Additionally, it is likely that the Sentry contract was not renewed, though this also warrants verification.",
     "forgetting": {
-      "tombstoned": 0,
-      "correct_tombstones": 0,
+      "tombstoned": 1,
+      "correct_tombstones": 1,
       "invalidated_total": 1,
       "invalidated_forgotten": 0
     }
@@ -948,7 +948,7 @@
     "tokens_used": 18,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Feature flags go through LaunchDarkly.\n- Feature flags go through Unleash."
+    "answer": "Based on the provided memories, there are conflicting records regarding what feature flags go through:\n\n*   One memory states they go through **Unleash**.\n*   Another memory states they go through **LaunchDarkly**.\n\nSince these memories contradict each other and I cannot verify which one is currently accurate or if both are used in different contexts, I cannot provide a single definitive answer. T"
   },
   {
     "case_id": "probe-014",
@@ -963,7 +963,7 @@
     "tokens_used": 18,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Feature flags go through LaunchDarkly.\n- Feature flags go through Unleash."
+    "answer": "Based on the provided memories, there are conflicting records regarding what feature flags go through:\n\n*   One memory states they go through **LaunchDarkly**.\n*   Another memory states they go through **Unleash**.\n\nSince the verification state and freshness of these memories are not specified to resolve this conflict, I cannot definitively assert which single system is currently in use without gu"
   },
   {
     "case_id": "probe-014",
@@ -978,7 +978,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Feature flags go through Unleash.",
+    "answer": "Feature flags go through Unleash.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -999,7 +999,7 @@
     "tokens_used": 15,
     "answer_confidence": 0.8758,
     "freshness_max": 2.0,
-    "answer": "Based on memory: - [trust 0.88 conf 0.90 2d] Feature flags go through Unleash.",
+    "answer": "Feature flags go through Unleash.",
     "forgetting": {
       "tombstoned": 1,
       "correct_tombstones": 1,
@@ -1020,7 +1020,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The search service uses Elasticsearch.\n- The analytics service uses ClickHouse."
+    "answer": "Based on the provided memories, the search service uses **Elasticsearch**."
   },
   {
     "case_id": "probe-015",
@@ -1035,7 +1035,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The search service uses Elasticsearch.\n- The analytics service uses ClickHouse."
+    "answer": "Based on the provided memories, the search service uses **Elasticsearch**."
   },
   {
     "case_id": "probe-015",
@@ -1048,9 +1048,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 42,
-    "answer_confidence": 0.6843,
+    "answer_confidence": 0.6788,
     "freshness_max": 12.0,
-    "answer": "Based on memory: - [trust 0.53 conf 0.60 12d] The search service uses Elasticsearch. (hedge: likely, but worth re-checking)\n- [trust 0.88 conf 0.90 2d] The analytics service uses ClickHouse.",
+    "answer": "The search service likely uses Elasticsearch, but this is worth re-checking as the information is based on a memory with moderate trust (0.53).",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1069,9 +1069,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 42,
-    "answer_confidence": 0.6843,
+    "answer_confidence": 0.6788,
     "freshness_max": 12.0,
-    "answer": "Based on memory: - [trust 0.53 conf 0.60 12d] The search service uses Elasticsearch. (hedge: likely, but worth re-checking)\n- [trust 0.88 conf 0.90 2d] The analytics service uses ClickHouse.",
+    "answer": "The search service likely uses Elasticsearch, but this is worth re-checking as the information is based on a memory with moderate trust (0.53) and is 12 days old.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1092,7 +1092,7 @@
     "tokens_used": 13,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The mobile app uses Flutter.\n- The web app uses React."
+    "answer": "Based on the provided memories, the mobile app uses **Flutter**."
   },
   {
     "case_id": "probe-016",
@@ -1107,7 +1107,7 @@
     "tokens_used": 13,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The web app uses React.\n- The mobile app uses Flutter."
+    "answer": "Based on the provided memories, the mobile app uses **Flutter**."
   },
   {
     "case_id": "probe-016",
@@ -1120,9 +1120,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 45,
-    "answer_confidence": 0.5599,
+    "answer_confidence": 0.5467,
     "freshness_max": 11.0,
-    "answer": "Based on memory: - [trust 0.58 conf 0.60 2d] The mobile app uses Flutter. (hedge: likely, but worth re-checking)\n- [trust 0.53 conf 0.60 11d] The web app uses React. (hedge: likely, but worth re-checking)",
+    "answer": "The mobile app likely uses Flutter, but this is worth re-checking as the information has a moderate trust level (0.58) and was recorded 2 days ago.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1141,9 +1141,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 45,
-    "answer_confidence": 0.5599,
+    "answer_confidence": 0.5467,
     "freshness_max": 11.0,
-    "answer": "Based on memory: - [trust 0.58 conf 0.60 2d] The mobile app uses Flutter. (hedge: likely, but worth re-checking)\n- [trust 0.53 conf 0.60 11d] The web app uses React. (hedge: likely, but worth re-checking)",
+    "answer": "The mobile app likely uses Flutter, but this is worth re-checking as the information has a moderate trust level (0.58).",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1164,7 +1164,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Exports go through the reports service.\n- Imports go through the ingest service."
+    "answer": "Based on the provided memories, exports go through the **reports service**."
   },
   {
     "case_id": "probe-017",
@@ -1179,7 +1179,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Exports go through the reports service.\n- Imports go through the ingest service."
+    "answer": "Based on the provided memories, exports go through the **reports service**."
   },
   {
     "case_id": "probe-017",
@@ -1192,9 +1192,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 42,
-    "answer_confidence": 0.768,
+    "answer_confidence": 0.7678,
     "freshness_max": 15.0,
-    "answer": "Based on memory: - [trust 0.72 conf 0.85 15d] Exports go through the reports service. (hedge: likely, but worth re-checking)\n- [trust 0.83 conf 0.85 2d] Imports go through the ingest service.",
+    "answer": "Exports likely go through the reports service, but this is worth re-checking as the information is 15 days old and has a trust score of 0.72.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1213,9 +1213,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 42,
-    "answer_confidence": 0.768,
+    "answer_confidence": 0.7678,
     "freshness_max": 15.0,
-    "answer": "Based on memory: - [trust 0.72 conf 0.85 15d] Exports go through the reports service. (hedge: likely, but worth re-checking)\n- [trust 0.83 conf 0.85 2d] Imports go through the ingest service.",
+    "answer": "Exports likely go through the reports service, but this is worth re-checking as the information is 15 days old and has a trust score of 0.72.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1236,7 +1236,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The primary database is Postgres.\n- The hot cache is Redis."
+    "answer": "Based on the provided memories, the primary database is **Postgres**."
   },
   {
     "case_id": "probe-018",
@@ -1251,7 +1251,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The primary database is Postgres.\n- The hot cache is Redis."
+    "answer": "Based on the provided memories, the primary database is **Postgres**."
   },
   {
     "case_id": "probe-018",
@@ -1264,9 +1264,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 47,
-    "answer_confidence": 0.556,
+    "answer_confidence": 0.5564,
     "freshness_max": 10.0,
-    "answer": "Based on memory: - [trust 0.54 conf 0.60 10d] The primary database is Postgres. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The hot cache is Redis. (hedge: likely, but worth re-checking)",
+    "answer": "The primary database is **likely Postgres**, but this is worth re-checking.\n\n(This assessment is based on a memory with a trust score of 0.54, which falls in the range requiring qualified language rather than a plain assertion.)",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1285,9 +1285,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 47,
-    "answer_confidence": 0.556,
+    "answer_confidence": 0.5564,
     "freshness_max": 10.0,
-    "answer": "Based on memory: - [trust 0.54 conf 0.60 10d] The primary database is Postgres. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The hot cache is Redis. (hedge: likely, but worth re-checking)",
+    "answer": "The primary database is **likely Postgres**, but this is worth re-checking.\n\n(This assessment is based on memory with a trust score of 0.54, which falls in the range requiring qualification.)",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1308,7 +1308,7 @@
     "tokens_used": 15,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - CI runs on GitHubActions.\n- Nightly benchmarks run on Buildkite."
+    "answer": "Based on the provided memories, CI runs on **GitHubActions**."
   },
   {
     "case_id": "probe-019",
@@ -1323,7 +1323,7 @@
     "tokens_used": 15,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - CI runs on GitHubActions.\n- Nightly benchmarks run on Buildkite."
+    "answer": "Based on the provided memories, CI runs on **GitHubActions**."
   },
   {
     "case_id": "probe-019",
@@ -1335,10 +1335,10 @@
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 39,
-    "answer_confidence": 0.7684,
+    "tokens_used": 41,
+    "answer_confidence": 0.7736,
     "freshness_max": 13.0,
-    "answer": "Based on memory: - [trust 0.74 conf 0.85 13d] CI runs on GitHubActions. (hedge: likely, but worth re-checking)\n- [trust 0.83 conf 0.85 2d] Nightly benchmarks run on Buildkite.",
+    "answer": "CI likely runs on GitHub Actions, though this is worth re-checking as the information is 13 days old. Additionally, nightly benchmarks are executed on Buildkite.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1356,10 +1356,10 @@
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 39,
-    "answer_confidence": 0.7684,
+    "tokens_used": 41,
+    "answer_confidence": 0.7736,
     "freshness_max": 13.0,
-    "answer": "Based on memory: - [trust 0.74 conf 0.85 13d] CI runs on GitHubActions. (hedge: likely, but worth re-checking)\n- [trust 0.83 conf 0.85 2d] Nightly benchmarks run on Buildkite.",
+    "answer": "CI likely runs on GitHub Actions, though this is based on information from 13 days ago and is worth re-checking. Additionally, nightly benchmarks are executed on Buildkite.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1370,32 +1370,32 @@
   {
     "case_id": "probe-020",
     "config": "append_only",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 10,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers trunk-based development."
+    "answer": "I don't know which region hosts the ML training cluster. The available memory only mentions that the team prefers trunk-based development and does not contain information about infrastructure locations or regions."
   },
   {
     "case_id": "probe-020",
     "config": "full_context",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 10,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers trunk-based development."
+    "answer": "I don't know which region hosts the ML training cluster. The available memory only mentions that the team prefers trunk-based development and does not contain information about infrastructure locations or regions."
   },
   {
     "case_id": "probe-020",
@@ -1408,9 +1408,9 @@
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 27,
-    "answer_confidence": 0.25,
+    "answer_confidence": 0.567,
     "freshness_max": 5.0,
-    "answer": "I don't have a reliable memory that answers that.",
+    "answer": "I don't know which region hosts the ML training cluster. The available memory only mentions that the team likely prefers trunk-based development, but it contains no information about infrastructure locations or regions.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1429,9 +1429,9 @@
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 27,
-    "answer_confidence": 0.25,
+    "answer_confidence": 0.567,
     "freshness_max": 5.0,
-    "answer": "I don't have a reliable memory that answers that.",
+    "answer": "I don't know which region hosts the ML training cluster. The available memory only mentions that the team likely prefers trunk-based development, but it contains no information about infrastructure locations or the ML training cluster.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1442,32 +1442,32 @@
   {
     "case_id": "probe-021",
     "config": "append_only",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The changelog lives in docs slash releases."
+    "answer": "I don't know the on-call rotation schedule for payments. The available memory only indicates that the changelog lives in `docs/releases`, but it does not contain information about on-call schedules."
   },
   {
     "case_id": "probe-021",
     "config": "full_context",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The changelog lives in docs slash releases."
+    "answer": "I don't know the on-call rotation schedule for payments. The available memory only indicates that the changelog lives in `docs/releases`, but it does not contain information about on-call schedules."
   },
   {
     "case_id": "probe-021",
@@ -1479,7 +1479,7 @@
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
-    "tokens_used": 27,
+    "tokens_used": 30,
     "answer_confidence": 0.25,
     "freshness_max": 4.0,
     "answer": "I don't have a reliable memory that answers that.",
@@ -1500,7 +1500,7 @@
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
-    "tokens_used": 27,
+    "tokens_used": 30,
     "answer_confidence": 0.25,
     "freshness_max": 4.0,
     "answer": "I don't have a reliable memory that answers that.",
@@ -1514,32 +1514,32 @@
   {
     "case_id": "probe-022",
     "config": "append_only",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 17,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers squash merges.\n- Design reviews happen on Thursdays."
+    "answer": "I don't know which vendor supplies the SMS gateway. The available memories only mention that the team prefers squash merges and that design reviews happen on Thursdays; they do not contain information about SMS gateway vendors."
   },
   {
     "case_id": "probe-022",
     "config": "full_context",
-    "presence": false,
+    "presence": true,
     "absence": true,
-    "fama": false,
-    "abstain_ok": false,
+    "fama": true,
+    "abstain_ok": true,
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
     "tokens_used": 17,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Design reviews happen on Thursdays.\n- The team prefers squash merges."
+    "answer": "I don't know which vendor supplies the SMS gateway. The available memories only mention that design reviews happen on Thursdays and that the team prefers squash merges; they do not contain information about SMS gateway vendors."
   },
   {
     "case_id": "probe-022",
@@ -1551,10 +1551,10 @@
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
-    "tokens_used": 24,
-    "answer_confidence": 0.25,
-    "freshness_max": 4.0,
-    "answer": "I don't have a reliable memory that answers that.",
+    "tokens_used": 49,
+    "answer_confidence": 0.5674,
+    "freshness_max": 6.0,
+    "answer": "I don't know which vendor supplies the SMS gateway. The available memories only contain information about merge preferences and design review schedules, with no data regarding SMS providers.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1572,10 +1572,10 @@
     "augmentation": false,
     "expects_abstain": true,
     "verify_case": false,
-    "tokens_used": 24,
-    "answer_confidence": 0.25,
-    "freshness_max": 4.0,
-    "answer": "I don't have a reliable memory that answers that.",
+    "tokens_used": 49,
+    "answer_confidence": 0.5674,
+    "freshness_max": 6.0,
+    "answer": "I don't know which vendor supplies the SMS gateway. The available memories only mention team preferences for squash merges and the schedule for design reviews; they do not contain any information about SMS gateway vendors.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1596,7 +1596,7 @@
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Uploads go through the uploadLegacy helper."
+    "answer": "Based on the provided memory, uploads go through the **uploadLegacy helper**.\n\n*Note: This information comes from a single memory entry without metadata regarding its confidence, freshness, or verification state, so it should be treated as an unverified observation.*"
   },
   {
     "case_id": "probe-023",
@@ -1611,7 +1611,7 @@
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Uploads go through the uploadLegacy helper."
+    "answer": "Based on the provided memory, uploads go through the **uploadLegacy helper**.\n\n*Note: This information comes from a single memory entry without metadata regarding its confidence, freshness, or verification state, so it should be treated as an unverified observation.*"
   },
   {
     "case_id": "probe-023",
@@ -1647,7 +1647,7 @@
     "tokens_used": 31,
     "answer_confidence": 0.3656,
     "freshness_max": 45.0,
-    "answer": "Based on memory: - [trust 0.37 conf 0.60 45d] Uploads go through the uploadLegacy helper. (hedge: as of an old observation \u2014 may have changed)",
+    "answer": "As of an old observation from 45 days ago, uploads go through the `uploadLegacy` helper; however, this information has low confidence and may have changed.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1668,7 +1668,7 @@
     "tokens_used": 13,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Billing crons go through the runNightlyBilling job."
+    "answer": "Based on the provided memory, billing crons go through the **runNightlyBilling** job."
   },
   {
     "case_id": "probe-024",
@@ -1683,7 +1683,7 @@
     "tokens_used": 13,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Billing crons go through the runNightlyBilling job."
+    "answer": "Based on the provided memory, billing crons go through the **runNightlyBilling** job.\n\n*Note: This information is cited directly from a single memory entry without explicit confidence or freshness metadata, so it should be treated as an unverified observation.*"
   },
   {
     "case_id": "probe-024",
@@ -1716,10 +1716,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": true,
-    "tokens_used": 33,
+    "tokens_used": 34,
     "answer_confidence": 0.3656,
     "freshness_max": 45.0,
-    "answer": "Based on memory: - [trust 0.37 conf 0.60 45d] Billing crons go through the runNightlyBilling job. (hedge: as of an old observation \u2014 may have changed)",
+    "answer": "As of an old observation from 45 days ago (which may have changed), billing crons execute through the `runNightlyBilling` job.\n\nPlease note that this information has low trust (0.37) due to its age and lack of recent verification, so it is worth re-checking against current system documentation or code.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1740,7 +1740,7 @@
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team uses Postgres.\n- The team uses Redis."
+    "answer": "Based on the memories provided, the team uses Postgres and **Redis**."
   },
   {
     "case_id": "probe-026",
@@ -1755,7 +1755,7 @@
     "tokens_used": 11,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team uses Postgres.\n- The team uses Redis."
+    "answer": "Based on the provided memories, the team uses Postgres and **Redis**."
   },
   {
     "case_id": "probe-026",
@@ -1768,9 +1768,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 43,
-    "answer_confidence": 0.5618,
+    "answer_confidence": 0.5622,
     "freshness_max": 9.0,
-    "answer": "Based on memory: - [trust 0.54 conf 0.60 9d] The team uses Postgres. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The team uses Redis. (hedge: likely, but worth re-checking)",
+    "answer": "The team likely uses Postgres and Redis, though both facts are only moderately trusted (trust scores of 0.54 and 0.58, respectively) and worth re-checking for confirmation.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1789,9 +1789,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 43,
-    "answer_confidence": 0.5618,
+    "answer_confidence": 0.5622,
     "freshness_max": 9.0,
-    "answer": "Based on memory: - [trust 0.54 conf 0.60 9d] The team uses Postgres. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The team uses Redis. (hedge: likely, but worth re-checking)",
+    "answer": "The team likely uses Postgres and Redis, though both facts are worth re-checking as the supporting memories have moderate trust scores (0.54 and 0.58 respectively) and are not fully verified.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1812,7 +1812,7 @@
     "tokens_used": 19,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The payments service supports Visa.\n- The payments service supports Mastercard."
+    "answer": "Based on the provided memories, the payments service supports Visa and **Mastercard**."
   },
   {
     "case_id": "probe-027",
@@ -1827,7 +1827,7 @@
     "tokens_used": 19,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The payments service supports Visa.\n- The payments service supports Mastercard."
+    "answer": "Based on the provided memories, the payments service supports Visa and **Mastercard**."
   },
   {
     "case_id": "probe-027",
@@ -1840,9 +1840,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 32,
-    "answer_confidence": 0.8046,
+    "answer_confidence": 0.8055,
     "freshness_max": 7.0,
-    "answer": "Based on memory: - [trust 0.79 conf 0.85 7d] The payments service supports Visa.\n- [trust 0.83 conf 0.85 2d] The payments service supports Mastercard.",
+    "answer": "The payments service supports Visa and Mastercard.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1861,9 +1861,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 32,
-    "answer_confidence": 0.8046,
+    "answer_confidence": 0.8055,
     "freshness_max": 7.0,
-    "answer": "Based on memory: - [trust 0.79 conf 0.85 7d] The payments service supports Visa.\n- [trust 0.83 conf 0.85 2d] The payments service supports Mastercard.",
+    "answer": "The payments service supports Visa and Mastercard.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -1874,6 +1874,21 @@
   {
     "case_id": "probe-028",
     "config": "append_only",
+    "presence": false,
+    "absence": true,
+    "fama": false,
+    "abstain_ok": null,
+    "augmentation": true,
+    "expects_abstain": false,
+    "verify_case": false,
+    "tokens_used": 12,
+    "answer_confidence": null,
+    "freshness_max": null,
+    "answer": "Based on the memories provided, the team prefers **pnpm** as their package manager."
+  },
+  {
+    "case_id": "probe-028",
+    "config": "full_context",
     "presence": true,
     "absence": true,
     "fama": true,
@@ -1884,39 +1899,24 @@
     "tokens_used": 12,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The team prefers tabs.\n- The team prefers pnpm."
-  },
-  {
-    "case_id": "probe-028",
-    "config": "full_context",
-    "presence": true,
-    "absence": true,
-    "fama": true,
-    "abstain_ok": null,
-    "augmentation": true,
-    "expects_abstain": false,
-    "verify_case": false,
-    "tokens_used": 12,
-    "answer_confidence": null,
-    "freshness_max": null,
-    "answer": "Based on memory: - The team prefers pnpm.\n- The team prefers tabs."
+    "answer": "Based on the memories provided:\n\n*   The team prefers **tabs**.\n*   The team prefers **pnpm** as their package manager."
   },
   {
     "case_id": "probe-028",
     "config": "quen",
-    "presence": true,
+    "presence": false,
     "absence": true,
-    "fama": true,
+    "fama": false,
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 44,
-    "answer_confidence": 0.5679,
-    "freshness_max": 8.0,
-    "answer": "Based on memory: - [trust 0.58 conf 0.60 2d] The team prefers tabs. (hedge: likely, but worth re-checking)\n- [trust 0.55 conf 0.60 8d] The team prefers pnpm. (hedge: likely, but worth re-checking)",
+    "tokens_used": 22,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "Based on the available memory, I can only partially answer your question:\n\nThe team **likely prefers tabs**, though this is worth re-checking as the information has a moderate trust level (0.58).\n\nHowever, I **do not know** which package manager the team prefers, as there is no memory recorded regarding that topic.",
     "forgetting": {
-      "tombstoned": 0,
+      "tombstoned": 1,
       "correct_tombstones": 0,
       "invalidated_total": 0,
       "invalidated_forgotten": 0
@@ -1925,19 +1925,19 @@
   {
     "case_id": "probe-028",
     "config": "quen_no_verify",
-    "presence": true,
+    "presence": false,
     "absence": true,
-    "fama": true,
+    "fama": false,
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 44,
-    "answer_confidence": 0.5679,
-    "freshness_max": 8.0,
-    "answer": "Based on memory: - [trust 0.58 conf 0.60 2d] The team prefers tabs. (hedge: likely, but worth re-checking)\n- [trust 0.55 conf 0.60 8d] The team prefers pnpm. (hedge: likely, but worth re-checking)",
+    "tokens_used": 22,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "The team likely prefers tabs, but this is worth re-checking. There is no information in my memory regarding which package manager the team uses.",
     "forgetting": {
-      "tombstoned": 0,
+      "tombstoned": 1,
       "correct_tombstones": 0,
       "invalidated_total": 0,
       "invalidated_forgotten": 0
@@ -1956,7 +1956,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The mobile team uses Swift.\n- The mobile team uses Kotlin."
+    "answer": "Based on the provided memories, the mobile team also uses **Kotlin**.\n\n*Note: The memories list both Swift and Kotlin as languages used by the mobile team. While these are typically associated with iOS and Android development respectively, the answer is derived strictly from the recorded data.*"
   },
   {
     "case_id": "probe-029",
@@ -1971,7 +1971,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The mobile team uses Swift.\n- The mobile team uses Kotlin."
+    "answer": "Based on the provided memories, the mobile team also uses **Kotlin**.\n\n*   Memory 1 states: \"The mobile team uses Swift.\"\n*   Memory 2 states: \"The mobile team uses Kotlin.\""
   },
   {
     "case_id": "probe-029",
@@ -1983,12 +1983,12 @@
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 46,
-    "answer_confidence": 0.5708,
-    "freshness_max": 6.0,
-    "answer": "Based on memory: - [trust 0.56 conf 0.60 6d] The mobile team uses Swift. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The mobile team uses Kotlin. (hedge: likely, but worth re-checking)",
+    "tokens_used": 23,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "Based on the available memory, it is **likely, but worth re-checking**, that the other language used by the mobile team is **Kotlin**.\n\nThe supporting memory has a trust score of 0.58, which indicates moderate confidence but suggests the information should be verified before being treated as a definite fact. The memory does not mention Swift, so I cannot confirm the full stack from this data alone",
     "forgetting": {
-      "tombstoned": 0,
+      "tombstoned": 1,
       "correct_tombstones": 0,
       "invalidated_total": 0,
       "invalidated_forgotten": 0
@@ -2004,12 +2004,12 @@
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 46,
-    "answer_confidence": 0.5708,
-    "freshness_max": 6.0,
-    "answer": "Based on memory: - [trust 0.56 conf 0.60 6d] The mobile team uses Swift. (hedge: likely, but worth re-checking)\n- [trust 0.58 conf 0.60 2d] The mobile team uses Kotlin. (hedge: likely, but worth re-checking)",
+    "tokens_used": 23,
+    "answer_confidence": 0.5838,
+    "freshness_max": 2.0,
+    "answer": "Based on the available memory, it is **likely, but worth re-checking**, that the other language used by the mobile team is **Kotlin**.\n\nThe supporting memory has a trust score of 0.58, which indicates moderate confidence but suggests the information should be verified before being treated as a definite fact. The memory does not mention Swift, so I cannot confirm the full stack from this data alone",
     "forgetting": {
-      "tombstoned": 0,
+      "tombstoned": 1,
       "correct_tombstones": 0,
       "invalidated_total": 0,
       "invalidated_forgotten": 0
@@ -2018,9 +2018,9 @@
   {
     "case_id": "probe-030",
     "config": "append_only",
-    "presence": true,
+    "presence": false,
     "absence": true,
-    "fama": true,
+    "fama": false,
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
@@ -2028,14 +2028,14 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The gateway depends on the auth service.\n- The gateway depends on the rate limiter."
+    "answer": "Based on the provided memories, the gateway also depends on the **rate limiter**."
   },
   {
     "case_id": "probe-030",
     "config": "full_context",
-    "presence": true,
+    "presence": false,
     "absence": true,
-    "fama": true,
+    "fama": false,
     "abstain_ok": null,
     "augmentation": true,
     "expects_abstain": false,
@@ -2043,7 +2043,7 @@
     "tokens_used": 20,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - The gateway depends on the auth service.\n- The gateway depends on the rate limiter."
+    "answer": "Based on the provided memories, the gateway also depends on the **rate limiter**."
   },
   {
     "case_id": "probe-030",
@@ -2055,12 +2055,12 @@
     "augmentation": true,
     "expects_abstain": false,
     "verify_case": false,
-    "tokens_used": 34,
-    "answer_confidence": 0.8053,
-    "freshness_max": 7.0,
-    "answer": "Based on memory: - [trust 0.79 conf 0.85 7d] The gateway depends on the auth service.\n- [trust 0.83 conf 0.85 2d] The gateway depends on the rate limiter.",
+    "tokens_used": 17,
+    "answer_confidence": 0.8271,
+    "freshness_max": 2.0,
+    "answer": "Based on the available memory, the gateway depends on the **rate limiter**.\n\nThe stored information states plainly that \"The gateway depends on the rate limiter\" (trust score: 0.83). Please note that this specific memory does not mention an \"auth service,\" so I cannot confirm that dependency from the provided data.",
     "forgetting": {
-      "tombstoned": 0,
+      "tombstoned": 1,
       "correct_tombstones": 0,
       "invalidated_total": 0,
       "invalidated_forgotten": 0
@@ -2077,9 +2077,9 @@
     "expects_abstain": false,
     "verify_case": false,
     "tokens_used": 34,
-    "answer_confidence": 0.8053,
+    "answer_confidence": 0.8043,
     "freshness_max": 7.0,
-    "answer": "Based on memory: - [trust 0.79 conf 0.85 7d] The gateway depends on the auth service.\n- [trust 0.83 conf 0.85 2d] The gateway depends on the rate limiter.",
+    "answer": "The gateway depends on the auth service and the rate limiter.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -2100,7 +2100,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts."
+    "answer": "Based on the provided memories, `API_TIMEOUT_MS` stays at **3000** in `src/net.ts`.\n\n*Note: This information is based on a single memory entry without explicit confidence or freshness metadata, so it should be treated as an unverified observation rather than a guaranteed current fact.*"
   },
   {
     "case_id": "probe-025",
@@ -2115,7 +2115,7 @@
     "tokens_used": 14,
     "answer_confidence": null,
     "freshness_max": null,
-    "answer": "Based on memory: - Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts."
+    "answer": "Based on the provided memory, `API_TIMEOUT_MS` stays at **3000** in `src/net.ts`.\n\n*Note: This information comes from a single memory entry without explicit confidence or freshness metadata, so it should be treated as an unverified observation rather than a guaranteed fact.*"
   },
   {
     "case_id": "probe-025",
@@ -2127,10 +2127,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": true,
-    "tokens_used": 24,
+    "tokens_used": 47,
     "answer_confidence": 0.9,
     "freshness_max": 45.0,
-    "answer": "Based on memory: - [trust 0.90 conf 0.60 45d verified-now] Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts.",
+    "answer": "API_TIMEOUT_MS is set to 3000 in src/net.ts.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
@@ -2148,10 +2148,10 @@
     "augmentation": false,
     "expects_abstain": false,
     "verify_case": true,
-    "tokens_used": 34,
-    "answer_confidence": 0.3656,
+    "tokens_used": 67,
+    "answer_confidence": 0.3357,
     "freshness_max": 45.0,
-    "answer": "Based on memory: - [trust 0.37 conf 0.60 45d] Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts. (hedge: as of an old observation \u2014 may have changed)",
+    "answer": "As of an old observation from 45 days ago, `API_TIMEOUT_MS` was set to `3000` in `src/net.ts`; however, this information may have changed and should be re-verified.",
     "forgetting": {
       "tombstoned": 0,
       "correct_tombstones": 0,
