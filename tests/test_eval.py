@@ -6,8 +6,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "eval"))
 
 import fama  # noqa: E402
+from configs import AppendOnlyRAG, split_units  # noqa: E402
 from run_probe import run_case  # noqa: E402
 from run_longmemeval import load_instances, run_instance  # noqa: E402
+
+from quen.embeddings import HashingEmbedder  # noqa: E402
+from quen.llm import ScriptedLLM  # noqa: E402
+from quen.retrieval import estimate_tokens  # noqa: E402
 
 
 def test_fama_presence_and_absence():
@@ -82,6 +87,44 @@ def test_probe_case_ours_beats_append_only():
     assert not baseline["absence"]  # append-only echoes the stale fact
     assert ours["forgetting"]["invalidated_forgotten"] == 1
     assert ours["forgetting"]["correct_tombstones"] >= 1
+
+
+def test_split_units_leaves_single_facts_alone():
+    """The probe shape must pass through untouched — canonical probe
+    numbers depend on it."""
+    text = "The team fetches data via useApi."
+    assert split_units(text) == [text]
+
+
+def test_split_units_turn_granularity():
+    session = "\n".join(
+        [
+            "user: We migrated the avatar store to S3 yesterday.",
+            "assistant: Noted. " + "Filler sentence about nothing. " * 40,
+            "user: Also MAX_UPLOAD_MB is now 25.",
+        ]
+    )
+    units = split_units(session)
+    assert len(units) > 3  # per turn, long turn further windowed
+    assert any("S3" in u for u in units)
+    assert any("MAX_UPLOAD_MB" in u for u in units)
+    # every window individually fits a small reader budget
+    assert all(estimate_tokens(u) <= 180 for u in units)
+    # the windowed assistant turn keeps its speaker prefix
+    assert sum(u.startswith("assistant:") for u in units) >= 2
+
+
+def test_baseline_sees_context_despite_huge_sessions():
+    """Regression: whole-session units made every LongMemEval session
+    bigger than the answer budget, so the baseline answered from an EMPTY
+    context (tokens_used=0 on all 458 rows) — a strawman, not a baseline."""
+    rag = AppendOnlyRAG(ScriptedLLM.with_offline_defaults(), HashingEmbedder())
+    turns = [f"user: Fact number {i} about topic-{i}. " + "pad " * 100
+             for i in range(6)]
+    rag.ingest("\n".join(turns), day=0, kind="chat", source_ref="s1")
+    out = rag.answer("What is fact number 3?", budget=300)
+    assert out.tokens_used > 0
+    assert out.tokens_used <= 300
 
 
 def test_longmemeval_dry_run_sample():

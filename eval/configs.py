@@ -8,6 +8,7 @@ so differences measure memory management, not prompting.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Protocol
@@ -22,6 +23,55 @@ from quen.store import MemoryStore
 from quen.verifiers import RepoGrepVerifier
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+
+_TURN_RE = re.compile(r"^(?:user|assistant|system)\s*:", re.MULTILINE)
+_SENT_RE = re.compile(r"(?<=[.!?])\s+")
+CHUNK_TOKENS = 120
+
+
+def split_units(text: str) -> list[str]:
+    """Retrieval granularity for the baselines.
+
+    Multi-turn session transcripts (the LongMemEval shape: "role: content"
+    lines) are split per turn — the round-level granularity the LongMemEval
+    paper itself recommends over session-level — and turns longer than
+    CHUNK_TOKENS are further packed into sentence windows, so a small
+    reader budget can always fit SOME evidence. Without this, a whole
+    2-5k-token session is the smallest storable unit and a 300-token
+    budget fits none of them: the baseline answers from an empty context,
+    which measures nothing. Single-fact texts (the probe shape) come back
+    unchanged, so probe results are unaffected.
+    """
+    starts = [m.start() for m in _TURN_RE.finditer(text)]
+    if not starts:
+        turns = [text]
+    else:
+        if starts[0] != 0:
+            starts = [0] + starts
+        turns = [
+            text[a:b].strip()
+            for a, b in zip(starts, starts[1:] + [len(text)])
+        ]
+    units: list[str] = []
+    for turn in turns:
+        if not turn:
+            continue
+        if estimate_tokens(turn) <= CHUNK_TOKENS:
+            units.append(turn)
+            continue
+        m = _TURN_RE.match(turn)
+        prefix = (turn[: m.end()] + " ") if m else ""
+        body = turn[m.end():].strip() if m else turn
+        window = ""
+        for sent in _SENT_RE.split(body):
+            if window and estimate_tokens(f"{window} {sent}") > CHUNK_TOKENS:
+                units.append(prefix + window)
+                window = sent
+            else:
+                window = f"{window} {sent}".strip()
+        if window:
+            units.append(prefix + window)
+    return units
 
 
 @dataclass
@@ -45,8 +95,8 @@ class MemorySystem(Protocol):
 
 
 class AppendOnlyRAG:
-    """Top-k cosine over everything ever seen, greedy to the same budget.
-    No forgetting, no validity, no trust."""
+    """Top-k cosine over everything ever seen (turn-level units), greedy to
+    the same budget. No forgetting, no validity, no trust."""
 
     name = "append_only"
 
@@ -55,7 +105,8 @@ class AppendOnlyRAG:
         self.entries: list[tuple[str, list[float]]] = []
 
     def ingest(self, text, *, day, kind, source_ref):
-        self.entries.append((text, self.embedder.embed([text])[0]))
+        units = split_units(text)
+        self.entries.extend(zip(units, self.embedder.embed(units)))
 
     def day_boundary(self, day):
         pass
@@ -82,7 +133,8 @@ class AppendOnlyRAG:
 
 
 class FullContext:
-    """Everything in the window, oldest truncated first when over budget."""
+    """Everything in the window (turn-level units), oldest truncated first
+    when over budget."""
 
     name = "full_context"
 
@@ -91,7 +143,7 @@ class FullContext:
         self.texts: list[str] = []
 
     def ingest(self, text, *, day, kind, source_ref):
-        self.texts.append(text)
+        self.texts.extend(split_units(text))
 
     def day_boundary(self, day):
         pass
