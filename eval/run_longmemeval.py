@@ -130,11 +130,38 @@ def main(argv: list[str] | None = None) -> dict:
     instances = load_instances(args.live, args.hf_file, args.limit)
     print(f"{len(instances)} instances "
           f"({'live' if args.live else 'dry-run sample'})")
-    rows = [
-        run_instance(inst, config, budget=args.budget, live=args.live)
-        for inst in instances
-        for config in CONFIGS
-    ]
+
+    # crash-safe resume: one JSONL row per (question, config), appended as
+    # completed; a re-run skips what's already done
+    resume_path = args.out / "longmemeval_rows.jsonl"
+    resume_path.parent.mkdir(parents=True, exist_ok=True)
+    rows: list[dict] = []
+    done: set[tuple[str, str]] = set()
+    if resume_path.exists():
+        for line in resume_path.read_text().splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            rows.append(row)
+            done.add((str(row["question_id"]), row["config"]))
+        if done:
+            print(f"resuming: {len(done)} rows already done")
+
+    total = len(instances) * len(CONFIGS)
+    with resume_path.open("a") as fh:
+        for i, inst in enumerate(instances):
+            for config in CONFIGS:
+                key = (str(inst["question_id"]), config)
+                if key in done:
+                    continue
+                row = run_instance(inst, config, budget=args.budget,
+                                   live=args.live)
+                rows.append(row)
+                fh.write(json.dumps(row) + "\n")
+                fh.flush()
+            if (i + 1) % 10 == 0:
+                print(f"progress: {(i + 1) * len(CONFIGS)}/{total}")
+
     summary = aggregate(rows)
     write_json(args.out / "longmemeval_results.json", rows)
     write_json(args.out / "longmemeval_summary.json", summary)

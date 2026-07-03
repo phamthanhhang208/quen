@@ -27,7 +27,6 @@ Then: QUEN_OFFLINE=1 QUEN_DB_PATH=data/demo.db \
 from __future__ import annotations
 
 import json
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -78,19 +77,30 @@ def _reabstract_handler(prompt: str) -> str:
     )
 
 
-def build_engine(db_path: str, clock: DemoClock) -> QuenEngine:
-    llm = ScriptedLLM.with_offline_defaults()
-    llm.script(llm_mod.REABSTRACT, _reabstract_handler)
+def build_engine(db_path: str, clock: DemoClock, *, live: bool = False) -> QuenEngine:
+    if live:
+        # the realest integration test: Qwen does the extraction,
+        # generalization, NLI and answering — the narrative mechanics
+        # (supersession, eviction, verification) must still land
+        from quen.embeddings import QwenEmbedder
+        from quen.llm import QwenLLM
+
+        llm = QwenLLM()
+        embedder = QwenEmbedder()
+    else:
+        llm = ScriptedLLM.with_offline_defaults()
+        llm.script(llm_mod.REABSTRACT, _reabstract_handler)
+        embedder = HashingEmbedder()
     return QuenEngine(
         QuenConfig(db_path=db_path),
         store=MemoryStore(db_path, clock=clock.now),
         llm=llm,
-        embedder=HashingEmbedder(),
+        embedder=embedder,
         clock=clock.now,
     )
 
 
-def main(db_path: str = "data/demo.db") -> dict:
+def main(db_path: str = "data/demo.db", *, live: bool = False) -> dict:
     # fresh demo DATABASE FILE (this deletes a db file, never a memory row)
     for suffix in ("", "-wal", "-shm"):
         Path(db_path + suffix).unlink(missing_ok=True)
@@ -98,7 +108,7 @@ def main(db_path: str = "data/demo.db") -> dict:
     now = datetime.now(timezone.utc)
     t0 = now - timedelta(days=180)
     clock = DemoClock(t0)
-    engine = build_engine(db_path, clock)
+    engine = build_engine(db_path, clock, live=live)
 
     # ---- d0-d1: three working sessions -------------------------------------
     engine.ingest("The team fetches data via useApi.", source_kind="chat",
@@ -179,8 +189,15 @@ def main(db_path: str = "data/demo.db") -> dict:
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "data/demo.db"
-    s = main(path)
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("db_path", nargs="?", default=None)
+    parser.add_argument("--live", action="store_true",
+                        help="use Qwen via DashScope instead of the offline stack")
+    args = parser.parse_args()
+    path = args.db_path or ("data/demo_live.db" if args.live else "data/demo.db")
+    s = main(path, live=args.live)
     print(json.dumps(s, indent=2))
     print(
         "\nDemo seeded. Serve it:\n"

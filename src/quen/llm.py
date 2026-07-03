@@ -100,9 +100,13 @@ def render_extract(text: str, observed_at: str) -> list[dict]:
 def render_salience(facts: list[str]) -> list[dict]:
     body = (
         "For each candidate fact, rate:\n"
-        "- salience (0..1): novelty vs what a strong general model already "
-        "knows — project-specific, personal, or surprising facts score high; "
-        "generic programming knowledge scores near 0.\n"
+        "- salience (0..1): would a strong general model already know THIS "
+        "SPECIFIC fact? What matters is the BINDING, not the fame of the "
+        "parts: 'this team fetches data via useQuery' is highly salient "
+        "(nobody knows what this team chose) even though useQuery itself is "
+        "a famous library. Score near 0 ONLY for universal knowledge with "
+        "no project/team/user binding (e.g. 'React is a JS library', "
+        "'HTTP 404 means not found').\n"
         "- importance (1..10): long-term usefulness to the team's agent.\n"
         'Return STRICT JSON: a list of {"salience": float, "importance": float}, '
         "same order and length as the input list."
@@ -249,7 +253,13 @@ class QwenLLM:
         max_tokens: int | None = None,
     ) -> str:
         model = self.fast_model if model_hint == "fast" else self.chat_model
-        kw: dict[str, Any] = {"temperature": temperature}
+        kw: dict[str, Any] = {
+            "temperature": temperature,
+            # Qwen3.x hybrid models think by default — measured 241 hidden
+            # completion tokens for a 3-token answer. Extraction/NLI/answers
+            # don't need it; keep the pipeline cheap and deterministic.
+            "extra_body": {"enable_thinking": False},
+        }
         if max_tokens is not None:
             kw["max_tokens"] = max_tokens
         resp = self._chat(messages, model=model, **kw)

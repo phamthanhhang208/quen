@@ -69,4 +69,7 @@ class QuenConfig:
         cfg.chat_model = os.environ.get("QUEN_CHAT_MODEL", cfg.chat_model)
         cfg.fast_model = os.environ.get("QUEN_FAST_MODEL", cfg.fast_model)
         cfg.embed_model = os.environ.get("QUEN_EMBED_MODEL", cfg.embed_model)
+        floor = os.environ.get("QUEN_ABSTAIN_FLOOR")
+        if floor:
+            cfg.abstain_relevance_floor = float(floor)
         return cfg

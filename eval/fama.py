@@ -23,7 +23,7 @@ LOOKAHEAD_WINDOW = 6      # tokens looked at AFTER a mention (passives:
 # "[... 45d old]" and a weak cue there would blind the absence check.
 NEGATION_CUES = frozenset(
     """
-    not no never n't dont don't nobody stop stopped drop dropped longer
+    not no never dont don nobody stop stopped drop dropped longer
     instead deprecated removed deleted replaced retired legacy former
     previously was were migrated away superseded obsolete gone ripped
     decommissioned
@@ -32,12 +32,23 @@ NEGATION_CUES = frozenset(
 
 
 def _tokens(text: str) -> list[str]:
-    return re.findall(r"[\w']+", text.casefold())
+    # alpha/digit runs so 'Node16' and 'Node 16' tokenize identically
+    return re.findall(r"[a-z]+|[0-9]+", text.casefold())
+
+
+def _fact_pattern(fact: str) -> str:
+    """Word-boundary pattern tolerant of spacing/hyphens between the fact's
+    alphanumeric runs: 'Node20' also matches 'Node 20' and 'node-20' (real
+    readers re-space compound tokens), while 'S3' still rejects 'S3000'."""
+    runs = re.findall(r"[A-Za-z]+|[0-9]+", fact.casefold())
+    if not runs:
+        return re.escape(fact.casefold())
+    return r"(?<!\w)" + r"[\s\-_./]*".join(re.escape(r) for r in runs) + r"(?!\w)"
 
 
 def word_present(fact: str, text: str) -> bool:
     """Word-boundary, case-insensitive containment of the fact string."""
-    return re.search(rf"(?<!\w){re.escape(fact.casefold())}(?!\w)", text.casefold()) is not None
+    return re.search(_fact_pattern(fact), text.casefold()) is not None
 
 
 def mentioned_positively(fact: str, text: str) -> bool:

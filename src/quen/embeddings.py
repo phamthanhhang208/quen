@@ -44,7 +44,8 @@ class QwenEmbedder:
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
-        resp = self._embed(texts, model=self.model)
+        # dimensions pinned explicitly — text-embedding-v4 supports 64-2048
+        resp = self._embed(texts, model=self.model, dimensions=self.dim)
         # preserve input order
         data = sorted(resp.data, key=lambda d: d.index)
         return [d.embedding for d in data]
