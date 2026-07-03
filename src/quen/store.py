@@ -117,10 +117,15 @@ CREATE TABLE IF NOT EXISTS recall_traces (
   verifications TEXT
 );
 
+CREATE TABLE IF NOT EXISTS meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS calibration_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   at TEXT NOT NULL,
-  kind TEXT NOT NULL CHECK (kind IN ('retention','confidence')),
+  kind TEXT NOT NULL CHECK (kind IN ('retention','confidence','retrieval_health')),
   trace_id TEXT,
   memory_id TEXT,
   predicted REAL NOT NULL,
@@ -542,6 +547,23 @@ class MemoryStore:
             "counterfactual": json.loads(r["counterfactual"]) if r["counterfactual"] else [],
             "verifications": json.loads(r["verifications"]) if r["verifications"] else [],
         }
+
+    # ------------------------------------------------------------------ meta
+
+    def get_meta(self, key: str) -> Optional[str]:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT value FROM meta WHERE key=?", (key,)
+            ).fetchone()
+        return row["value"] if row else None
+
+    def set_meta(self, key: str, value: str) -> None:
+        with self._lock:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO meta (key, value) VALUES (?,?)",
+                (key, value),
+            )
+            self._conn.commit()
 
     # ------------------------------------------------------------ calibration
 

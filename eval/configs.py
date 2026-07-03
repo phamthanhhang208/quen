@@ -30,6 +30,7 @@ class AnswerOut:
     confidence: Optional[float]
     tokens_used: int
     abstained: bool
+    freshness_max: Optional[float] = None  # stalest memory relied upon (days)
 
 
 class MemorySystem(Protocol):
@@ -155,5 +156,11 @@ class Quen:
         # prompt_tokens includes the trust tags/hedges Quen adds — the same
         # what-the-reader-saw accounting the baselines report
         return AnswerOut(
-            res.answer, res.answer_confidence, res.prompt_tokens, res.abstained
+            res.answer,
+            res.answer_confidence,
+            res.prompt_tokens,
+            res.abstained,
+            freshness_max=(
+                max(sm.freshness_days for sm in res.used) if res.used else None
+            ),
         )

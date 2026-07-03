@@ -59,6 +59,7 @@ def test_empty_text_stores_nothing(ingest, store, scripted):
 # ----------------------------------------------------------- salience gate
 
 def test_salience_gate_skips_low_salience_facts(ingest, store, scripted, cfg):
+    cfg.salience_soft_gate = False  # spec §4.3 hard gate
     scripted.script(llm.EXTRACT, _extract_json(
         _fact("quen persists memories in sqlite wal mode"),
         _fact("python lists are mutable"),
@@ -76,6 +77,25 @@ def test_salience_gate_skips_low_salience_facts(ingest, store, scripted, cfg):
         SkippedFact(content="python lists are mutable", reason="salience")
     ]
     assert len(store.list()) == 1  # the skipped fact created no row
+
+
+def test_salience_soft_gate_stores_weak_instead_of_skipping(
+    ingest, store, scripted, cfg
+):
+    """Default soft gate: a write-time skip is unrecoverable, so a
+    low-salience fact is stored WEAK (minimal importance, lapse-level
+    stability) and left to decay instead of being dropped."""
+    assert cfg.salience_soft_gate  # the default
+    scripted.script(llm.EXTRACT, _extract_json(_fact("python lists are mutable")))
+    scripted.script(llm.SALIENCE, _salience_json((0.05, 6.0)))
+
+    result = ingest("some observation")
+
+    assert result.skipped == []
+    [mem] = result.stored
+    assert mem.salience == 0.05
+    assert mem.importance <= 2.0
+    assert mem.stability == pytest.approx(fsrs.init_stability(fsrs.Grade.AGAIN))
 
 
 def test_salience_parse_failure_falls_back_to_defaults(ingest, scripted):

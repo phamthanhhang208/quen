@@ -28,8 +28,9 @@ def test_budget_cap_oversized_skip_and_continue(store, embedder, cfg, clock, mem
     for m in (big, small_a, small_b):
         store.add(m, actor="test")
 
-    budget = 30
-    assert estimate_tokens(big.content) > budget
+    # budget covers both small items INCLUDING their per-memory overhead
+    budget = 2 * (7 + cfg.per_memory_overhead_tokens)
+    assert estimate_tokens(big.content) + cfg.per_memory_overhead_tokens > budget
 
     result = recall(
         "alpha bravo charlie",
@@ -42,7 +43,9 @@ def test_budget_cap_oversized_skip_and_continue(store, embedder, cfg, clock, mem
     ids = _used_ids(result)
     assert big.id not in ids
     assert set(ids) == {small_a.id, small_b.id}
-    assert result.tokens_used == sum(sm.tokens for sm in result.used)
+    assert result.tokens_used == sum(
+        sm.tokens + cfg.per_memory_overhead_tokens for sm in result.used
+    )
     assert result.tokens_used <= budget
     assert result.token_budget == budget
 
@@ -92,7 +95,9 @@ def test_relevance_beats_decay(store, embedder, cfg, clock, mem_factory) -> None
     top = result.used[0]
     assert top.retrievability < 0.3          # genuinely decayed
     assert top.relevance > 0.5               # but highly relevant
-    assert top.score > next(sm for sm in result.used if sm.memory.id == fresh.id).score
+    # the fresh irrelevant memory doesn't merely rank lower — the inclusion
+    # relevance floor keeps it out of the context entirely
+    assert fresh.id not in ids
 
 
 def test_active_only_and_excluded_relevant_reason(
@@ -228,6 +233,7 @@ def test_retrieval_touches_access_but_is_not_a_review(
 
 
 def test_scored_memory_carries_trust_fields(store, embedder, cfg, clock, mem_factory) -> None:
+    cfg.trust_stability_tempering = False  # pin the untempered formula here
     mem = mem_factory("the billing service retries webhooks three times", confidence=0.8)
     store.add(mem, actor="test")
     clock.advance(days=cfg.freshness_half_life_days)

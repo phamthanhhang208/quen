@@ -83,8 +83,10 @@ def run_case(case: dict, config: str, *, budget: int, live: bool) -> dict:
         "abstain_ok": score.abstain_ok,
         "augmentation": case.get("augmentation", False),
         "expects_abstain": case.get("expects_abstain", False),
+        "verify_case": bool(case.get("live_files")),
         "tokens_used": ans.tokens_used,
         "answer_confidence": ans.confidence,
+        "freshness_max": ans.freshness_max,
         "answer": ans.text[:400],
     }
     if isinstance(system, Quen):
@@ -103,9 +105,12 @@ def _forgetting_stats(system: Quen, case: dict) -> dict:
                    for a in store.audit_tail(memory_id=m.id))
     ]
     active = store.active()
+    # negation-aware, matching the recall side: a tombstoned note that only
+    # MENTIONS an invalidated fact negatively ("useApi was removed") is not
+    # a correct forgetting of that fact
     correct_tombstones = sum(
         1 for m in tombstoned
-        if any(word_present(f, m.content_verbatim) for f in invalidated)
+        if any(mentioned_positively(f, m.content_verbatim) for f in invalidated)
     )
     forgotten = sum(
         1 for f in invalidated
@@ -119,6 +124,37 @@ def _forgetting_stats(system: Quen, case: dict) -> dict:
     }
 
 
+def wilson_ci(successes: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval — honest uncertainty for small-n rates."""
+    if n == 0:
+        return (0.0, 1.0)
+    p = successes / n
+    denom = 1 + z * z / n
+    center = (p + z * z / (2 * n)) / denom
+    half = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / denom
+    return (round(max(0.0, center - half), 4), round(min(1.0, center + half), 4))
+
+
+def mcnemar_exact(rows: list[dict], config_a: str, config_b: str) -> dict:
+    """Exact McNemar on paired per-case FAMA outcomes — all configs answer
+    the SAME cases, so the paired test is the honest comparison at n=25."""
+    from math import comb
+
+    by_case: dict[str, dict[str, bool]] = {}
+    for r in rows:
+        by_case.setdefault(r["case_id"], {})[r["config"]] = bool(r["fama"])
+    b = sum(1 for v in by_case.values()
+            if v.get(config_a) and not v.get(config_b))
+    c = sum(1 for v in by_case.values()
+            if not v.get(config_a) and v.get(config_b))
+    n = b + c
+    if n == 0:
+        return {"a_wins": b, "b_wins": c, "p_value": 1.0}
+    k = min(b, c)
+    p = sum(comb(n, i) for i in range(0, k + 1)) / (2 ** n) * 2
+    return {"a_wins": b, "b_wins": c, "p_value": round(min(1.0, p), 5)}
+
+
 def aggregate(rows: list[dict]) -> dict:
     out: dict = {}
     configs = sorted({r["config"] for r in rows})
@@ -126,9 +162,19 @@ def aggregate(rows: list[dict]) -> dict:
         sub = [r for r in rows if r["config"] == config]
         n = len(sub)
         abstain_sub = [r for r in sub if r["expects_abstain"]]
+        fama_hits = sum(r["fama"] for r in sub)
+        # verify-before-answer cases need a live source by construction —
+        # report the headline both with and without them so the comparison
+        # to verifier-less baselines is transparent
+        no_verify = [r for r in sub if not r["verify_case"]]
         agg = {
             "cases": n,
-            "fama": round(sum(r["fama"] for r in sub) / n, 4),
+            "fama": round(fama_hits / n, 4),
+            "fama_ci95": wilson_ci(fama_hits, n),
+            "fama_excluding_verify_cases": (
+                round(sum(r["fama"] for r in no_verify) / len(no_verify), 4)
+                if no_verify else None
+            ),
             "presence": round(sum(r["presence"] for r in sub) / n, 4),
             "absence": round(sum(r["absence"] for r in sub) / n, 4),
             "abstention_accuracy": (
@@ -151,6 +197,35 @@ def aggregate(rows: list[dict]) -> dict:
     return out
 
 
+def _confidence_by_freshness(quen_rows: list[dict]) -> list[dict]:
+    """Stated answer-confidence vs FAMA correctness, stratified by the
+    stalest memory relied upon — the headline epistemic-honesty measurement,
+    computed from real eval outcomes (not demo judgments)."""
+    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+    from quen.engine import _calibration_bins, _confidence_strata  # noqa: PLC0415
+
+    events = [
+        {
+            "predicted": r["answer_confidence"],
+            "outcome": 1 if r["fama"] else 0,
+            "freshness_days": r.get("freshness_max"),
+        }
+        for r in quen_rows
+        if r.get("answer_confidence") is not None
+    ]
+    strata = _confidence_strata([e for e in events if e["freshness_days"] is not None])
+    overall = _calibration_bins(events)
+    total = sum(b["count"] for b in overall)
+    ece = (
+        round(
+            sum(abs(b["predicted_mean"] - b["empirical"]) * b["count"]
+                for b in overall) / total, 4,
+        )
+        if total else None
+    )
+    return [{"overall_ece": ece, "events": len(events)}] + strata
+
+
 CONFIGS = ["append_only", "full_context", "quen", "quen_no_verify"]
 
 
@@ -165,6 +240,14 @@ def main(argv: list[str] | None = None) -> dict:
             print(f"{case['id']:>10} {config:<14} fama={row['fama']} "
                   f"presence={row['presence']} absence={row['absence']}")
     summary_by_config = aggregate(rows)
+    paired = {
+        f"quen_vs_{base}": mcnemar_exact(rows, "quen", base)
+        for base in ("append_only", "full_context", "quen_no_verify")
+        if any(r["config"] == base for r in rows)
+    }
+    confidence_calibration = _confidence_by_freshness(
+        [r for r in rows if r["config"] == "quen"]
+    )
 
     # KPI tiles for /vitals read ONLY the headline (ours) numbers
     ours = summary_by_config.get("quen", {})
@@ -180,6 +263,8 @@ def main(argv: list[str] | None = None) -> dict:
         ),
         "budget": args.budget,
         "by_config": summary_by_config,
+        "paired_mcnemar": paired,
+        "confidence_calibration_by_freshness": confidence_calibration,
     }
     write_json(args.out / "probe_results.json", rows)
     write_json(args.out / "summary.json", kpis)

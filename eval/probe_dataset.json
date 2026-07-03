@@ -276,6 +276,66 @@
       }
     },
     {
+      "id": "probe-026",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The team uses Postgres."},
+        {"day": 7, "kind": "chat", "text": "The team uses Redis."}
+      ],
+      "question": "The team uses Postgres and what else?",
+      "question_day": 9,
+      "valid_facts": ["Postgres", "Redis"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-027",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "doc", "text": "The payments service supports Visa."},
+        {"day": 5, "kind": "doc", "text": "The payments service supports Mastercard."}
+      ],
+      "question": "The payments service supports which cards, Visa and what?",
+      "question_day": 7,
+      "valid_facts": ["Visa", "Mastercard"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-028",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The team prefers pnpm."},
+        {"day": 6, "kind": "chat", "text": "The team prefers tabs."}
+      ],
+      "question": "The team prefers tabs and which package manager?",
+      "question_day": 8,
+      "valid_facts": ["tabs", "pnpm"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-029",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "chat", "text": "The mobile team uses Swift."},
+        {"day": 4, "kind": "chat", "text": "The mobile team uses Kotlin."}
+      ],
+      "question": "The mobile team uses Swift and what other language?",
+      "question_day": 6,
+      "valid_facts": ["Swift", "Kotlin"],
+      "invalidated_facts": []
+    },
+    {
+      "id": "probe-030",
+      "augmentation": true,
+      "history": [
+        {"day": 0, "kind": "doc", "text": "The gateway depends on the auth service."},
+        {"day": 5, "kind": "doc", "text": "The gateway depends on the rate limiter."}
+      ],
+      "question": "The gateway depends on the auth service and what else?",
+      "question_day": 7,
+      "valid_facts": ["auth", "rate limiter"],
+      "invalidated_facts": []
+    },
+    {
       "id": "probe-025",
       "history": [
         {"day": 0, "kind": "chat", "text": "Remember that API_TIMEOUT_MS stays at 3000 in src/net.ts."}

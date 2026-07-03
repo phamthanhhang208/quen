@@ -1,9 +1,16 @@
 """Retrieval — relevance-dominant, token-bounded, active-only (spec §4.4).
 
-``rank = w_rel * max(0, cosine) + w_r * R + w_i * importance/10`` with
-relevance dominant, so a decayed-but-relevant memory beats a fresh
-irrelevant one (relevance-beats-decay). Results greedily fill a token
-budget (skip-and-continue: an oversized item never blocks smaller ones).
+``rank = w_rel * (max(0, cosine) + lexical identifier bonus) + w_r * R +
+w_i * importance/10`` with relevance dominant, so a decayed-but-relevant
+memory beats a fresh irrelevant one (relevance-beats-decay). The lexical
+bonus recovers exact identifier matches (MAX_UPLOAD_MB, camelCase names)
+that dense embeddings smooth over — the classic hybrid-retrieval gap for
+technical corpora. Results greedily fill a token budget (skip-and-continue:
+an oversized item never blocks smaller ones), but ONLY memories clearing an
+inclusion relevance floor: padding the budget with irrelevant memories both
+pollutes the reader and — worse — used to touch their access time on every
+ask, starving eviction's unaccessed-past-TTL condition (a 52-week simulation
+evicted exactly nothing).
 
 Retrieval is NOT an FSRS review — the only side effect is a
 ``last_accessed_at`` touch on the memories actually used. Reviews come
@@ -16,6 +23,7 @@ counterfactual pick (what an append-only RAG would have injected).
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
@@ -26,6 +34,23 @@ from quen.fsrs import retrievability
 from quen.models import MemoryItem
 from quen.store import MemoryStore
 from quen.trust import trust_score
+
+_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*")
+_CAMEL_RE = re.compile(r"[a-z][A-Z]")
+
+
+def _identifier_tokens(text: str) -> set[str]:
+    """Code-shaped tokens (camelCase / snake_case / dotted / digit-bearing) —
+    the exact-match signal dense embeddings smooth over."""
+    out: set[str] = set()
+    for raw in _TOKEN_RE.findall(text):
+        token = raw.strip(".")
+        if len(token) < 3:
+            continue
+        if "_" in token or "." in token or _CAMEL_RE.search(token) \
+                or any(c.isdigit() for c in token):
+            out.add(token.casefold())
+    return out
 
 _EXCLUDED_RELEVANCE_MIN = 0.25
 _EXCLUDED_CAP = 5
@@ -44,6 +69,7 @@ class ScoredMemory:
 
     memory: MemoryItem
     relevance: float          # max(0, cosine(query, memory))
+    lexical: float            # exact identifier-overlap share with the query
     retrievability: float     # FSRS R at `now`
     importance_norm: float    # importance / 10
     score: float
@@ -94,23 +120,44 @@ def recall(
             + store.list(status="superseded", limit=_ALL_LIMIT)
         )
 
-    # Pre-cut to the candidate pool by cosine (deterministic tie-breaks).
-    by_cosine = sorted(
+    # Pre-cut to the candidate pool by cosine (deterministic tie-breaks),
+    # UNIONED with exact-identifier hits: an identifier match outside the
+    # cosine top-k would otherwise never even be scored — the lexical bonus
+    # can't rescue what the pre-cut already dropped.
+    query_idents = _identifier_tokens(query)
+    ranked = sorted(
         ((mem, cosine(query_embedding, mem.embedding)) for mem in pool),
         key=lambda mc: (-mc[1], -mc[0].created_at.timestamp(), mc[0].id),
-    )[: cfg.candidate_pool]
+    )
+    by_cosine = ranked[: cfg.candidate_pool]
+    if query_idents:
+        seen = {mem.id for mem, _ in by_cosine}
+        by_cosine += [
+            (mem, cos)
+            for mem, cos in ranked[cfg.candidate_pool :]
+            if mem.id not in seen
+            and query_idents & _identifier_tokens(mem.content)
+        ][: cfg.candidate_pool // 2]
 
-    scored = [_score(mem, cos, now=now, cfg=cfg) for mem, cos in by_cosine]
+    scored = [
+        _score(mem, cos, query_idents=query_idents, now=now, cfg=cfg)
+        for mem, cos in by_cosine
+    ]
     scored.sort(key=lambda sm: (-sm.score, -sm.memory.created_at.timestamp(), sm.memory.id))
 
     # Greedy fill, skip-and-continue: an oversized item is skipped, scanning
-    # continues — the budget cap is a strict invariant.
+    # continues — the budget cap is a strict invariant. Items below the
+    # inclusion floor never enter (see module docstring: reader pollution +
+    # eviction starvation).
     used: list[ScoredMemory] = []
     remaining = token_budget
     for sm in scored:
-        if sm.tokens <= remaining:
+        if sm.relevance + sm.lexical < cfg.include_relevance_floor:
+            continue
+        cost = sm.tokens + cfg.per_memory_overhead_tokens
+        if cost <= remaining:
             used.append(sm)
-            remaining -= sm.tokens
+            remaining -= cost
     tokens_used = token_budget - remaining
 
     store.touch_access([sm.memory.id for sm in used], at=now)
@@ -129,18 +176,31 @@ def recall(
     )
 
 
-def _score(mem: MemoryItem, cos: float, *, now: datetime, cfg: QuenConfig) -> ScoredMemory:
+def _score(
+    mem: MemoryItem,
+    cos: float,
+    *,
+    query_idents: set[str],
+    now: datetime,
+    cfg: QuenConfig,
+) -> ScoredMemory:
     relevance = max(0.0, cos)
+    lexical = 0.0
+    if query_idents:
+        hits = query_idents & _identifier_tokens(mem.content)
+        lexical = len(hits) / len(query_idents)
     r = retrievability(mem.elapsed_days(now), mem.stability)
     importance_norm = mem.importance / 10.0
     score = (
         cfg.w_relevance * relevance
+        + cfg.w_lexical * lexical
         + cfg.w_retrievability * r
         + cfg.w_importance * importance_norm
     )
     return ScoredMemory(
         memory=mem,
         relevance=relevance,
+        lexical=lexical,
         retrievability=r,
         importance_norm=importance_norm,
         score=score,

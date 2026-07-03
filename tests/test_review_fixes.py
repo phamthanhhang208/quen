@@ -170,7 +170,8 @@ def test_gate_loop_verifies_backfilled_memories(
 
     # budget fits ~one memory: refuting the first must not let the second
     # slip through unverified
-    res = engine.ask("What do uploads go through?", token_budget=10)
+    # budget fits exactly one memory including its tag overhead
+    res = engine.ask("What do uploads go through?", token_budget=25)
     refuted = {v.memory_id for v in res.verifications if v.outcome == "refuted"}
     assert len(refuted) == 2, "backfilled stale memory escaped the gate"
     used_ids = {sm.memory.id for sm in res.used}

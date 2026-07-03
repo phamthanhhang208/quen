@@ -15,18 +15,23 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-NEGATION_WINDOW = 8       # tokens looked at BEFORE a mention
+NEGATION_WINDOW = 5       # tokens looked at BEFORE a mention
 LOOKAHEAD_WINDOW = 6      # tokens looked at AFTER a mention (passives:
                           # "the Redis cluster is decommissioned")
 
-# NOTE: "old" is deliberately absent — answers carry trust tags like
-# "[... 45d old]" and a weak cue there would blind the absence check.
-NEGATION_CUES = frozenset(
+# Split cue sets, deliberately narrow: past-tense/hedging words ("was",
+# "previously", "legacy") are NOT negations — treating them as excusals let
+# an answer lean on a stale fact while phrasing it in past tense and still
+# score absence. ("old" stays absent too: trust tags say "45d old".)
+NEGATION_CUES_BEFORE = frozenset(
     """
-    not no never dont don nobody stop stopped drop dropped longer
-    instead deprecated removed deleted replaced retired legacy former
-    previously was were migrated away superseded obsolete gone ripped
-    decommissioned
+    not no never dont don nobody stop stopped drop dropped longer instead
+    """.split()
+)
+NEGATION_CUES_AFTER = frozenset(
+    """
+    removed deleted dropped decommissioned gone retired replaced superseded
+    obsolete ripped migrated away stopped deprecated
     """.split()
 )
 
@@ -68,7 +73,9 @@ def mentioned_positively(fact: str, text: str) -> bool:
         if toks[i : i + n] == fact_toks:
             before = toks[max(0, i - NEGATION_WINDOW) : i]
             after = toks[i + n : i + n + LOOKAHEAD_WINDOW]
-            if not any(t in NEGATION_CUES for t in before + after):
+            if not any(t in NEGATION_CUES_BEFORE for t in before) and not any(
+                t in NEGATION_CUES_AFTER for t in after
+            ):
                 return True
     return False
 
@@ -109,6 +116,12 @@ _ABSTAIN_MARKERS = (
 )
 
 
-def _looks_like_abstention(answer: str) -> bool:
+def looks_like_abstention(answer: str) -> bool:
+    """Judged from delivered text ONLY — self-reported flags are not
+    creditable evidence (they'd score our own config by a signal baselines
+    cannot emit)."""
     low = answer.casefold()
     return any(m in low for m in _ABSTAIN_MARKERS)
+
+
+_looks_like_abstention = looks_like_abstention  # backward-compat alias

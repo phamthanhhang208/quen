@@ -149,8 +149,10 @@ def test_selftest_pass_reinforces(store, mem_factory, cfg, embedder, clock):
     got = store.get(mem.id)
     assert got.stability > s_before
     reviews = store.reviews_for(mem.id)
-    assert reviews[-1]["kind"] == "self_test" and reviews[-1]["grade"] == 3
-    events = store.calibration_events("retention")
+    # pass grades HARD with capped growth — retrieval health, not recall proof
+    assert reviews[-1]["kind"] == "self_test" and reviews[-1]["grade"] == 2
+    assert got.stability <= s_before * cfg.selftest_pass_growth_cap + 1e-9
+    events = store.calibration_events("retrieval_health")
     assert events and events[-1]["outcome"] == 1
 
 
@@ -174,7 +176,7 @@ def test_selftest_fail_reexpands_verbatim_and_fails_review(
     assert got.stability < s_before
     reviews = store.reviews_for(mem.id)
     assert reviews[-1]["kind"] == "self_test" and reviews[-1]["grade"] == 1
-    assert store.calibration_events("retention")[-1]["outcome"] == 0
+    assert store.calibration_events("retrieval_health")[-1]["outcome"] == 0
 
 
 def test_compress_keeps_verbatim(store, mem_factory, cfg, embedder, clock):

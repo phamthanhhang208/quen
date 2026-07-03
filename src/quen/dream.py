@@ -100,21 +100,31 @@ def self_test_memory(
         )
         passed = verdict.strip().upper().startswith("YES")
 
-    # 4. review — self-test outcomes are FSRS reviews (spec §4.5b)
+    # 4. review — a PASS is retrieval health, not recall evidence: the probe
+    # was built from the memory and the memory stayed in the pool, so pass
+    # probability is ~independent of R. Graded HARD with a hard cap on S
+    # growth (an uncapped GOOD at low R multiplies S x27.8 and immortalizes
+    # exactly the memories closest to eviction). Failures stay AGAIN.
     elapsed = mem.elapsed_days(now)
     r_before = fsrs.retrievability(elapsed, mem.stability)
     before = (mem.difficulty, mem.stability)
-    grade = Grade.GOOD if passed else Grade.AGAIN
-    mem.difficulty, mem.stability = fsrs.review(*before, elapsed, grade)
+    grade = Grade.HARD if passed else Grade.AGAIN
+    d2, s2 = fsrs.review(*before, elapsed, grade)
+    if passed:
+        s2 = min(s2, before[1] * cfg.selftest_pass_growth_cap)
+    mem.difficulty, mem.stability = d2, s2
     mem.last_review_at = now
     mem.review_count += 1
     if not passed:
-        # re-expand verbatim + do-not-forget nudge
+        # Re-expand verbatim so the next recall sees the full fact. NO
+        # last_accessed touch (dream introspection is not usage — it would
+        # defeat the eviction TTL) and the do-not-forget importance nudge
+        # fires once, not per failure (zombie ratchet).
         if mem.content != mem.content_verbatim:
             mem.content = mem.content_verbatim
             mem.embedding = embedder.embed([mem.content])[0]  # keep ranking honest
-        mem.importance = min(10.0, mem.importance + 1.0)
-        mem.last_accessed_at = now
+        if not _has_failed_selftest(store, mem.id):
+            mem.importance = min(10.0, mem.importance + 1.0)
     store.update(
         mem,
         actor=actor,
@@ -131,8 +141,12 @@ def self_test_memory(
         after=(mem.difficulty, mem.stability),
         at=now,
     )
+    # Logged as retrieval health, NOT retention calibration: an outcome that
+    # cannot fail with elapsed time can't calibrate a forgetting curve.
+    # Retention calibration comes from use-judged reviews (engine.judge_answer).
     store.record_calibration(
-        "retention", predicted=r_before, outcome=passed, memory_id=mem.id, at=now
+        "retrieval_health", predicted=r_before, outcome=passed,
+        memory_id=mem.id, at=now,
     )
     return SelfTestResult(
         memory_id=mem.id,
@@ -176,8 +190,10 @@ def run_dream(
 
     # ---- 2. self-test (lowest R first) ------------------------------------
     # Targets the at-risk-but-not-doomed band: eviction candidates are
-    # excluded (see above), and so are fresh memories whose R hasn't decayed
-    # below the desired retention yet (nothing to test).
+    # excluded (see above), as are fresh memories whose R hasn't decayed
+    # below the desired retention (nothing to test), and memories in
+    # failure backoff (a persistently failing memory must not monopolize
+    # the sample slots every single run).
     try:
         actives = [
             m
@@ -185,6 +201,7 @@ def run_dream(
             if m.id not in evictable_ids
             and fsrs.retrievability(m.elapsed_days(now), m.stability)
             < cfg.desired_retention
+            and not _in_selftest_backoff(store, m.id, cfg, now)
         ]
         actives.sort(
             key=lambda m: fsrs.retrievability(m.elapsed_days(now), m.stability)
@@ -250,12 +267,12 @@ def run_dream(
         log("error", {"phase": "evict", "error": repr(exc)})
 
     # ---- 5. compress (keep verbatim) ---------------------------------------
-    # Memories re-expanded by a failed self-test THIS run are exempt —
-    # compressing them again would undo the do-not-forget recovery.
-    reexpanded = {t.memory_id for t in report.self_tests if not t.passed}
+    # Memories that EVER failed a self-test are exempt — a one-run exemption
+    # would re-enter a compress→fail→re-expand→compress limit cycle where the
+    # lossy summary keeps dropping the probed detail.
     try:
         for mem in store.active():
-            if mem.id in reexpanded:
+            if _has_failed_selftest(store, mem.id):
                 continue
             if len(mem.content) > cfg.compress_min_chars:
                 compressed = llm.complete(
@@ -289,6 +306,30 @@ def run_dream(
         report.journal = f"(journal unavailable: {exc!r})"
     store.finish_dream_run(run_id, journal=report.journal, stats=report.stats, at=now)
     return report
+
+
+def _has_failed_selftest(store: MemoryStore, memory_id: str) -> bool:
+    return any(
+        r["kind"] == "self_test" and r["grade"] == 1
+        for r in store.reviews_for(memory_id)
+    )
+
+
+def _in_selftest_backoff(
+    store: MemoryStore, memory_id: str, cfg: QuenConfig, now: datetime
+) -> bool:
+    """True while the memory's most recent self-test failure is younger than
+    the backoff window."""
+    last_fail = None
+    for r in store.reviews_for(memory_id):  # ordered by at asc
+        if r["kind"] == "self_test":
+            last_fail = r if r["grade"] == 1 else None
+    if last_fail is None:
+        return False
+    from quen.store import parse_dt
+
+    age = (now - parse_dt(last_fail["at"])).total_seconds() / 86400.0
+    return age < cfg.selftest_fail_backoff_days
 
 
 def _evictable(mem: MemoryItem, cfg: QuenConfig, now: datetime) -> bool:

@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from common import build_stack, make_parser, write_json  # noqa: E402
 from configs import AppendOnlyRAG, FullContext, Quen  # noqa: E402
+from fama import looks_like_abstention, word_present  # noqa: E402
 
 SUBSETS = ("knowledge-update", "temporal-reasoning")
 DATA_DIR = Path(__file__).parent / "data"
@@ -86,9 +87,13 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
     is_abstention = str(inst["question_id"]).endswith("_abs")
     gold = str(inst.get("answer", "")).strip()
     if is_abstention:
-        correct = ans.abstained
+        # judged from the delivered TEXT for every config — never from a
+        # config's self-reported flag (baselines cannot emit one)
+        correct = looks_like_abstention(ans.text)
     else:
-        correct = bool(gold) and gold.casefold() in ans.text.casefold()
+        # word-boundary match: bare containment lets short golds like
+        # "before" match almost any verbose answer
+        correct = bool(gold) and word_present(gold, ans.text)
     return {
         "question_id": inst["question_id"],
         "question_type": inst["question_type"],

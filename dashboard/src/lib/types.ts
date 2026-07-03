@@ -92,6 +92,8 @@ export interface UsedMemory {
   memory_id: string;
   snippet: string;
   relevance: number;
+  lexical?: number; // exact identifier-overlap bonus share
+
   retrievability: number;
   importance_norm: number;
   score: number;

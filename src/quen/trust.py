@@ -14,6 +14,7 @@ models — never quen.retrieval (retrieval imports us).
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from datetime import datetime
 from typing import Optional
@@ -39,10 +40,22 @@ def freshness_factor(mem: MemoryItem, now: datetime, half_life_days: float) -> f
 
 
 def trust_score(mem: MemoryItem, now: datetime, cfg: QuenConfig) -> float:
-    """Per-memory trust = confidence x freshness; tombstones get zero."""
+    """Per-memory trust = confidence x freshness; tombstones get zero.
+
+    Freshness decay is tempered by FSRS stability (anti recency-bias): a raw
+    exponential half-life treats an old-but-repeatedly-confirmed fact like
+    day-old gossip. Stability is exactly the earned evidence of durability —
+    each successful review (use judged good, self-test pass, verification)
+    stretches the effective half-life logarithmically.
+    """
     if mem.status != "active":
         return 0.0
-    return mem.confidence * freshness_factor(mem, now, cfg.freshness_half_life_days)
+    half_life = cfg.freshness_half_life_days
+    if cfg.trust_stability_tempering:
+        half_life *= 1.0 + cfg.trust_stability_gain * math.log1p(
+            mem.stability / cfg.trust_stability_ref
+        )
+    return mem.confidence * freshness_factor(mem, now, half_life)
 
 
 def hedge_phrase(trust: float, source_ref: Optional[str]) -> str:
@@ -183,7 +196,12 @@ def apply_verification(
     mem.last_verified_at = now
 
     if outcome == "confirmed":
-        mem.confidence = min(1.0, mem.confidence + cfg.confidence_bump_on_confirm)
+        # scaled by verifier strength: a grep hit is weaker evidence than a
+        # human confirmation — weak verifiers must not mint full confidence
+        strength = _verifier_strength(store, verifier)
+        mem.confidence = min(
+            1.0, mem.confidence + cfg.confidence_bump_on_confirm * strength
+        )
     else:  # refuted → tombstone on the spot
         mem.confidence = mem.confidence * cfg.confidence_cut_on_refute
         successor = _newest_active_slot_mate(mem, store)
@@ -193,6 +211,10 @@ def apply_verification(
         else:
             mem.status = "deprecated"
         mem.valid_to = now
+        # the refutation propagates to derived knowledge: generalizations
+        # citing this memory as provenance lose confidence (weakened, not
+        # disproven — they may rest on other evidence too)
+        penalize_derived(mem.id, store=store, now=now, actor=actor)
 
     store.record_review(
         mem.id,
@@ -211,6 +233,45 @@ def apply_verification(
         detail={"outcome": outcome, "evidence": evidence, "verifier": verifier},
     )
     return VerificationEvent(mem.id, verifier, outcome, evidence, now)
+
+
+# Known verifier strengths: how much a "confirmed" from this verifier is
+# worth. RepoGrepVerifier confirms identifier EXISTENCE, not claim truth
+# (a changed value behind the same name still "confirms") — weak evidence.
+_VERIFIER_STRENGTH = {"repo_grep": 0.7, "hint": 1.0, "none": 0.0}
+
+
+def _verifier_strength(store: MemoryStore, verifier: str) -> float:
+    return _VERIFIER_STRENGTH.get(verifier, 0.8)
+
+
+DERIVED_PENALTY = 0.5
+
+
+def penalize_derived(
+    tombstoned_id: str,
+    *,
+    store: MemoryStore,
+    now: datetime,
+    actor: str = "trust",
+) -> list[str]:
+    """When a memory is invalidated, generalizations that cite it as
+    provenance lose confidence (audited as ``provenance_invalidated``).
+    Without this, consolidation launders refuted facts into fully-trusted
+    derived knowledge that the closed loop never touches again."""
+    hit: list[str] = []
+    for mem in store.list(mtype="semantic", limit=100_000):
+        if mem.status != "active" or tombstoned_id not in mem.provenance:
+            continue
+        mem.confidence *= DERIVED_PENALTY
+        store.update(
+            mem,
+            actor=actor,
+            action="provenance_invalidated",
+            detail={"source": tombstoned_id},
+        )
+        hit.append(mem.id)
+    return hit
 
 
 def _newest_active_slot_mate(mem: MemoryItem, store: MemoryStore) -> Optional[MemoryItem]:

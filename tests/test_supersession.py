@@ -399,10 +399,10 @@ def test_nli_fifo_pairs_ordered_and_each_pair_once(
     store.add(m2, actor="test")
     scripted.script(
         llm_mod.NLI,
-        [  # FIFO: (m0,m1), (m0,m2), (m1,m2)
+        [  # newest-involving pairs first: (m0,m2), (m1,m2), then (m0,m1)
+            nli_json("neutral", 0.6),
             nli_json("neutral", 0.6),
             nli_json("contradicts", 0.9),
-            nli_json("neutral", 0.6),
         ],
     )
 
@@ -410,12 +410,13 @@ def test_nli_fifo_pairs_ordered_and_each_pair_once(
 
     assert len(scripted.calls) == 3  # each pair evaluated exactly once
     [ev] = events
-    assert (ev.old_id, ev.new_id) == (m0.id, m2.id)
-    assert store.get(m1.id).status == "active"
-    # pair ordering surfaced in the prompts: A is always the older fact
+    assert (ev.old_id, ev.new_id) == (m0.id, m1.id)
+    assert store.get(m2.id).status == "active"
+    # pair ordering surfaced in the prompts: newest-involving first (the cap
+    # must spend its budget reconciling fresh observations), A always older
     first_prompt = scripted.calls[0]["prompt"]
     assert f"A (older): {m0.content}" in first_prompt
-    assert f"B (newer): {m1.content}" in first_prompt
+    assert f"B (newer): {m2.content}" in first_prompt
 
 
 def test_nli_superseded_memory_drops_out_of_later_pairs(
@@ -433,7 +434,7 @@ def test_nli_superseded_memory_drops_out_of_later_pairs(
     store.add(m2, actor="test")
     scripted.script(
         llm_mod.NLI,
-        [  # (m0,m1) contradicts → m0 dies; (m0,m2) skipped; (m1,m2) neutral
+        [  # (m0,m2) contradicts → m0 dies; (m1,m2) neutral; (m0,m1) skipped
             nli_json("contradicts", 0.9),
             nli_json("neutral", 0.6),
         ],
@@ -441,9 +442,9 @@ def test_nli_superseded_memory_drops_out_of_later_pairs(
 
     [ev] = nli_pass(store, scripted, embedder, cfg, now=clock.now())
 
-    assert (ev.old_id, ev.new_id) == (m0.id, m1.id)
+    assert (ev.old_id, ev.new_id) == (m0.id, m2.id)
     assert len(scripted.calls) == 2
-    assert store.get(m2.id).status == "active"
+    assert store.get(m1.id).status == "active"
 
 
 # ------------------------------------------------------------ supersede unit

@@ -36,7 +36,8 @@ def test_confirmed_is_a_good_review_and_bumps_confidence(
 
     stored = store.get(mem.id)
     assert stored.stability > s_before                      # retention reinforced
-    assert stored.confidence == pytest.approx(min(1.0, 0.7 + cfg.confidence_bump_on_confirm))
+    # repo_grep is weak evidence (existence, not truth): bump scaled by 0.7
+    assert stored.confidence == pytest.approx(min(1.0, 0.7 + cfg.confidence_bump_on_confirm * 0.7))
     assert stored.last_verified_at == clock.now()
     assert stored.last_review_at == clock.now()
     assert stored.review_count == 1

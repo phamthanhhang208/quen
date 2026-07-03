@@ -83,8 +83,27 @@ class MemoryItem:
         return (_norm(s), _norm(r))
 
 
+# Leading noise words that make "the team" and "team" different slots —
+# live extractors emit both phrasings for the same subject.
+_LEAD_ARTICLES = frozenset({"the", "a", "an", "our", "this", "that", "its", "my"})
+# Copulas at the edge of a relation: "stored in" vs "are stored in".
+_EDGE_COPULAS = frozenset({"is", "are", "was", "were", "be", "been", "being"})
+
+
 def _norm(part: str) -> str:
-    return " ".join(part.strip().casefold().split())
+    """Canonicalize a triple part: casefold, collapse whitespace, strip
+    punctuation edges, drop leading articles, and trim edge copulas (kept if
+    they are the entire relation, e.g. plain "is")."""
+    tokens = part.strip().casefold().split()
+    tokens = [t.strip(".,;:!?'\"`") for t in tokens]
+    tokens = [t for t in tokens if t]
+    while len(tokens) > 1 and tokens[0] in _LEAD_ARTICLES:
+        tokens = tokens[1:]
+    # leading copula only: unifies "stored in"/"are stored in". A TRAILING
+    # copula is the head of relations like "default branch is" — kept.
+    while len(tokens) > 1 and tokens[0] in _EDGE_COPULAS:
+        tokens = tokens[1:]
+    return " ".join(tokens)
 
 
 def make_memory(

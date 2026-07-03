@@ -2,7 +2,7 @@
 """Seed the spec §10 demo narrative into a fresh Quên database — fully
 offline (HashingEmbedder + ScriptedLLM), deterministic mechanics, real dates.
 
-The 180-day story (T0 = now − 180d):
+The 80-day story (T0 = now − 80d):
   d0    session 1: "the team fetches data via useApi" (+ page-level facts)
   d1    session 2: MAX_UPLOAD_MB config fact, uploadV1 fact, pho trivia
   d2    ask about the data hook → judged correct (use-review, calibration)
@@ -11,7 +11,7 @@ The 180-day story (T0 = now − 180d):
   d11   dream #2 → DETERMINISTIC SUPERSESSION useApi → useQuery
   d12   ask notifications (useQuery used, useApi excluded+counterfactual,
         judged correct) · ask lunch trivia (judged WRONG → retention drops)
-  d180  dream #3 → the pho trivia EVICTS (R<θ ∧ TTL ∧ ¬pinned)
+  d80   dream #3 → the pho trivia EVICTS (R<θ ∧ TTL ∧ ¬pinned)
         verifier comes online (repo-grep over scripts/demo_repo), then:
         ask uploads   → uploadV1 REFUTED live (tombstoned + fail review)
         ask config    → MAX_UPLOAD_MB CONFIRMED live (confidence→1.0)
@@ -92,7 +92,8 @@ def build_engine(db_path: str, clock: DemoClock, *, live: bool = False) -> QuenE
         llm.script(llm_mod.REABSTRACT, _reabstract_handler)
         embedder = HashingEmbedder()
     return QuenEngine(
-        QuenConfig(db_path=db_path),
+        # the demo narrative verifies up to 5 memories in its final asks
+        QuenConfig(db_path=db_path, verify_max_per_ask=5),
         store=MemoryStore(db_path, clock=clock.now),
         llm=llm,
         embedder=embedder,
@@ -106,7 +107,7 @@ def main(db_path: str = "data/demo.db", *, live: bool = False) -> dict:
         Path(db_path + suffix).unlink(missing_ok=True)
 
     now = datetime.now(timezone.utc)
-    t0 = now - timedelta(days=180)
+    t0 = now - timedelta(days=80)
     clock = DemoClock(t0)
     engine = build_engine(db_path, clock, live=live)
 
@@ -148,13 +149,14 @@ def main(db_path: str = "data/demo.db", *, live: bool = False) -> dict:
     res = engine.ask("The team fetches data via which hook these days?",
                      token_budget=ASK_BUDGET)
     engine.judge_answer(res.trace_id, correct=True)
-    # tiny budget → only the trivia memory is used; judging it wrong drops S
+    # tiny budget (content + per-memory overhead) → only the trivia memory
+    # fits; judging it wrong drops S so decay can finish the job
     res = engine.ask("What did the team have for lunch at the corner spot?",
-                     token_budget=15)
+                     token_budget=25)
     engine.judge_answer(res.trace_id, correct=False)
 
-    # ---- d180 ("today"): dream #3 → eviction --------------------------------
-    clock.advance_to_day(t0, 180)
+    # ---- d80 ("today"): dream #3 → eviction ---------------------------------
+    clock.advance_to_day(t0, 80)
     dream3 = engine.dream()
 
     # the verifier comes online (harness connected to the live repo)

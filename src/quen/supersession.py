@@ -30,13 +30,38 @@ from quen import llm as llm_mod
 from quen.config import QuenConfig
 from quen.embeddings import Embedder, cosine
 from quen.llm import ChatLLM, parse_json_block
-from quen.models import MemoryItem
+from quen.models import MemoryItem, _norm
 from quen.store import MemoryStore
 
 # NLI pairs evaluated per pass — cost cap.
 MAX_NLI_PAIRS = 50
 # Pinned memories need at least this NLI confidence to be superseded.
 PINNED_NLI_BAR = 0.9
+# A newer fact whose source authority trails the old one's by at least this
+# margin may NOT supersede it (spec §4.6 "arbitrate by recency+authority" —
+# a casual chat mention must not silently retire a merged-PR fact). A
+# high-confidence NLI contradiction (>= PINNED_NLI_BAR) overrides the guard.
+AUTHORITY_SUPERSEDE_MARGIN = 0.25
+
+# Relations whose slot holds ONE current value (functional properties in the
+# knowledge-base sense). Only these take the deterministic same-(s,r)-new-o
+# path. Multi-valued relations ("uses", "prefers", "supports"...) would be
+# over-forgotten by it — (team, uses, Postgres) + (team, uses, Redis) is
+# augmentation, not contradiction — so their same-slot pairs route to the
+# NLI stage, where `augments` keeps both.
+FUNCTIONAL_RELATIONS = frozenset({
+    "is", "equals", "set to", "runs on", "run on", "deploys to", "deploy to",
+    "stored in", "stores in", "lives in", "hosted on", "hosted in",
+    "fetches data via", "fetches data with", "goes through", "go through",
+    "points to", "targets", "defaults to",
+})
+
+
+def is_functional_relation(relation: str) -> bool:
+    r = _norm(relation)
+    # "X is Y" / "default branch is Y" / "state library is Y" — a trailing
+    # copula marks a single-current-value assertion
+    return r in FUNCTIONAL_RELATIONS or r.endswith(" is")
 
 # Relation glue and function words — not entities for candidate pairing.
 _STOPWORDS = frozenset(
@@ -114,9 +139,33 @@ def supersede(
                 at=now,
             )
             return None
+    # authority guard: recency alone must not retire a much-better-sourced
+    # fact — unless a high-confidence NLI contradiction says otherwise
+    if new.confidence + AUTHORITY_SUPERSEDE_MARGIN <= old.confidence and not (
+        rule == "nli"
+        and nli_confidence is not None
+        and nli_confidence >= PINNED_NLI_BAR
+    ):
+        store.audit(
+            actor,
+            "supersede_blocked_authority",
+            memory_id=old.id,
+            run_id=run_id,
+            detail={
+                "new_id": new.id,
+                "rule": rule,
+                "old_confidence": old.confidence,
+                "new_confidence": new.confidence,
+            },
+            at=now,
+        )
+        return None
+    from quen.trust import penalize_derived
+
     old.valid_to = new.valid_from
     old.status = "superseded"
     old.superseded_by = new.id
+    penalize_derived(old.id, store=store, now=now, actor=actor)
     detail: dict = {"rule": rule, "new_id": new.id, "run_id": run_id}
     if label is not None:
         detail["label"] = label
@@ -157,7 +206,9 @@ def deterministic_pass(
     groups: dict[tuple[str, str], list[MemoryItem]] = {}
     for mem in store.active():
         key = mem.slot_key
-        if key is not None:
+        # only functional relations are single-valued; multi-valued slots
+        # ("uses", "prefers") belong to the NLI stage
+        if key is not None and is_functional_relation(key[1]):
             groups.setdefault(key, []).append(mem)
 
     events: list[SupersessionEvent] = []
@@ -315,18 +366,27 @@ def _candidate_pairs(
     tokens = [_entity_tokens(m.content) for m in order]
     keys: set[tuple[int, int]] = set()
 
+    def _deterministic_owns(a: MemoryItem, b: MemoryItem) -> bool:
+        # same-slot pairs belong to the deterministic stage ONLY when the
+        # relation is functional; multi-valued slots need NLI's augments guard
+        return (
+            a.slot_key is not None
+            and a.slot_key == b.slot_key
+            and is_functional_relation(a.slot_key[1])
+        )
+
     for i, a in enumerate(order):
         for j in range(i + 1, len(order)):
             b = order[j]
-            if a.slot_key is not None and a.slot_key == b.slot_key:
-                continue  # deterministic rule owns same-slot pairs
+            if _deterministic_owns(a, b):
+                continue
             if tokens[i] & tokens[j]:
                 keys.add((i, j))
 
     for i, a in enumerate(order):
         sims: list[tuple[float, str, int]] = []
         for j, b in enumerate(order):
-            if i == j or (a.slot_key is not None and a.slot_key == b.slot_key):
+            if i == j or _deterministic_owns(a, order[j]):
                 continue
             sim = cosine(a.embedding, b.embedding)
             if sim > 0.0:  # HashingEmbedder cosine can go negative — clamp out
@@ -341,4 +401,11 @@ def _candidate_pairs(
         if (b.valid_from, b.created_at, b.id) < (a.valid_from, a.created_at, a.id):
             a, b = b, a  # A = older valid_from, B = newer
         pairs.append((a, b))
+    # the pair cap is a silent-coverage risk: spend the budget on pairs that
+    # involve the NEWEST memories first (A-MEM-style reconcile-on-ingest —
+    # fresh observations are the staleness signal), not on arbitrary order.
+    # Stable sort: equal-recency pairs keep their deterministic index order.
+    pairs.sort(
+        key=lambda p: max(p[0].created_at, p[1].created_at), reverse=True
+    )
     return pairs[:MAX_NLI_PAIRS]

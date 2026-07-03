@@ -56,6 +56,7 @@ class _Candidate:
     mtype: MType
     salience: float = _DEFAULT_SALIENCE
     importance: float = _DEFAULT_IMPORTANCE
+    weak: bool = False  # soft-gated: stored with lapse-level stability
 
 
 def ingest_observation(
@@ -146,12 +147,20 @@ def ingest_observation(
     reinforced: list[str] = []
 
     # --- salience gate: store the delta, not everything -----------------
+    # Soft mode (default): a below-threshold fact is stored WEAK — minimal
+    # importance, lapse-level stability — so decay disposes of it unless
+    # something reinforces it. A write-time skip is unrecoverable, and the
+    # LLM rater has known biases (it once scored "team fetches data via
+    # useQuery" as not worth remembering because useQuery is famous).
     gated: list[_Candidate] = []
     for fact, (sal, imp) in zip(facts, ratings):
-        if sal < cfg.salience_threshold:
-            skipped.append(SkippedFact(content=fact.content, reason="salience"))
-            continue
         fact.salience, fact.importance = sal, imp
+        if sal < cfg.salience_threshold:
+            if not cfg.salience_soft_gate:
+                skipped.append(SkippedFact(content=fact.content, reason="salience"))
+                continue
+            fact.importance = min(imp, 2.0)
+            fact.weak = True
         gated.append(fact)
 
     # --- dedup within the batch: keep the first fact per triple key -----
@@ -176,6 +185,7 @@ def ingest_observation(
             _reinforce(
                 store, existing.id,
                 now=now, actor=actor, source_ref=source_ref, reason="dup_triple",
+                incoming_confidence=confidence,
             )
             reinforced.append(existing.id)
             skipped.append(
@@ -216,6 +226,7 @@ def ingest_observation(
             _reinforce(
                 store, best.id,
                 now=now, actor=actor, source_ref=source_ref, reason="dup_cosine",
+                incoming_confidence=confidence,
             )
             reinforced.append(best.id)
             skipped.append(
@@ -235,7 +246,9 @@ def ingest_observation(
             importance=fact.importance,
             salience=fact.salience,
             difficulty=d0,
-            stability=s0,
+            stability=(
+                fsrs.init_stability(fsrs.Grade.AGAIN) if fact.weak else s0
+            ),
             confidence=confidence,
             source_ref=source_ref,
             now=now,
@@ -319,6 +332,10 @@ def _rate_salience(llm: ChatLLM, contents: list[str]) -> list[tuple[float, float
     return out
 
 
+_CORROBORATION_BUMP = 0.05   # independent re-observation accumulates belief
+_CORROBORATION_CEILING = 0.9
+
+
 def _reinforce(
     store: MemoryStore,
     memory_id: str,
@@ -327,9 +344,14 @@ def _reinforce(
     actor: str,
     source_ref: Optional[str],
     reason: str,
+    incoming_confidence: float = 0.0,
 ) -> None:
-    """A duplicate observation is an implicit successful recall: apply an
-    FSRS Good review to the existing memory instead of storing a new row."""
+    """A duplicate observation is an implicit successful recall AND fresh
+    evidence: apply an FSRS Good review, refresh the freshness anchor
+    (``last_verified_at`` — the world just re-asserted this fact), and let
+    corroboration accumulate confidence. Without this, a fact re-stated
+    daily still decays to maximal hedging, and repeated grassroots mentions
+    could never outweigh a one-off authoritative source."""
     mem = store.get(memory_id)
     if mem is None:  # pragma: no cover — caller just fetched this id
         return
@@ -341,6 +363,11 @@ def _reinforce(
     mem.last_review_at = now
     mem.review_count += 1
     mem.last_accessed_at = now
+    mem.last_verified_at = now  # re-observation is evidence of currency
+    mem.confidence = min(
+        _CORROBORATION_CEILING,
+        max(mem.confidence, incoming_confidence) + _CORROBORATION_BUMP,
+    )
     store.record_review(
         mem.id,
         kind="manual",

@@ -55,9 +55,27 @@ def test_freshness_factor_falls_off_without_verification(clock, mem_factory) -> 
 
 
 def test_trust_is_confidence_times_freshness(clock, cfg, mem_factory) -> None:
+    cfg.trust_stability_tempering = False  # the pure formula
     mem = mem_factory("fact", confidence=0.8)
     clock.advance(days=cfg.freshness_half_life_days)
     assert trust_score(mem, clock.now(), cfg) == pytest.approx(0.8 * 0.5)
+
+
+def test_trust_stability_tempering_slows_decay_for_proven_facts(
+    clock, cfg, mem_factory
+) -> None:
+    """Anti recency-bias: an old fact with EARNED stability keeps more trust
+    than one with none, at the same age and confidence."""
+    fragile = mem_factory("fact a", confidence=0.8, stability=1.0)
+    proven = mem_factory("fact b", confidence=0.8, stability=100.0)
+    clock.advance(days=60)
+    t_fragile = trust_score(fragile, clock.now(), cfg)
+    t_proven = trust_score(proven, clock.now(), cfg)
+    assert t_proven > t_fragile
+    cfg.trust_stability_tempering = False
+    assert trust_score(proven, clock.now(), cfg) == pytest.approx(
+        trust_score(fragile, clock.now(), cfg)
+    )
 
 
 @pytest.mark.parametrize("status", ["superseded", "deprecated"])

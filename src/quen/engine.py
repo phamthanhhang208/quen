@@ -68,6 +68,30 @@ class QuenEngine:
         self.llm = llm
         self.embedder = embedder
         self.verifiers: list[Verifier] = list(verifiers or [])
+        # Embedding-space consistency guard: vectors from different models
+        # (or dims) are not comparable — a store silently mixed across
+        # models would corrupt every cosine. Warn loudly in the audit log.
+        sig = (
+            f"{getattr(embedder, 'model', type(embedder).__name__)}"
+            f":{getattr(embedder, 'dim', '?')}"
+        )
+        prev = self.store.get_meta("embed_signature")
+        if prev is None:
+            self.store.set_meta("embed_signature", sig)
+        elif prev != sig:
+            if os.environ.get("QUEN_ALLOW_EMBED_MISMATCH") == "1":
+                self.store.audit(
+                    "engine",
+                    "warn_embed_model_mismatch",
+                    detail={"stored": prev, "current": sig},
+                )
+            else:
+                raise RuntimeError(
+                    f"store was built with embeddings {prev!r} but the engine "
+                    f"is wired with {sig!r} — mixed embedding spaces corrupt "
+                    "every cosine threshold. Re-seed the store or set "
+                    "QUEN_ALLOW_EMBED_MISMATCH=1 to override."
+                )
 
     # ------------------------------------------------------------------ write
 
@@ -164,7 +188,9 @@ class QuenEngine:
                 + "]"
             )
             hedge = hedge_phrase(trust, mem.source_ref)
-            line = f"- {tag} {mem.content}"
+            # neutralize delimiter escapes — memory content is untrusted text
+            content = mem.content.replace("</memories>", "[/memories]")
+            line = f"- {tag} {content}"
             if hedge:
                 line += f" (hedge: {hedge})"
             context_lines.append(line)
@@ -175,11 +201,18 @@ class QuenEngine:
         ).strip()
         prompt_tokens = sum(estimate_tokens(line) for line in context_lines)
         conf = answer_confidence(rr.used, verifications)
+        # trust alone can't justify confidence when nothing strongly matched
+        # the question — a fresh-but-barely-relevant memory must not produce
+        # a confidently-stated answer (retrieval miss ≠ trustworthy answer)
+        max_rel = max(
+            (sm.relevance + sm.lexical for sm in rr.used), default=0.0
+        )
+        conf = min(conf, 0.5 + 0.5 * min(1.0, max_rel / 0.5))
         # Abstain when nothing RELEVANT survives — low-trust-but-relevant
         # memories are hedged (spec §4.7 "unverifiable → hedge"), not dropped.
-        max_relevance = max((sm.relevance for sm in rr.used), default=0.0)
+        # An exact identifier match (lexical) counts as relevance here.
         abstained = (
-            not rr.used or max_relevance < self.cfg.abstain_relevance_floor
+            not rr.used or max_rel < self.cfg.abstain_relevance_floor
         )
         if abstained:
             # the delivered answer must BE an abstention, not just be
@@ -204,6 +237,7 @@ class QuenEngine:
                         "memory_id": sm.memory.id,
                         "snippet": _snippet(sm.memory.content),
                         "relevance": round(sm.relevance, 4),
+                        "lexical": round(sm.lexical, 4),
                         "retrievability": round(sm.retrievability, 4),
                         "importance_norm": round(sm.importance_norm, 4),
                         "score": round(sm.score, 4),
@@ -250,13 +284,24 @@ class QuenEngine:
     # ----------------------------------------------------------- maintenance
 
     def judge_answer(self, trace_id: str, correct: bool) -> None:
-        """Use-in-answer review (spec §4.5a) + confidence calibration event."""
+        """Use-in-answer review (spec §4.5a) + calibration events.
+
+        The grade lands only on memories that plausibly CONTRIBUTED (relevance
+        above the abstention floor) — one blanket grade per trace would
+        collateral-fail every bystander memory on a wrong answer and
+        popularity-inflate stability on every right one. These reviews are
+        also the retention-calibration source: unlike dream self-tests, a
+        use-judged outcome can genuinely fail with elapsed time.
+        """
         now = self.clock()
         trace = self.store.get_trace(trace_id)
         if trace is None:
             raise KeyError(f"trace not found: {trace_id}")
         grade = Grade.GOOD if correct else Grade.AGAIN
         for used in trace["used"]:
+            relevance = (used.get("relevance") or 0.0) + (used.get("lexical") or 0.0)
+            if relevance < self.cfg.abstain_relevance_floor:
+                continue  # a bystander, not a contributor
             mem = self.store.get(used["memory_id"])
             if mem is None or mem.status != "active":
                 continue
@@ -282,6 +327,14 @@ class QuenEngine:
                 after=(mem.difficulty, mem.stability),
                 at=now,
             )
+            self.store.record_calibration(
+                "retention",
+                predicted=r_before,
+                outcome=correct,
+                memory_id=mem.id,
+                trace_id=trace_id,
+                at=now,
+            )
         if trace.get("answer_confidence") is not None:
             freshness = [u.get("freshness_days") for u in trace["used"]]
             freshness = [f for f in freshness if f is not None]
@@ -289,7 +342,10 @@ class QuenEngine:
                 "confidence",
                 predicted=trace["answer_confidence"],
                 outcome=correct,
-                freshness_days=min(freshness) if freshness else None,
+                # stratified by the STALEST memory relied upon — binning a
+                # stale-reliance trace by its freshest bystander would hide
+                # exactly the cases this chart exists to expose
+                freshness_days=max(freshness) if freshness else None,
                 trace_id=trace_id,
                 at=now,
             )
