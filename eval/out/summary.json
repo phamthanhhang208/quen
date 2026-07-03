@@ -1,45 +1,45 @@
 {
-  "fama": 1.0,
+  "fama": 0.88,
   "forgetting_precision": 1.0,
   "forgetting_recall": 1.0,
-  "avg_tokens_per_query": 32.2,
-  "mode": "dry-run",
+  "avg_tokens_per_query": 30.6,
+  "mode": "live",
   "budget": 300,
   "by_config": {
     "append_only": {
       "cases": 25,
-      "fama": 0.28,
-      "presence": 0.88,
-      "absence": 0.4,
-      "abstention_accuracy": 0.0,
+      "fama": 0.44,
+      "presence": 0.96,
+      "absence": 0.44,
+      "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 17.1
     },
     "full_context": {
       "cases": 25,
-      "fama": 0.28,
-      "presence": 0.88,
-      "absence": 0.4,
-      "abstention_accuracy": 0.0,
+      "fama": 0.36,
+      "presence": 0.96,
+      "absence": 0.36,
+      "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 17.1
     },
     "quen": {
       "cases": 25,
-      "fama": 1.0,
-      "presence": 1.0,
+      "fama": 0.88,
+      "presence": 0.88,
       "absence": 1.0,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 32.2,
+      "avg_tokens_per_query": 30.6,
       "forgetting_precision": 1.0,
       "forgetting_recall": 1.0
     },
     "quen_no_verify": {
       "cases": 25,
-      "fama": 0.92,
-      "presence": 1.0,
-      "absence": 0.92,
+      "fama": 0.72,
+      "presence": 0.84,
+      "absence": 0.88,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 35.1,
-      "forgetting_precision": 1.0,
+      "avg_tokens_per_query": 32.9,
+      "forgetting_precision": 0.9286,
       "forgetting_recall": 0.875
     }
   }
