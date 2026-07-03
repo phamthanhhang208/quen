@@ -1,29 +1,17 @@
 {
-  "db": "data/demo.db",
+  "db": "data/demo_live.db",
   "retention": {
-    "events": 10,
+    "events": 7,
     "bins": [
       {
-        "bin": "0.4-0.5",
-        "predicted_mean": 0.4421,
-        "empirical": 1.0,
-        "count": 1
-      },
-      {
-        "bin": "0.6-0.7",
-        "predicted_mean": 0.6584,
-        "empirical": 1.0,
-        "count": 4
-      },
-      {
-        "bin": "0.8-0.9",
-        "predicted_mean": 0.861,
-        "empirical": 1.0,
-        "count": 5
+        "bin": "0.9-1.0",
+        "predicted_mean": 0.9683,
+        "empirical": 0.8571,
+        "count": 7
       }
     ],
-    "ece": 0.2619,
-    "log_loss": 0.3239
+    "ece": 0.1112,
+    "log_loss": 0.6262
   },
   "confidence": {
     "events": 3,
@@ -33,32 +21,26 @@
         "bins": [
           {
             "bin": "0.5-0.6",
-            "predicted_mean": 0.5691,
-            "empirical": 1.0,
-            "count": 1
-          },
-          {
-            "bin": "0.6-0.7",
-            "predicted_mean": 0.6062,
+            "predicted_mean": 0.5888,
             "empirical": 1.0,
             "count": 1
           }
         ],
-        "ece": 0.4123,
-        "count": 2
+        "ece": 0.4112,
+        "count": 1
       },
       {
         "freshness_bucket": "7-30d",
         "bins": [
           {
-            "bin": "0.4-0.5",
-            "predicted_mean": 0.4653,
-            "empirical": 0.0,
-            "count": 1
+            "bin": "0.5-0.6",
+            "predicted_mean": 0.5397,
+            "empirical": 0.5,
+            "count": 2
           }
         ],
-        "ece": 0.4653,
-        "count": 1
+        "ece": 0.0397,
+        "count": 2
       },
       {
         "freshness_bucket": ">30d",
@@ -67,7 +49,7 @@
         "count": 0
       }
     ],
-    "overall_ece": 0.43,
+    "overall_ece": 0.1106,
     "selective_accuracy": [
       {
         "threshold": 0.0,
@@ -81,8 +63,8 @@
       },
       {
         "threshold": 0.5,
-        "coverage": 0.6667,
-        "accuracy": 1.0
+        "coverage": 1.0,
+        "accuracy": 0.6667
       },
       {
         "threshold": 0.75,
