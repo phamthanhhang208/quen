@@ -91,40 +91,110 @@ The load-bearing mechanisms:
   answering — and never asserts a stale, unverified memory with full
   assurance. When nothing relevant survives, it **abstains**.
 
-## Results (offline dry-run — deterministic pipeline validation)
+## Results (live — Qwen via Alibaba Cloud DashScope, canonical run 2026-07-03)
 
-The whole eval runs **without any API key** (hashing embedder + scripted
-extractive reader) — these numbers validate the *memory mechanics* under an
-identical reader/budget, not LLM quality. Re-run everything with
-`--live` on Qwen for the submission numbers.
+Models: `text-embedding-v4` + `qwen-flash` (extraction/salience/judging) +
+`qwen3.5-plus` (reader/NLI/reflection). Token budget 300, identical reader
+prompt across configs. Every number is produced by the committed scripts and
+lives in [`eval/out/`](eval/out); n is small, so 95% Wilson CIs and paired
+exact McNemar tests are reported instead of bare points.
 
-**Code-staleness probe** (25 cases, invalidation by evidence — refactor PRs,
-implicit reversals; ~20% augmentation distractors; abstention cases;
-`live_files` cases exercising verify-before-answer). Headline metric:
+### Code-staleness probe — the workload Quên is built for (n=30)
+
+Facts get invalidated mid-history (refactor PRs, implicit reversals),
+same-subject augmentations must *survive*, abstention cases must be declined,
+and `live_files` cases exercise verify-before-answer. Headline metric:
 **FAMA** = presence-of-valid ∧ absence-of-invalidated (Memora, 2604.20006):
 
-| config | FAMA | presence | absence | prompt tokens/query¹ |
+| config | FAMA | 95% CI | presence | absence | tokens/query¹ |
+|---|---|---|---|---|---|
+| append-only RAG | 0.400 | [0.25, 0.58] | 0.933 | 0.467 | 16.8 |
+| full-context (truncate oldest) | 0.433 | [0.27, 0.61] | 0.967 | 0.467 | 16.8 |
+| **Quên (ours)** | **0.933** | [0.79, 0.98] | 0.967 | 0.967 | 27.9 |
+| ours − verify (ablation) | 0.800 | [0.63, 0.91] | 0.900 | 0.867 | 30.3 |
+
+- Paired McNemar, Quên vs append-only: 16–0 discordant pairs, **p = 3×10⁻⁵**;
+  vs full-context 16–1, p = 2.7×10⁻⁴.
+- **Forgetting precision/recall 0.842 / 0.938** (negation-aware;
+  over-forgetting counts against us).
+- The verify ablation (+0.13 FAMA) is dominated by the cases where *no
+  ingested event ever contradicted* the stale fact — only the live repo
+  could. That is the verify-before-answer beat closing the loop.
+- Abstention accuracy 1.0 in every config, judged from delivered text only.
+- **Paraphrase robustness** (anti-overfit control): the probe histories
+  re-phrased once by Qwen and frozen before scoring
+  (`eval/data/probe_paraphrased.json`): Quên 0.933 — **no drop** — ablation
+  0.867, baselines 0.433. The mechanism, not our phrasing, carries the result.
+
+¹ What the reader actually saw, trust tags and hedges included — the trust
+channel is not free and we count it. Quên's *content* tokens are lower than
+the baselines' (forgetting works); the fixed per-memory tag overhead
+amortizes at realistic memory sizes.
+
+### LongMemEval — external anchor with **no staleness** (n=229: KU 72, TR 127, abstention 30)
+
+[LongMemEval](https://arxiv.org/abs/2410.10813) oracle sessions are
+evidence-only: nothing is ever invalidated, so this measures raw QA recall —
+the workload where forgetting can only cost. We report it because a memory
+system you can trust must show where it loses:
+
+| config | knowledge-update | temporal-reasoning | abstention | tokens/query |
 |---|---|---|---|---|
-| append-only RAG | 0.28 | 0.88 | 0.40 | 17.1 |
-| full-context (truncate oldest) | 0.28 | 0.88 | 0.40 | 17.1 |
-| **Quên (ours)** | **1.00** | 1.00 | 1.00 | 32.2 |
-| ours − verify (ablation) | 0.92 | 1.00 | 0.92 | 35.1 |
+| append-only RAG (turn-level) | **0.542** [0.43, 0.65] | 0.205 [0.14, 0.28] | 0.867 | 293 |
+| full-context (truncate oldest) | 0.028 [0.01, 0.10] | 0.118 [0.07, 0.19] | 1.000² | 245 |
+| Quên | 0.306 [0.21, 0.42] | 0.197 [0.14, 0.27] | 0.867 | 325 |
 
-The ablation gap (0.92 → 1.00) is exactly the two cases where the *only*
-signal that a memory went stale is the live repo — no ingested event ever
-contradicted it. That's the verify-before-answer beat.
+Quên **loses knowledge-update to append-only** (McNemar 5–22, p = 0.0015):
+LLM fact extraction drops details that verbatim turn storage keeps, and with
+zero staleness in the data there is nothing for supersession or decay to earn
+back. Temporal reasoning and abstention are exact statistical ties (7–8 and
+4–4 discordant, p = 1.0). Quên beats full-context overall (32–6,
+p = 2.4×10⁻⁵). Read together with the probe: **forgetting is a measurable
+tax on staleness-free recall and a large win the moment the world changes.**
+Scoring is exact word-boundary match — conservative for every config.
 
-¹ Counted symmetrically as *what the reader actually saw*. Quên retrieves
-**fewer content tokens** than the baselines (11.1 vs 16.2 — forgetting works)
-but spends ~20 tokens/memory on trust tags and hedges — the trust channel is
-not free, and we report it rather than hiding it in uncounted prompt
-scaffolding. With realistic memory sizes (100+ tokens) the fixed tag overhead
-amortizes; the abstention subset is likewise scored from the delivered answer
-text only, never from our own internal abstention flag.
+² Perfect abstention by collapse: at this budget full-context rarely sees
+the evidence for *any* question, so it declines everything — including the
+30 questions it should decline.
+
+### Calibration (small n — direction, not proof)
+
+- **Retention**: predicted FSRS R vs use-judged recall on the live demo
+  narrative: ECE 0.111, log-loss 0.626 (n=7 events).
+- **Answer confidence by freshness** (probe): overall ECE 0.227 (n=30) —
+  the stated confidence is a trust-weighted heuristic and is reported as
+  such, not sold as calibrated probability.
+
+### Accuracy-vs-budget curve (live)
+
+<!-- BUDGET_CURVE_LIVE -->
+
+### What the canonical run cost (from `usage_summary()` counters × DashScope intl pricing)
+
+| stage | qwen-flash in/out | qwen3.5-plus in/out | embed-v4 in | USD |
+|---|---|---|---|---|
+| probe (30 cases × 4 configs) | 69k / 14k | 30k / 5k | 3k | 0.03 |
+| paraphrase probe | 70k / 15k | 30k / 5k | 3k | 0.03 |
+| LongMemEval baselines (229 × 2) | — | 185k / 30k | 1.57M | 0.26 |
+| LongMemEval Quên (229, full engine) | 6.26M / 1.18M | 293k / 61k | 227k | 1.07 |
+| live demo seed (80-day narrative) | 14k / 2k | 2k / 0.3k | 0.3k | 0.003 |
+| **total (canonical pass)** | | | | **≈ $1.4**³ |
+
+³ Plus the budget-curve stage (see chart). A full from-scratch reproduction
+of every live number in this README lands well under $5.
+
+### Offline dry-run (no API key — deterministic pipeline validation)
+
+The whole eval also runs **without any key** (hashing embedder + scripted
+extractive reader; `pytest` runs this way too). These numbers validate the
+*memory mechanics* under an identical reader/budget, not LLM quality:
+append-only 0.37 · full-context 0.37 · **Quên 0.90** · no-verify 0.83
+(same 30 cases). The live run above is the canonical result.
 
 Charts: [`eval/out/`](eval/out) — FAMA by config, accuracy-vs-budget curve,
-retention calibration (predicted R vs empirical recall), and the
-**confidence-calibration-by-freshness** chart.
+retention calibration (predicted R vs empirical recall), the
+**confidence-calibration-by-freshness** chart, and the 52-week long-horizon
+simulation.
 
 ```bash
 .venv/bin/python eval/run_probe.py            # probe, offline (default)
@@ -135,11 +205,22 @@ retention calibration (predicted R vs empirical recall), and the
 .venv/bin/python eval/charts.py
 ```
 
+## Status & test results (2026-07-03)
+
+- `pytest`: **155 passed** — fully offline and deterministic (hashing
+  embedder + scripted LLM; the suite never touches the network).
+- `cd dashboard && npm run build`: ✓ (Vite production build).
+- Canonical live eval on DashScope completed end-to-end: probe (30×4),
+  paraphrase probe (30×4), LongMemEval (687/687 rows), budget curve,
+  live 80-day demo seed (3 supersessions — 1 deterministic, 2 NLI — one
+  eviction, one live refutation, three live confirmations), calibration.
+  Raw rows and summaries are committed under [`eval/out/`](eval/out).
+
 ## Quickstart
 
 ```bash
 uv venv .venv && uv pip install -e ".[dev]"
-.venv/bin/pytest                    # 143 offline, deterministic tests
+.venv/bin/pytest                    # 155 offline, deterministic tests
 
 # seed the full demo narrative (no API key needed) and serve it
 .venv/bin/python scripts/seed_demo.py
@@ -219,6 +300,7 @@ stack). Everything below is reproduced in `tests/test_bias_audit.py` and
 | **Zombie self-tests.** A persistently failing memory got +1 importance and a TTL-refreshing touch per failure, and monopolized the sample slots forever | construction | one-time nudge, no access touch (introspection ≠ usage), 7-day failure backoff |
 | **Laundered provenance.** Refuting/superseding a memory left generalizations built on it fully trusted | construction | provenance penalty: derived memories lose 50% confidence, audited |
 | **Self-serving scoring.** FAMA credited our internal `abstained` flag (baselines can't emit one); past-tense words excused stale reliance; token accounting hid our trust-tag overhead; `min`-freshness binning hid stale reliance in the calibration | audit of our own eval | abstention judged from delivered text for all configs; before/after cue windows narrowed; budgets count delivered tokens incl. tag overhead; strata keyed by the *stalest* memory relied upon; Wilson CIs + paired McNemar; the paraphrased probe variant is frozen in `eval/data/probe_paraphrased.json` |
+| **Strawman baselines.** The LongMemEval baselines stored whole 2–5k-token sessions as single units against a 300-token answer budget — the greedy fill fit *nothing* and both baselines answered every question from an empty context (`tokens_used=0` on all 458 rows, knowledge-update 0.0) while we looked great | caught in the first canonical v4 run | baselines rebuilt at turn-level granularity (the round-level unit the LongMemEval paper recommends), long turns sentence-windowed; re-run — append-only now *beats* us on staleness-free knowledge-update, and we report that above |
 | **Memory poisoning surface** ([2606.04329](https://arxiv.org/pdf/2606.04329), [survey](https://arxiv.org/html/2604.16548v1), [MemAudit](https://arxiv.org/pdf/2605.23723)) | literature; ~84% attack success rates reported on agent memory generally | memories are data-fenced in the answer prompt with delimiter neutralization + a no-instructions rule. *Mitigation, not a fix* — in-context defenses are bypassable; the audit log + provenance exist for post-hoc forensics (MemAudit-style). `verify_hint`/`source_kind` are trusted-harness surfaces by design |
 
 Still open, disclosed: FSRS weights are human-flashcard priors (retention
@@ -229,11 +311,13 @@ functionality is a fixed list, not learned.
 
 ## Honesty & limitations
 
-- **Dry-run numbers measure mechanics, not models.** The offline reader is
-  extractive; live Qwen numbers must be produced with `--live` before quoting
-  accuracy anywhere.
-- **Exact-match scoring under-reports paraphrases**; cross-check a sample with
-  a second judge on live runs. All numbers are comparative-within-eval.
+- **The probe is small (n=30) and ours.** We mitigate with Wilson CIs,
+  paired McNemar, a frozen Qwen-paraphrased variant, and LongMemEval as the
+  external anchor — including the subset where we *lose* (knowledge-update
+  vs turn-level append-only RAG, p = 0.0015). Dry-run numbers measure
+  mechanics, not models; the live tables are the canonical ones.
+- **Exact-match scoring under-reports paraphrases** for every config alike;
+  all numbers are comparative-within-eval, not absolute.
 - **RepoGrepVerifier checks identifier presence, not claim truth**: a renamed
   identifier refutes; a changed *value* behind the same identifier confirms.
   Comment-only hits count as confirmed. It is the demo verifier; the MCP
