@@ -1,0 +1,53 @@
+{
+  "append_only": {
+    "knowledge-update": 0.5417,
+    "temporal-reasoning": 0.2047,
+    "abstention": 0.8667,
+    "avg_tokens": 293.4,
+    "knowledge-update_n": 72,
+    "knowledge-update_ci": [
+      0.4274,
+      0.6517
+    ],
+    "temporal-reasoning_n": 127,
+    "temporal-reasoning_ci": [
+      0.1437,
+      0.2831
+    ],
+    "abstention_n": 30
+  },
+  "full_context": {
+    "knowledge-update": 0.0278,
+    "temporal-reasoning": 0.1181,
+    "abstention": 1.0,
+    "avg_tokens": 245.4,
+    "knowledge-update_n": 72,
+    "knowledge-update_ci": [
+      0.0077,
+      0.0957
+    ],
+    "temporal-reasoning_n": 127,
+    "temporal-reasoning_ci": [
+      0.0729,
+      0.1857
+    ],
+    "abstention_n": 30
+  },
+  "quen": {
+    "knowledge-update": 0.3056,
+    "temporal-reasoning": 0.1969,
+    "abstention": 0.8667,
+    "avg_tokens": 324.6,
+    "knowledge-update_n": 72,
+    "knowledge-update_ci": [
+      0.2113,
+      0.4195
+    ],
+    "temporal-reasoning_n": 127,
+    "temporal-reasoning_ci": [
+      0.137,
+      0.2745
+    ],
+    "abstention_n": 30
+  }
+}
