@@ -106,7 +106,11 @@ def render_salience(facts: list[str]) -> list[dict]:
         "(nobody knows what this team chose) even though useQuery itself is "
         "a famous library. Score near 0 ONLY for universal knowledge with "
         "no project/team/user binding (e.g. 'React is a JS library', "
-        "'HTTP 404 means not found').\n"
+        "'HTTP 404 means not found'). A statement about THIS project's "
+        "configuration is salient even when its value matches the common "
+        "default. When unsure, err toward storing (0.5): a wrongly-skipped "
+        "fact is unrecoverable, while the retention system safely forgets "
+        "surplus later.\n"
         "- importance (1..10): long-term usefulness to the team's agent.\n"
         'Return STRICT JSON: a list of {"salience": float, "importance": float}, '
         "same order and length as the input list."

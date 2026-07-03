@@ -31,16 +31,21 @@ NEGATION_CUES = frozenset(
 )
 
 
+_RUN_RE = re.compile(r"[A-Z]?[a-z]+|[A-Z]+(?![a-z])|[0-9]+")
+
+
 def _tokens(text: str) -> list[str]:
-    # alpha/digit runs so 'Node16' and 'Node 16' tokenize identically
-    return re.findall(r"[a-z]+|[0-9]+", text.casefold())
+    # camel-aware alpha/digit runs so 'CloudflareR2', 'Cloudflare R2' and
+    # 'Node16'/'Node 16' all tokenize identically
+    return [t.casefold() for t in _RUN_RE.findall(text)]
 
 
 def _fact_pattern(fact: str) -> str:
     """Word-boundary pattern tolerant of spacing/hyphens between the fact's
-    alphanumeric runs: 'Node20' also matches 'Node 20' and 'node-20' (real
-    readers re-space compound tokens), while 'S3' still rejects 'S3000'."""
-    runs = re.findall(r"[A-Za-z]+|[0-9]+", fact.casefold())
+    camel-aware alphanumeric runs: 'Node20' also matches 'Node 20', and
+    'CloudflareR2' matches 'Cloudflare R2' (real readers re-space compound
+    tokens), while 'S3' still rejects 'S3000'."""
+    runs = _tokens(fact)
     if not runs:
         return re.escape(fact.casefold())
     return r"(?<!\w)" + r"[\s\-_./]*".join(re.escape(r) for r in runs) + r"(?!\w)"
