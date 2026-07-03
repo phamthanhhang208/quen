@@ -167,7 +167,21 @@ the evidence for *any* question, so it declines everything — including the
 
 ### Accuracy-vs-budget curve (live)
 
-<!-- BUDGET_CURVE_LIVE -->
+FAMA on the probe at five token budgets (chart: `eval/out/budget_curve.png`):
+
+| budget | append-only | full-context | **Quên** | Quên − verify |
+|---|---|---|---|---|
+| 30 | 0.40 | 0.47 | **0.87** | 0.80 |
+| 60 | 0.40 | 0.43 | **0.93** | 0.87 |
+| 120 | 0.40 | 0.43 | **0.90** | 0.83 |
+| 300 | 0.40 | 0.43 | **0.87** | 0.80 |
+| 600 | 0.40 | 0.43 | **0.87** | 0.83 |
+
+The baselines are *flat*: probe memories are small enough that everything
+they retrieve already fits at budget 30, so their failures are trust
+failures (echoing invalidated facts), not budget starvation — no amount of
+context fixes that. Quên holds its margin at every budget and needs only
+~27 delivered tokens/query to do it.
 
 ### What the canonical run cost (from `usage_summary()` counters × DashScope intl pricing)
 
@@ -178,10 +192,11 @@ the evidence for *any* question, so it declines everything — including the
 | LongMemEval baselines (229 × 2) | — | 185k / 30k | 1.57M | 0.26 |
 | LongMemEval Quên (229, full engine) | 6.26M / 1.18M | 293k / 61k | 227k | 1.07 |
 | live demo seed (80-day narrative) | 14k / 2k | 2k / 0.3k | 0.3k | 0.003 |
-| **total (canonical pass)** | | | | **≈ $1.4**³ |
+| budget curve (30 × 4 × 5 budgets) | 346k / 72k | 150k / 26k | 16k | 0.17 |
+| **total (canonical pass)** | | | | **≈ $1.6** |
 
-³ Plus the budget-curve stage (see chart). A full from-scratch reproduction
-of every live number in this README lands well under $5.
+A full from-scratch reproduction of every live number in this README lands
+well under $5.
 
 ### Offline dry-run (no API key — deterministic pipeline validation)
 
