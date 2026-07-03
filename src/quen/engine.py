@@ -155,10 +155,12 @@ class QuenEngine:
         for sm in rr.used:
             mem = sm.memory
             trust = max(sm.trust, 0.9) if mem.id in confirmed_ids else sm.trust
+            # compact tag — the trust channel is per-memory fixed overhead,
+            # so every token here is paid on every memory of every ask
             tag = (
-                f"[trust {trust:.2f} | confidence {sm.confidence:.2f} | "
-                f"{sm.freshness_days:.0f}d old"
-                + (" | verified against live source just now" if mem.id in confirmed_ids else "")
+                f"[trust {trust:.2f} conf {sm.confidence:.2f} "
+                f"{sm.freshness_days:.0f}d"
+                + (" verified-now" if mem.id in confirmed_ids else "")
                 + "]"
             )
             hedge = hedge_phrase(trust, mem.source_ref)

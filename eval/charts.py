@@ -152,6 +152,34 @@ def chart_calibration(out: Path) -> None:
         print(f"wrote {out / 'confidence_by_freshness.png'}")
 
 
+def chart_long_horizon(out: Path) -> None:
+    data = _load(out / "long_horizon.json")
+    if not data:
+        return
+    weeks = [r["week"] for r in data]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.2))
+    ax1.plot(weeks, [r["store_tokens_append_only"] for r in data],
+             label="append-only store", color="#9ca3af")
+    ax1.plot(weeks, [r["store_tokens_quen_active"] for r in data],
+             label="Quên active set", color="#4f46e5")
+    ax1.set_xlabel("week")
+    ax1.set_ylabel("store footprint (tokens)")
+    ax1.set_title("What a full-context agent would carry")
+    ax1.legend()
+    ax2.plot(weeks, [r["fama_append_only"] for r in data],
+             label="append-only", color="#9ca3af")
+    ax2.plot(weeks, [r["fama_quen"] for r in data],
+             label="Quên", color="#4f46e5")
+    ax2.set_xlabel("week")
+    ax2.set_ylabel("FAMA at fixed budget")
+    ax2.set_ylim(-0.05, 1.05)
+    ax2.set_title("Answer quality as memory ages")
+    ax2.legend()
+    fig.tight_layout()
+    fig.savefig(out / "long_horizon.png", dpi=150)
+    print(f"wrote {out / 'long_horizon.png'}")
+
+
 def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out", type=Path, default=OUT_DIR)
@@ -160,6 +188,7 @@ def main(argv=None) -> None:
     chart_fama(args.out)
     chart_budget_curve(args.out)
     chart_calibration(args.out)
+    chart_long_horizon(args.out)
 
 
 if __name__ == "__main__":
