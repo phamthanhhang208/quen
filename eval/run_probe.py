@@ -174,6 +174,10 @@ def main(argv: list[str] | None = None) -> dict:
         "forgetting_recall": ours.get("forgetting_recall"),
         "avg_tokens_per_query": ours.get("avg_tokens_per_query"),
         "mode": "live" if args.live else "dry-run",
+        "embed_model": (
+            __import__("os").environ.get("QUEN_EMBED_MODEL", "text-embedding-v4")
+            if args.live else "hashing"
+        ),
         "budget": args.budget,
         "by_config": summary_by_config,
     }
