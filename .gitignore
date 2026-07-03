@@ -33,3 +33,6 @@ dashboard/.vite/
 .DS_Store
 .idea/
 .vscode/
+
+# in-progress live-eval shard outputs (merged results land in eval/out/*.json)
+eval/out/lme-*/

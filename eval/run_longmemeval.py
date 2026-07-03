@@ -32,7 +32,8 @@ SAMPLE = DATA_DIR / "sample_longmemeval.json"
 CONFIGS = ["append_only", "full_context", "quen"]
 
 
-def load_instances(live: bool, hf_file: str, limit: int | None) -> list[dict]:
+def load_instances(live: bool, hf_file: str, limit: int | None,
+                   offset: int = 0) -> list[dict]:
     if not live:
         instances = json.loads(SAMPLE.read_text())
     else:
@@ -54,6 +55,7 @@ def load_instances(live: bool, hf_file: str, limit: int | None) -> list[dict]:
         i for i in instances
         if i["question_type"] in SUBSETS or str(i["question_id"]).endswith("_abs")
     ]
+    wanted = wanted[offset:]
     return wanted[:limit] if limit else wanted
 
 
@@ -127,7 +129,7 @@ def main(argv: list[str] | None = None) -> dict:
     parser = make_parser(__doc__)
     parser.add_argument("--hf-file", default="longmemeval_oracle.json")
     args = parser.parse_args(argv)
-    instances = load_instances(args.live, args.hf_file, args.limit)
+    instances = load_instances(args.live, args.hf_file, args.limit, args.offset)
     print(f"{len(instances)} instances "
           f"({'live' if args.live else 'dry-run sample'})")
 

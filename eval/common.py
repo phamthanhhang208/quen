@@ -8,6 +8,10 @@ import json
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()  # the key lives in .env — must be loaded before any env check
+
 OUT_DIR = Path(__file__).parent / "out"
 
 
@@ -43,6 +47,8 @@ def make_parser(description: str) -> argparse.ArgumentParser:
                       help="deterministic offline stack (default)")
     p.add_argument("--limit", type=int, default=None,
                    help="run at most N cases")
+    p.add_argument("--offset", type=int, default=0,
+                   help="skip the first N cases (for sharded parallel runs)")
     p.add_argument("--budget", type=int, default=300,
                    help="token budget per answer (identical across configs)")
     p.add_argument("--out", type=Path, default=OUT_DIR,
@@ -56,7 +62,7 @@ def write_json(path: Path, data) -> None:
     print(f"wrote {path}")
 
 
-def load_probe_cases(limit: int | None = None) -> list[dict]:
+def load_probe_cases(limit: int | None = None, offset: int = 0) -> list[dict]:
     data = json.loads((Path(__file__).parent / "probe_dataset.json").read_text())
-    cases = data["cases"]
+    cases = data["cases"][offset:]
     return cases[:limit] if limit else cases

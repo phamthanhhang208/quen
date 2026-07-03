@@ -156,7 +156,7 @@ CONFIGS = ["append_only", "full_context", "quen", "quen_no_verify"]
 
 def main(argv: list[str] | None = None) -> dict:
     args = make_parser(__doc__).parse_args(argv)
-    cases = load_probe_cases(args.limit)
+    cases = load_probe_cases(args.limit, args.offset)
     rows = []
     for case in cases:
         for config in CONFIGS:
