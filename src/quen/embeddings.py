@@ -34,6 +34,10 @@ def cosine(a: list[float], b: list[float]) -> float:
 class QwenEmbedder:
     """text-embedding-v4 via quen.alibaba_client (the only network path)."""
 
+    # DashScope hard limit: at most 10 texts per embeddings request
+    # ("batch size ... should not be larger than 10").
+    MAX_BATCH = 10
+
     def __init__(self, model: str | None = None, dim: int = 1024):
         from quen import alibaba_client
 
@@ -44,11 +48,14 @@ class QwenEmbedder:
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
-        # dimensions pinned explicitly — text-embedding-v4 supports 64-2048
-        resp = self._embed(texts, model=self.model, dimensions=self.dim)
-        # preserve input order
-        data = sorted(resp.data, key=lambda d: d.index)
-        return [d.embedding for d in data]
+        out: list[list[float]] = []
+        for start in range(0, len(texts), self.MAX_BATCH):
+            chunk = texts[start : start + self.MAX_BATCH]
+            # dimensions pinned explicitly — text-embedding-v4 supports 64-2048
+            resp = self._embed(chunk, model=self.model, dimensions=self.dim)
+            data = sorted(resp.data, key=lambda d: d.index)  # preserve order
+            out.extend(d.embedding for d in data)
+        return out
 
 
 class HashingEmbedder:
