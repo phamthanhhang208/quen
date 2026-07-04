@@ -23,8 +23,26 @@ fi
 
 cd "$REPO_DIR"
 
+echo "==> python 3.11+ (quen requires >=3.11; Ubuntu 22.04 ships 3.10)"
+PY=""
+for cand in python3.12 python3.11 python3; do
+  if command -v "$cand" >/dev/null \
+     && "$cand" -c 'import sys; sys.exit(sys.version_info < (3, 11))'; then
+    PY=$cand; break
+  fi
+done
+if [ -z "$PY" ]; then
+  apt-get install -y -qq software-properties-common >/dev/null
+  add-apt-repository -y ppa:deadsnakes/ppa >/dev/null 2>&1
+  apt-get update -qq
+  apt-get install -y -qq python3.11 python3.11-venv python3.11-dev >/dev/null
+  PY=python3.11
+fi
+echo "    using $PY ($($PY --version))"
+
 echo "==> python venv + package"
-python3 -m venv .venv
+rm -rf .venv
+"$PY" -m venv .venv
 .venv/bin/pip install -q --upgrade pip
 .venv/bin/pip install -q -e .
 
