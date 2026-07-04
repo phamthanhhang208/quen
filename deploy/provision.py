@@ -73,15 +73,33 @@ def ensure_network(ecs, vpc, region: str) -> tuple[str, str, str]:
 
     vsws = list_vswitches()
     if not vsws:
-        print("==> no VSwitch in region; creating the default VPC")
-        vpc.create_default_vpc(vm.CreateDefaultVpcRequest(region_id=region))
+        vpcs = vpc.describe_vpcs(
+            vm.DescribeVpcsRequest(region_id=region)
+        ).body.vpcs.vpc
+        if not vpcs:
+            print("==> creating the default VPC")
+            vpc.create_default_vpc(vm.CreateDefaultVpcRequest(region_id=region))
+            time.sleep(5)
+        # CreateDefaultVpc does NOT create VSwitches (the console does both,
+        # the API does not) — create one per the first zone that accepts it
+        zones = vpc.describe_zones(
+            vm.DescribeZonesRequest(region_id=region)
+        ).body.zones.zone
+        for z in zones:
+            try:
+                print(f"==> creating default VSwitch in {z.zone_id}")
+                vpc.create_default_vswitch(vm.CreateDefaultVSwitchRequest(
+                    region_id=region, zone_id=z.zone_id))
+                break
+            except Exception as exc:
+                print(f"    {z.zone_id}: {str(exc)[:90]}")
         for _ in range(30):
             time.sleep(4)
             vsws = list_vswitches()
             if vsws:
                 break
         else:
-            raise SystemExit("default VPC creation did not yield a VSwitch")
+            raise SystemExit("could not obtain a VSwitch in any zone")
     sw = vsws[0]
     return sw.vpc_id, sw.v_switch_id, sw.zone_id
 
