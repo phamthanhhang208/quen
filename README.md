@@ -45,6 +45,8 @@ measurement, not the parts.
 
 ## How it works
 
+![Architecture](docs/architecture.png)
+
 ```mermaid
 flowchart LR
     subgraph write [WRITE — store the delta]

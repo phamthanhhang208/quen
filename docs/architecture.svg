@@ -1,0 +1,104 @@
+<svg width="1560" height="980" viewBox="0 0 1560 980" xmlns="http://www.w3.org/2000/svg"><style>
+  body { margin: 0; background: #fff; }
+  svg { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .box { fill: #fff; stroke: #cbd5e1; stroke-width: 1.5; rx: 10; }
+  .zone { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: none; rx: 14; }
+  .accent { fill: #eef2ff; stroke: #6366f1; }
+  .qwen { fill: #f5f3ff; stroke: #8b5cf6; }
+  .store { fill: #f0fdf4; stroke: #22c55e; }
+  .title { font-size: 17px; font-weight: 700; fill: #0f172a; }
+  .sub { font-size: 12.5px; fill: #475569; }
+  .zonetitle { font-size: 14px; font-weight: 700; fill: #334155; letter-spacing: .4px; }
+  .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#m); }
+  .arrowlabel { font-size: 12px; fill: #64748b; }
+  .small { font-size: 11.5px; fill: #64748b; }
+</style>
+  <defs>
+    <marker id="m" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L8,4.5 L0,9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="52" style="font-size:26px;font-weight:800" fill="#0f172a">Quên — architecture</text>
+  <text x="40" y="78" class="sub">trust-calibrated forgetting agent memory · Qwen Cloud Global AI Hackathon · Track 1: MemoryAgent</text>
+
+  <!-- Clients -->
+  <rect x="40" y="110" width="300" height="120" class="box"/>
+  <text x="60" y="140" class="title">Clients</text>
+  <text x="60" y="165" class="sub">• Browser — judges / demo dashboard</text>
+  <text x="60" y="185" class="sub">• MCP clients — Claude Code, Cursor, …</text>
+  <text x="60" y="205" class="sub">• Eval harness — probe · LongMemEval</text>
+
+  <!-- ECS zone -->
+  <rect x="40" y="280" width="900" height="640" class="zone"/>
+  <text x="64" y="312" class="zonetitle">ALIBABA CLOUD · ECS e-series (Singapore) — one instance, one process</text>
+
+  <rect x="70" y="335" width="400" height="86" class="box accent"/>
+  <text x="90" y="363" class="title">Dashboard · React 18 + Vite</text>
+  <text x="90" y="386" class="sub">5 panels: Memories · Detail · Dream log · Trace · Vitals</text>
+  <text x="90" y="404" class="sub">served same-origin by the API (no CORS, no nginx)</text>
+
+  <rect x="510" y="335" width="400" height="86" class="box accent"/>
+  <text x="530" y="363" class="title">FastAPI  quen-api  ·  FastMCP  quen-mcp</text>
+  <text x="530" y="386" class="sub">/ingest /ask /dream /memory/{id}/verify /vitals …</text>
+  <text x="530" y="404" class="sub">MCP: remember · recall · dream · verify_hint · pin · inspect</text>
+
+  <rect x="70" y="470" width="840" height="250" class="box"/>
+  <text x="90" y="500" class="title">QuenEngine — trust is a runtime decision</text>
+  <text x="90" y="528" class="sub">WRITE — extract facts + (s,r,o) triples · salience gate · triple-first dedup · confidence from source authority</text>
+  <text x="90" y="551" class="sub">RETENTION — FSRS-4.5 (verbatim equations); reviews = use-judged ∧ self-test ∧ VERIFICATION outcomes</text>
+  <text x="90" y="574" class="sub">DREAM — re-abstract → self-test → supersede (deterministic slot rule FIRST, NLI fallback) → evict (R&lt;θ ∧ TTL ∧ ¬pin)</text>
+  <text x="90" y="597" class="sub">RETRIEVAL — relevance-dominant + lexical + retention + importance, token-budgeted greedy fill</text>
+  <text x="90" y="620" class="sub">TRUST GATE — trust = f(confidence, freshness, status); low trust → VERIFY-BEFORE-ANSWER → outcome feeds FSRS</text>
+  <rect x="90" y="645" width="380" height="52" class="box"/>
+  <text x="106" y="667" class="sub" style="font-weight:600">Verifiers</text>
+  <text x="106" y="686" class="sub">RepoGrepVerifier (live repo) · verify_hint (harness)</text>
+  <rect x="510" y="645" width="380" height="52" class="box store"/>
+  <text x="526" y="667" class="sub" style="font-weight:600">SQLite (WAL) — tombstones only, never DELETE</text>
+  <text x="526" y="686" class="sub">memories · reviews · dream runs · recall traces · audit log</text>
+
+  <rect x="70" y="760" width="840" height="130" class="box"/>
+  <text x="90" y="790" class="title">alibaba_client.py — the single network path</text>
+  <text x="90" y="815" class="sub">OpenAI-compatible endpoint: dashscope-intl.aliyuncs.com · retries · usage counters (the cost table in the README)</text>
+  <text x="90" y="838" class="sub">No other model provider, ever. Offline mode (QUEN_OFFLINE=1) swaps in ScriptedLLM + HashingEmbedder —</text>
+  <text x="90" y="858" class="sub">156 deterministic tests and the whole eval run without the network.</text>
+
+  <!-- Qwen Cloud zone -->
+  <rect x="1010" y="280" width="510" height="380" class="zone"/>
+  <text x="1034" y="312" class="zonetitle">QWEN CLOUD · DashScope (Model Studio, intl)</text>
+  <rect x="1040" y="335" width="450" height="86" class="box qwen"/>
+  <text x="1060" y="363" class="title">qwen-flash</text>
+  <text x="1060" y="386" class="sub">fact extraction · salience rating · answer judging</text>
+  <text x="1060" y="404" class="sub">high-volume, low-cost calls</text>
+  <rect x="1040" y="440" width="450" height="86" class="box qwen"/>
+  <text x="1060" y="468" class="title">qwen3.5-plus</text>
+  <text x="1060" y="491" class="sub">answer reader · NLI contradiction arbitration ·</text>
+  <text x="1060" y="509" class="sub">dream re-abstraction (reasoning-heavy calls)</text>
+  <rect x="1040" y="545" width="450" height="86" class="box qwen"/>
+  <text x="1060" y="573" class="title">text-embedding-v4</text>
+  <text x="1060" y="596" class="sub">1024-dim embeddings · retrieval + cosine dedup</text>
+  <text x="1060" y="614" class="sub">batched ≤10 texts/call</text>
+
+  <!-- Eval note -->
+  <rect x="1010" y="700" width="510" height="190" class="box"/>
+  <text x="1030" y="730" class="title">Measured honesty (eval/)</text>
+  <text x="1030" y="756" class="sub">FAMA staleness probe: 0.93 vs 0.40 append-only (p=3×10⁻⁵)</text>
+  <text x="1030" y="779" class="sub">LongMemEval 229 inst. — incl. where we lose (reported)</text>
+  <text x="1030" y="802" class="sub">Paraphrase-frozen probe: no drop (0.93)</text>
+  <text x="1030" y="825" class="sub">Retention ECE 0.111 · freshness-stratified confidence ECE</text>
+  <text x="1030" y="848" class="sub">Full canonical live pass ≈ $1.6 on pay-as-you-go</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M190,230 L190,332"/>
+  <text x="200" y="262" class="arrowlabel">HTTP :80 (dashboard + API)</text>
+  <path class="arrow" d="M340,170 C640,170 700,240 706,332"/>
+  <text x="560" y="152" class="arrowlabel">MCP (stdio) · REST</text>
+  <path class="arrow" d="M270,421 L270,467"/>
+  <path class="arrow" d="M710,421 L710,467"/>
+  <path class="arrow" d="M490,720 L490,757"/>
+  <text x="502" y="745" class="arrowlabel">every LLM / embedding call</text>
+  <path class="arrow" d="M910,825 C980,825 990,620 1037,590"/>
+  <path class="arrow" d="M910,800 C985,795 990,490 1037,478"/>
+  <path class="arrow" d="M910,780 C990,765 995,385 1037,375"/>
+  <text x="925" y="758" class="arrowlabel">HTTPS</text>
+</svg>
