@@ -125,17 +125,19 @@ def ensure_security_group(ecs, region: str, vpc_id: str) -> str:
     return sg
 
 
-def pick_image(ecs, region: str) -> str:
+def pick_image(ecs, region: str) -> tuple[str, int]:
     from alibabacloud_ecs20140526 import models as em
 
     imgs = ecs.describe_images(em.DescribeImagesRequest(
         region_id=region, ostype="linux", architecture="x86_64",
         image_owner_alias="system", image_name="ubuntu_24_04_x64*",
-        page_size=5, status="Available",
+        page_size=10, status="Available",
     )).body.images.image
     if not imgs:
         raise SystemExit("no ubuntu_24_04_x64 system image in this region")
-    return imgs[0].image_id
+    img = min(imgs, key=lambda i: i.size)  # base image, not the GPU builds
+    print(f"==> image {img.image_id} ({img.size} GB)")
+    return img.image_id, img.size
 
 
 def existing_instance(ecs, region: str):
@@ -160,7 +162,7 @@ bash /opt/quen/deploy/setup.sh
     return base64.b64encode(script.encode()).decode()
 
 
-def run_instance(ecs, region, image, sg, vsw, zone, udata) -> str:
+def run_instance(ecs, region, image, image_gb, sg, vsw, zone, udata) -> str:
     from alibabacloud_ecs20140526 import models as em
 
     last = None
@@ -174,7 +176,7 @@ def run_instance(ecs, region, image, sg, vsw, zone, udata) -> str:
                 internet_charge_type="PayByTraffic",
                 internet_max_bandwidth_out=5,
                 system_disk=em.RunInstancesRequestSystemDisk(
-                    size="40", category="cloud_essd"),
+                    size=str(max(40, image_gb)), category="cloud_essd"),
                 user_data=udata,
                 tag=[em.RunInstancesRequestTag(key="app", value="quen")],
             )).body.instance_id_sets.instance_id_set
@@ -267,10 +269,11 @@ def main() -> None:
 
     vpc_id, vsw, zone = ensure_network(ecs, vpc, args.region)
     sg = ensure_security_group(ecs, args.region, vpc_id)
-    image = pick_image(ecs, args.region)
+    image, image_gb = pick_image(ecs, args.region)
     print("==> boot mode: OFFLINE demo (live switch is a separate step)")
 
-    iid = run_instance(ecs, args.region, image, sg, vsw, zone, user_data())
+    iid = run_instance(ecs, args.region, image, image_gb, sg, vsw, zone,
+                       user_data())
     ip = wait_public_ip(ecs, args.region, iid)
     print(f"==> running: {iid} — bootstrapping Quên (apt + build, ~5-8 min)")
     ok = poll_health(ip)
