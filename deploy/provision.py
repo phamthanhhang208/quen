@@ -66,17 +66,18 @@ def ensure_network(ecs, vpc, region: str) -> tuple[str, str, str]:
     the account's default VPC."""
     from alibabacloud_vpc20160428 import models as vm
 
-    vsws = vpc.describe_v_switches(
-        vm.DescribeVSwitchesRequest(region_id=region, page_size=50)
-    ).body.v_switches.v_switch
+    def list_vswitches():
+        return vpc.describe_vswitches(
+            vm.DescribeVSwitchesRequest(region_id=region, page_size=50)
+        ).body.v_switches.v_switch
+
+    vsws = list_vswitches()
     if not vsws:
         print("==> no VSwitch in region; creating the default VPC")
         vpc.create_default_vpc(vm.CreateDefaultVpcRequest(region_id=region))
         for _ in range(30):
             time.sleep(4)
-            vsws = vpc.describe_v_switches(
-                vm.DescribeVSwitchesRequest(region_id=region, page_size=50)
-            ).body.v_switches.v_switch
+            vsws = list_vswitches()
             if vsws:
                 break
         else:
