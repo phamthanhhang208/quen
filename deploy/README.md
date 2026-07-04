@@ -5,6 +5,24 @@ built dashboard from the same origin (`QUEN_DASHBOARD_DIST`), so a single
 small ECS instance is all a demo needs. No nginx, no CORS, no database
 server (SQLite WAL on local disk).
 
+## Fully scripted path (RAM AccessKey → zero console clicks)
+
+With a RAM key that has `AliyunECSFullAccess` + `AliyunVPCFullAccess`
+(`pip install alibabacloud_ecs20140526 alibabacloud_vpc20160428` first):
+
+```bash
+export ALIBABA_CLOUD_ACCESS_KEY_ID=...  ALIBABA_CLOUD_ACCESS_KEY_SECRET=...
+python deploy/provision.py                 # security group + instance +
+                                           # cloud-init bootstrap (OFFLINE demo)
+python deploy/provision.py --enable-live   # then: DashScope key via Cloud
+                                           # Assistant (never via user_data —
+                                           # instance metadata is readable by
+                                           # any process on the box)
+```
+
+Idempotent: re-running reports the existing `quen-demo` instance. Delete the
+RAM key after deploying.
+
 ## The 5-minute path (ECS console → one command)
 
 1. **Console** ([ecs.console.aliyun.com](https://ecs.console.aliyun.com)) →
