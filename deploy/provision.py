@@ -167,25 +167,28 @@ def run_instance(ecs, region, image, image_gb, sg, vsw, zone, udata) -> str:
 
     last = None
     for itype in INSTANCE_TYPES:
-        try:
-            ids = ecs.run_instances(em.RunInstancesRequest(
-                region_id=region, image_id=image, instance_type=itype,
-                security_group_id=sg, v_switch_id=vsw, zone_id=zone,
-                instance_name=NAME, host_name=NAME,
-                instance_charge_type="PostPaid",
-                internet_charge_type="PayByTraffic",
-                internet_max_bandwidth_out=5,
-                system_disk=em.RunInstancesRequestSystemDisk(
-                    size=str(max(40, image_gb)), category="cloud_essd"),
-                user_data=udata,
-                tag=[em.RunInstancesRequestTag(key="app", value="quen")],
-            )).body.instance_id_sets.instance_id_set
-            print(f"==> launched {ids[0]} ({itype})")
-            return ids[0]
-        except Exception as exc:  # out of stock / type unavailable → next
-            last = exc
-            msg = getattr(exc, "message", str(exc))
-            print(f"    {itype}: {msg[:100]}")
+        for category in ("cloud_essd", "cloud_efficiency"):
+            try:
+                ids = ecs.run_instances(em.RunInstancesRequest(
+                    region_id=region, image_id=image, instance_type=itype,
+                    security_group_id=sg, v_switch_id=vsw, zone_id=zone,
+                    instance_name=NAME, host_name=NAME,
+                    instance_charge_type="PostPaid",
+                    internet_charge_type="PayByTraffic",
+                    internet_max_bandwidth_out=5,
+                    system_disk=em.RunInstancesRequestSystemDisk(
+                        size=str(max(40, image_gb)), category=category),
+                    user_data=udata,
+                    tag=[em.RunInstancesRequestTag(key="app", value="quen")],
+                )).body.instance_id_sets.instance_id_set
+                print(f"==> launched {ids[0]} ({itype}, {category})")
+                return ids[0]
+            except Exception as exc:  # no stock / unsupported combo → next
+                last = exc
+                msg = getattr(exc, "message", str(exc))
+                print(f"    {itype}/{category}: {msg[:100]}")
+                if "NotSupportDiskCategory" not in str(exc):
+                    break  # different cause — other categories won't help
     raise SystemExit(f"no instance type available: {last}")
 
 
