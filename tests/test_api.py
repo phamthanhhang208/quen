@@ -151,3 +151,21 @@ def test_vitals_shape(client, monkeypatch, tmp_path):
     assert v["kpis"]["fama"] is None
     assert isinstance(v["retention_calibration"], list)
     assert len(v["confidence_by_freshness_bucket"]) == 3
+
+
+def test_dashboard_static_mount(engine, tmp_path, monkeypatch):
+    """QUEN_DASHBOARD_DIST serves the built dashboard from the API origin;
+    API routes are registered first and must keep winning."""
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text("<html>quen dashboard</html>")
+    monkeypatch.setenv("QUEN_DASHBOARD_DIST", str(dist))
+    client = TestClient(create_app(engine))
+    assert "quen dashboard" in client.get("/").text
+    assert client.get("/config").status_code == 200  # API still wins
+
+    # without the env var (or a missing dir) nothing is mounted
+    monkeypatch.setenv("QUEN_DASHBOARD_DIST", str(tmp_path / "nope"))
+    bare = TestClient(create_app(engine))
+    assert bare.get("/").status_code == 404
+    assert bare.get("/config").status_code == 200

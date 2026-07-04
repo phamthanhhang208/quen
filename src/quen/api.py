@@ -4,6 +4,8 @@ dashboard/src/lib/types.ts — change both or neither.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
@@ -203,13 +205,27 @@ def create_app(engine: Optional[QuenEngine] = None) -> FastAPI:
     def vitals():
         return eng().vitals()
 
+    # ----------------------------------------------------------- dashboard
+    # Single-origin deploys: point QUEN_DASHBOARD_DIST at a dashboard build
+    # (made with VITE_API_BASE="") and the API serves it too. Mounted last,
+    # so every API route above still wins.
+    dist = os.environ.get("QUEN_DASHBOARD_DIST", "")
+    if dist and Path(dist, "index.html").is_file():
+        from fastapi.staticfiles import StaticFiles
+
+        app.mount("/", StaticFiles(directory=dist, html=True), name="dashboard")
+
     return app
 
 
 def main() -> None:  # quen-api console script
     import uvicorn
 
-    uvicorn.run(create_app(), host="0.0.0.0", port=8000)
+    uvicorn.run(
+        create_app(),
+        host=os.environ.get("QUEN_HOST", "0.0.0.0"),
+        port=int(os.environ.get("QUEN_PORT", "8000")),
+    )
 
 
 app = create_app()

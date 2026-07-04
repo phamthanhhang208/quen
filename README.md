@@ -206,10 +206,13 @@ extractive reader; `pytest` runs this way too). These numbers validate the
 append-only 0.37 · full-context 0.37 · **Quên 0.90** · no-verify 0.83
 (same 30 cases). The live run above is the canonical result.
 
-Charts: [`eval/out/`](eval/out) — FAMA by config, accuracy-vs-budget curve,
-retention calibration (predicted R vs empirical recall), the
-**confidence-calibration-by-freshness** chart, and the 52-week long-horizon
-simulation.
+| | |
+|---|---|
+| ![FAMA by config](eval/out/fama_by_config.png) | ![Accuracy vs budget](eval/out/budget_curve.png) |
+| ![Retention calibration](eval/out/retention_calibration.png) | ![Confidence calibration by freshness](eval/out/confidence_by_freshness.png) |
+
+More charts in [`eval/out/`](eval/out), including the 52-week long-horizon
+simulation (`long_horizon.png`).
 
 ```bash
 .venv/bin/python eval/run_probe.py            # probe, offline (default)
@@ -222,7 +225,7 @@ simulation.
 
 ## Status & test results (2026-07-03)
 
-- `pytest`: **155 passed** — fully offline and deterministic (hashing
+- `pytest`: **156 passed** — fully offline and deterministic (hashing
   embedder + scripted LLM; the suite never touches the network).
 - `cd dashboard && npm run build`: ✓ (Vite production build).
 - Canonical live eval on DashScope completed end-to-end: probe (30×4),
@@ -235,7 +238,7 @@ simulation.
 
 ```bash
 uv venv .venv && uv pip install -e ".[dev]"
-.venv/bin/pytest                    # 155 offline, deterministic tests
+.venv/bin/pytest                    # 156 offline, deterministic tests
 
 # seed the full demo narrative (no API key needed) and serve it
 .venv/bin/python scripts/seed_demo.py
@@ -244,6 +247,11 @@ QUEN_OFFLINE=1 QUEN_DB_PATH=data/demo.db \
 
 cd dashboard && npm install && npm run dev                  # :5173
 ```
+
+**Deploy (Alibaba Cloud ECS, one command):** see
+[`deploy/README.md`](deploy/README.md) — `quen-api` serves the built
+dashboard from the same origin (`QUEN_DASHBOARD_DIST`), so one small
+instance runs everything; `deploy/setup.sh` is the whole server setup.
 
 Live mode: copy `.env.example` → `.env`, set `DASHSCOPE_API_KEY`
 (international endpoint: `dashscope-intl.aliyuncs.com`), unset `QUEN_OFFLINE`.
@@ -295,6 +303,14 @@ meter, score breakdown, trust chips, excluded-relevant, counterfactual
 toggle, verification events), **Vitals** (status counts, R/S histograms, KPI
 tiles fed by real eval runs only — never fabricated, and the two calibration
 charts).
+
+| Memories — live FSRS decay | Memory detail — forgetting curve & validity |
+|---|---|
+| ![Memories table](docs/screenshots/tab-memories.png) | ![Memory detail](docs/screenshots/tab-memory-detail.png) |
+
+| Dream log | Recall trace | Vitals |
+|---|---|---|
+| ![Dream log](docs/screenshots/tab-dream-log.png) | ![Recall trace](docs/screenshots/tab-recall-trace.png) | ![Vitals](docs/screenshots/tab-vitals.png) |
 
 ## Algorithmic biases — found & fixed
 
