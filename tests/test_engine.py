@@ -183,3 +183,33 @@ def test_vitals_shape(engine, store, clock, monkeypatch, tmp_path):
     assert [s["freshness_bucket"] for s in v["confidence_by_freshness_bucket"]] == [
         "<7d", "7-30d", ">30d",
     ]
+
+
+def test_compact_trust_tags_shrink_delivered_tokens(cfg, store, embedder, clock):
+    """Flag ON (default) uses the short tag grammar; OFF restores the long
+    form byte-for-byte. Same memories either way — only delivery changes."""
+    def build(compact):
+        cfg2 = type(cfg)(**{**cfg.__dict__, "compact_trust_tags": compact,
+                            "db_path": ":memory:"})
+        from quen.store import MemoryStore
+        eng = QuenEngine(cfg2, store=MemoryStore(":memory:", clock=clock.now),
+                         llm=ScriptedLLM.with_offline_defaults(),
+                         embedder=embedder, clock=clock.now)
+        eng.ingest("The team fetches data via useQuery.", source_kind="chat")
+        clock.advance(days=40)  # age it into hedging territory
+        return eng, eng.ask("The team fetches data via which hook?")
+
+    eng_on, res_on = build(True)
+    eng_off, res_off = build(False)
+    assert [sm.memory.content for sm in res_on.used] == \
+           [sm.memory.content for sm in res_off.used]
+
+    assert res_off.prompt_tokens > res_on.prompt_tokens  # the diet is real
+
+    def answer_prompt(eng):
+        return next(c["prompt"] for c in eng.llm.calls
+                    if c["marker"] == "answer")
+
+    assert "[trust " in answer_prompt(eng_off)   # long grammar, flag OFF
+    assert "[t=" in answer_prompt(eng_on)        # compact grammar, flag ON
+    assert "[trust " not in answer_prompt(eng_on)

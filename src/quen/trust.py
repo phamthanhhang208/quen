@@ -58,17 +58,36 @@ def trust_score(mem: MemoryItem, now: datetime, cfg: QuenConfig) -> float:
     return mem.confidence * freshness_factor(mem, now, half_life)
 
 
-def hedge_phrase(trust: float, source_ref: Optional[str]) -> str:
-    """Hedging qualifier proportional to trust; empty string = assert plainly."""
+def hedge_phrase(trust: float, source_ref: Optional[str], *,
+                 compact: bool = False) -> str:
+    """Hedging qualifier proportional to trust; empty string = assert plainly.
+
+    Compact forms exist because the trust channel is per-memory overhead
+    paid on every ask; they must never contain FAMA negation-cue words
+    (tests pin this) or the scorer would mistake a hedge for a negation.
+    """
     if trust >= 0.75:
         return ""
     if trust >= 0.5:
-        return "likely, but worth re-checking"
+        return "re-check" if compact else "likely, but worth re-checking"
+    if compact:
+        return f"per {source_ref or 'old note'}; may be stale"
     return f"as of {source_ref or 'an old observation'} — may have changed"
 
 
-def hedging_instruction() -> str:
+def hedging_instruction(compact: bool = False) -> str:
     """System-prompt text: calibrate wording to each memory's trust tag."""
+    if compact:
+        return (
+            "Each memory carries a tag [t=<trust> <age>d] — trust = "
+            "confidence x freshness, age in days; a trailing ✓ means it "
+            "was verified against the live source just now. Calibrate your "
+            "wording: t >= 0.75 state plainly; 0.5 <= t < 0.75 qualify it; "
+            "t < 0.5 attribute it to its source and never assert with full "
+            "assurance. Your stated answer confidence must track the trust "
+            "of the memories you relied on; if nothing trustworthy supports "
+            "an answer, say so."
+        )
     return (
         "Each memory you are given carries a trust tag "
         "(trust = confidence x freshness). Calibrate your wording to it: "

@@ -142,3 +142,40 @@ def test_answer_confidence_unverifiable_leaves_trust_alone(clock) -> None:
     used = [_used("m1", score=1.0, trust=0.42)]
     events = [_event("m1", "unverifiable", clock.now())]
     assert answer_confidence(used, events) == pytest.approx(0.42)
+
+
+def test_compact_hedge_bands() -> None:
+    assert hedge_phrase(0.9, None, compact=True) == ""
+    assert hedge_phrase(0.6, None, compact=True) == "re-check"
+    assert hedge_phrase(0.4, "PR#42", compact=True) == "per PR#42; may be stale"
+    assert hedge_phrase(0.4, None, compact=True) == "per old note; may be stale"
+
+
+def test_compact_instruction_explains_tag_grammar() -> None:
+    text = hedging_instruction(compact=True)
+    assert "[t=<trust> <age>d]" in text
+    assert "✓" in text
+    assert "0.75" in text and "0.5" in text
+
+
+def test_compact_strings_avoid_fama_negation_cues() -> None:
+    """The offline reader echoes tags/hedges into scored answers — a cue
+    word in a hedge would flip FAMA's negation forgiveness."""
+    import re
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).parent.parent / "eval"))
+    import fama
+
+    cues = fama.NEGATION_CUES_BEFORE | fama.NEGATION_CUES_AFTER
+    # only tag + hedge ride along with answers; the hedging INSTRUCTION is
+    # system text the reader never echoes (long form contains 'never' too)
+    samples = [
+        hedge_phrase(0.6, "PR#42", compact=True),
+        hedge_phrase(0.4, "PR#42", compact=True),
+        hedge_phrase(0.4, None, compact=True),
+        "[t=0.82 3d ✓]",
+    ]
+    for s in samples:
+        tokens = {t.lower() for t in re.findall(r"[A-Za-z]+", s)}
+        assert not (tokens & cues), (s, tokens & cues)

@@ -175,28 +175,37 @@ class QuenEngine:
                 )
 
         confirmed_ids = {v.memory_id for v in verifications if v.outcome == "confirmed"}
+        compact = self.cfg.compact_trust_tags
         context_lines = []
         for sm in rr.used:
             mem = sm.memory
             trust = max(sm.trust, 0.9) if mem.id in confirmed_ids else sm.trust
-            # compact tag — the trust channel is per-memory fixed overhead,
-            # so every token here is paid on every memory of every ask
-            tag = (
-                f"[trust {trust:.2f} conf {sm.confidence:.2f} "
-                f"{sm.freshness_days:.0f}d"
-                + (" verified-now" if mem.id in confirmed_ids else "")
-                + "]"
-            )
-            hedge = hedge_phrase(trust, mem.source_ref)
+            # the trust channel is per-memory fixed overhead paid on every
+            # ask — the compact grammar halves it (long form kept under flag)
+            if compact:
+                tag = (
+                    f"[t={trust:.2f} {sm.freshness_days:.0f}d"
+                    + (" ✓" if mem.id in confirmed_ids else "")
+                    + "]"
+                )
+            else:
+                tag = (
+                    f"[trust {trust:.2f} conf {sm.confidence:.2f} "
+                    f"{sm.freshness_days:.0f}d"
+                    + (" verified-now" if mem.id in confirmed_ids else "")
+                    + "]"
+                )
+            hedge = hedge_phrase(trust, mem.source_ref, compact=compact)
             # neutralize delimiter escapes — memory content is untrusted text
             content = mem.content.replace("</memories>", "[/memories]")
             line = f"- {tag} {content}"
             if hedge:
-                line += f" (hedge: {hedge})"
+                line += f" ({hedge})" if compact else f" (hedge: {hedge})"
             context_lines.append(line)
 
         answer = self.llm.complete(
-            llm_mod.render_answer(query, context_lines, hedging_instruction()),
+            llm_mod.render_answer(query, context_lines,
+                                  hedging_instruction(compact)),
             model_hint="chat",
         ).strip()
         prompt_tokens = sum(estimate_tokens(line) for line in context_lines)

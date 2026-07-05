@@ -43,6 +43,11 @@ class QuenConfig:
     # each included memory costs its content PLUS the trust tag/hedge the
     # reader actually sees — the budget must account for delivered tokens
     per_memory_overhead_tokens: int = 12
+    # short tag grammar [t=0.82 3d ✓] + terse hedges instead of the long
+    # forms — memory SELECTION is identical (overhead constant above is
+    # unchanged); only delivered prompt_tokens shrink. Flag OFF restores
+    # the long forms byte-for-byte.
+    compact_trust_tags: bool = True
     # Memories below this (relevance + lexical) never enter the context:
     # budget-padding with irrelevant memories pollutes the reader AND
     # touch-resets their eviction TTL on every ask (eviction starvation).
