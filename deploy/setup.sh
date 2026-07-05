@@ -88,7 +88,10 @@ WantedBy=multi-user.target
 UNIT
 
 systemctl daemon-reload
-systemctl enable --now quen
+systemctl enable quen
+# enable --now does NOT restart an already-running service — a re-run
+# after git pull must actually swap the process in
+systemctl restart quen
 sleep 2
 systemctl --no-pager -l status quen | head -8 || true
 
