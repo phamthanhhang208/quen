@@ -132,6 +132,11 @@ and `live_files` cases exercise verify-before-answer. Headline metric:
   re-phrased once by Qwen and frozen before scoring
   (`eval/data/probe_paraphrased.json`): Quên 0.933 — **no drop** — ablation
   0.867, baselines 0.433. The mechanism, not our phrasing, carries the result.
+- **Model-generation robustness**: the same probe re-run live on
+  `qwen3.6-flash` + `qwen3.7-plus` (2026-07-05,
+  `eval/out/probe_nextgen_summary.json`): Quên **0.933 again**, ablation
+  0.867, baselines 0.367 — the mechanism, not the model generation, carries
+  the result. Models are two env vars (`QUEN_FAST_MODEL`/`QUEN_CHAT_MODEL`).
 
 ¹ What the reader actually saw, trust tags and hedges included — the trust
 channel is not free and we count it. Quên's *content* tokens are lower than

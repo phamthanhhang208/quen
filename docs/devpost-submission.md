@@ -51,6 +51,9 @@ runtime decision, not a stored property**:
   forgetting precision/recall 0.842/0.938; verify ablation +0.13 FAMA.
 - **Paraphrase-frozen probe**: 0.933 — no drop; the mechanism, not our
   phrasing, carries the result.
+- **Model-generation robustness**: same probe on qwen3.6-flash +
+  qwen3.7-plus: 0.933 again — the mechanism, not the model generation,
+  carries the result.
 - **LongMemEval (n=229, external anchor with no staleness)**: we *lose*
   knowledge-update to turn-level append-only RAG (0.31 vs 0.54, p=0.0015)
   and tie on temporal reasoning and abstention — reported, not hidden.
