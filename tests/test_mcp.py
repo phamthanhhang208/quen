@@ -1,4 +1,4 @@
-"""MCP server: six tools on a server named "quen", JSON-safe returns,
+"""MCP server: eight tools on a server named "quen", JSON-safe returns,
 thin over the same engine (spec §5)."""
 
 import asyncio
@@ -8,8 +8,10 @@ import pytest
 
 import quen.engine as engine_mod
 from quen.mcp_server import (
+    ask,
     dream,
     inspect,
+    judge,
     mcp,
     pin,
     recall,
@@ -17,7 +19,8 @@ from quen.mcp_server import (
     verify_hint,
 )
 
-EXPECTED_TOOLS = {"remember", "recall", "dream", "verify_hint", "pin", "inspect"}
+EXPECTED_TOOLS = {"remember", "recall", "ask", "judge", "dream",
+                  "verify_hint", "pin", "inspect"}
 
 
 @pytest.fixture
@@ -76,3 +79,35 @@ def test_verify_hint_rejects_invalid_outcome(offline_engine):
     out = remember("Some fact.")
     with pytest.raises(ValueError):
         verify_hint(out["stored"][0]["id"], "definitely")
+
+
+def test_ask_judge_closes_the_use_review_loop(offline_engine):
+    out = remember("The team fetches data via useQuery.", source_kind="pr",
+                   source_ref="PR#42")
+    mem_id = out["stored"][0]["id"]
+
+    res = ask("The team fetches data via which hook?", token_budget=300)
+    json.dumps(res)  # JSON-safe
+    assert res["trace_id"]
+    assert not res["abstained"]
+    assert "useQuery" in res["answer"]
+
+    got = judge(res["trace_id"], correct=True)
+    assert got == {"trace_id": res["trace_id"], "judged_correct": True}
+    reviews = offline_engine.store.reviews_for(mem_id)
+    assert reviews and reviews[-1]["kind"] == "use_judged"
+    events = offline_engine.store.calibration_events(kind="retention")
+    assert any(e["memory_id"] == mem_id for e in events)
+
+
+def test_judge_unknown_trace_raises(offline_engine):
+    with pytest.raises(KeyError):
+        judge("trace-nope", correct=True)
+
+
+def test_inspect_q_filter(offline_engine):
+    remember("MAX_RETRIES is 4 in the worker config.")
+    remember("Team lunch was pho.")
+    hits = inspect(q="MAX_RETRIES")
+    assert hits and all("MAX_RETRIES" in r["snippet"] for r in hits)
+    assert inspect(q="zzz-nothing") == []

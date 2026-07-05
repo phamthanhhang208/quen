@@ -83,6 +83,33 @@ def recall(query: str, token_budget: int = 1500) -> dict:
 
 
 @mcp.tool()
+def ask(query: str, token_budget: Optional[int] = None) -> dict:
+    """Answer a question from memory through the full trust gate (low-trust
+    memories get verified before the answer when a verifier is wired, stale
+    facts are hedged, nothing relevant → abstains). Returns a trace_id —
+    when you later learn whether the answer was right, report it via
+    judge(trace_id, correct) so the outcome feeds retention. recall +
+    verify_hint close the per-memory loop; ask + judge close the per-answer
+    loop."""
+    r = get_engine().ask(query, token_budget=token_budget)
+    return {
+        "trace_id": r.trace_id,
+        "answer": r.answer,
+        "answer_confidence": r.answer_confidence,
+        "abstained": r.abstained,
+    }
+
+
+@mcp.tool()
+def judge(trace_id: str, correct: bool) -> dict:
+    """Close the per-answer loop: the memories that contributed to the
+    answer get an FSRS use-judged review (good/fail) and the stated
+    confidence lands in the calibration record."""
+    get_engine().judge_answer(trace_id, correct)
+    return {"trace_id": trace_id, "judged_correct": correct}
+
+
+@mcp.tool()
 def dream() -> dict:
     """Run a consolidation pass: re-abstract episodics into generalizations,
     self-test retention, supersede contradicted facts (deterministic slot rule
@@ -113,11 +140,13 @@ def pin(memory_id: str, pinned: bool = True) -> dict:
 def inspect(
     status: Optional[str] = None,
     mtype: Optional[str] = None,
+    q: Optional[str] = None,
     limit: int = 50,
 ) -> list[dict]:
     """List memories with retention/trust state (dashboard data): status,
-    importance, difficulty, stability, confidence, freshness, validity."""
-    return get_engine().inspect(status=status, mtype=mtype, limit=limit)
+    importance, difficulty, stability, confidence, freshness, validity.
+    `q` filters by content substring."""
+    return get_engine().inspect(status=status, mtype=mtype, q=q, limit=limit)
 
 
 def main() -> None:  # quen-mcp console script (stdio transport)
