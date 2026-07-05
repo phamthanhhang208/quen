@@ -58,12 +58,19 @@ def _track(model: str, resp) -> None:
     with _usage_lock:
         entry = _usage.setdefault(
             model,
-            {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0,
+             "total_tokens": 0, "cached_tokens": 0},
         )
         entry["calls"] += 1
         entry["prompt_tokens"] += getattr(usage, "prompt_tokens", 0) or 0
         entry["completion_tokens"] += getattr(usage, "completion_tokens", 0) or 0
         entry["total_tokens"] += getattr(usage, "total_tokens", 0) or 0
+        # DashScope implicit context cache: prefix hits are billed at the
+        # cached rate and surface here — count them so cost reports can
+        # separate fresh from cached input
+        details = getattr(usage, "prompt_tokens_details", None)
+        if details is not None:
+            entry["cached_tokens"] += getattr(details, "cached_tokens", 0) or 0
 
 
 def usage_summary() -> dict[str, dict[str, int]]:

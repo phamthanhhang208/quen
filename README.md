@@ -198,7 +198,12 @@ context fixes that. Quên holds its margin at every budget and needs only
 | **total (canonical pass)** | | | | **≈ $1.6** |
 
 A full from-scratch reproduction of every live number in this README lands
-well under $5.
+well under $5. Since this run, `usage_summary()` also reports
+`cached_tokens`: DashScope's [implicit context
+cache](https://www.alibabacloud.com/help/en/model-studio/context-cache)
+bills repeated prompt prefixes (min 1024 cacheable tokens) at a fraction of
+the fresh-input rate, so production workloads with stable instruction
+prefixes pay less than this table's naive rates.
 
 ### Offline dry-run (no API key — deterministic pipeline validation)
 
