@@ -72,10 +72,27 @@ runtime decision, not a stored property**:
 (`alibaba_client.py`) on the DashScope international endpoint. Backend =
 FastAPI + SQLite (WAL, audit-logged, tombstones only) on an **Alibaba Cloud
 ECS** instance that also serves the React dashboard same-origin. A thin
-**FastMCP server** (remember/recall/dream/verify_hint/pin/inspect) drops the
-same engine into any MCP harness. Everything — 156 tests and the full eval —
-also runs 100% offline (deterministic scripted LLM + hashing embedder), so
-judges can reproduce without a key.
+**FastMCP server** (8 tools — remember/recall/ask/judge/dream/verify_hint/
+pin/inspect — closing both the per-memory verification loop and the
+per-answer retention loop) drops the same engine into any MCP harness, and
+a **Claude Code hooks kit** (`integrations/claude-code/`) loads memories at
+SessionStart and captures the conversation at SessionEnd/PreCompact.
+Everything — 176 tests and the full eval — also runs 100% offline
+(deterministic scripted LLM + hashing embedder), so judges can reproduce
+without a key.
+
+### What's next
+
+Temporal-hierarchical digests (TiMem-style graduated compression), a
+Letta-style sleep-time dream scheduler, FSRS weight re-fit from the
+calibration events the store already records, and context-cache-aware
+prompt ordering (DashScope bills cached prefixes at ~10% of fresh input —
+our usage counters already track the hits). Full roadmap:
+`docs/ROADMAP.md`. Recent flag-gated additions already measured offline:
+compact trust tags (−35% delivered tokens/query at identical FAMA) and
+spaced self-test scheduling (52-week sim: 221 vs 427 tokens/query against
+append-only from an active store 6× smaller, 203 evictions/yr, stale-free
+rate 1.0).
 
 ### Links
 
@@ -99,7 +116,7 @@ judges can reproduce without a key.
    trace** with live verification (confirmed + refuted) and the
    counterfactual toggle showing what a plain RAG would have injected.
 2. Reproduce locally with zero keys: `uv venv .venv && uv pip install -e
-   ".[dev]" && pytest` (156 offline tests), then
+   ".[dev]" && pytest` (176 offline tests), then
    `python scripts/seed_demo.py` + `quen-api` + `cd dashboard && npm run
    dev`.
 3. Live mode: set `DASHSCOPE_API_KEY` in `.env`; every eval script takes

@@ -101,6 +101,11 @@ prompt across configs. Every number is produced by the committed scripts and
 lives in [`eval/out/`](eval/out); n is small, so 95% Wilson CIs and paired
 exact McNemar tests are reported instead of bare points.
 
+> The live tables below are the **frozen canonical run of 2026-07-03**.
+> Features added since (compact trust tags, spaced self-test — both
+> flag-gated) do not alter these tables; the offline dry-run and 52-week
+> sim numbers further down ARE refreshed with those flags on.
+
 ### Code-staleness probe — the workload Quên is built for (n=30)
 
 Facts get invalidated mid-history (refactor PRs, implicit reversals),
@@ -211,7 +216,10 @@ The whole eval also runs **without any key** (hashing embedder + scripted
 extractive reader; `pytest` runs this way too). These numbers validate the
 *memory mechanics* under an identical reader/budget, not LLM quality:
 append-only 0.37 · full-context 0.37 · **Quên 0.90** · no-verify 0.83
-(same 30 cases). The live run above is the canonical result.
+(same 30 cases). The live run above is the canonical result. With the
+compact trust-tag grammar (default since) the same offline probe delivers
+**18.9 tokens/query instead of 29.1 (−35%) at identical FAMA** — the trust
+channel got cheaper, not weaker.
 
 | | |
 |---|---|
@@ -219,7 +227,10 @@ append-only 0.37 · full-context 0.37 · **Quên 0.90** · no-verify 0.83
 | ![Retention calibration](eval/out/retention_calibration.png) | ![Confidence calibration by freshness](eval/out/confidence_by_freshness.png) |
 
 More charts in [`eval/out/`](eval/out), including the 52-week long-horizon
-simulation (`long_horizon.png`).
+simulation (`long_horizon.png`): at week 52 Quên answers from **221
+tokens/query vs 427 for append-only**, out of an active store 6× smaller
+(950 vs 5,757 tokens; 203 evictions over the year; stale-free answer rate
+holds 1.0 while append-only collapses to 0.5; mean FAMA 0.90 vs 0.27).
 
 ```bash
 .venv/bin/python eval/run_probe.py            # probe, offline (default)
@@ -230,9 +241,9 @@ simulation (`long_horizon.png`).
 .venv/bin/python eval/charts.py
 ```
 
-## Status & test results (2026-07-03)
+## Status & test results (2026-07-05)
 
-- `pytest`: **156 passed** — fully offline and deterministic (hashing
+- `pytest`: **176 passed** — fully offline and deterministic (hashing
   embedder + scripted LLM; the suite never touches the network).
 - `cd dashboard && npm run build`: ✓ (Vite production build).
 - Canonical live eval on DashScope completed end-to-end: probe (30×4),
@@ -245,7 +256,7 @@ simulation (`long_horizon.png`).
 
 ```bash
 uv venv .venv && uv pip install -e ".[dev]"
-.venv/bin/pytest                    # 156 offline, deterministic tests
+.venv/bin/pytest                    # 176 offline, deterministic tests
 
 # seed the full demo narrative (no API key needed) and serve it
 .venv/bin/python scripts/seed_demo.py
@@ -288,14 +299,28 @@ from Claude Code, Cursor, OpenAI Agents SDK, LangGraph, or any MCP client:
 .venv/bin/quen-mcp    # stdio transport
 ```
 
-Tools: `remember(observation)` · `recall(query, token_budget)` (memories
-**with trust fields** + `needs_verification` flags) · `dream()` ·
-`verify_hint(memory_id, result, evidence)` (the harness verifies with *its*
-live tools — grep, file read, URL fetch — and reports back; the engine applies
-the confidence update + FSRS review) · `pin(memory_id)` · `inspect(filter)`.
+Eight tools closing **both** feedback loops: `remember(observation)` ·
+`recall(query, token_budget)` (memories **with trust fields** +
+`needs_verification` flags) · `verify_hint(memory_id, result, evidence)`
+(the harness verifies with *its* live tools — grep, file read, URL fetch —
+and reports back; the engine applies the confidence update + FSRS review:
+the per-memory loop) · `ask(query)` → trace_id · `judge(trace_id, correct)`
+(use-judged FSRS review + confidence calibration: the per-answer loop) ·
+`dream()` · `pin(memory_id)` · `inspect(status, mtype, q)`.
 
 Memory-as-MCP exists (MemMachine, Mem0, FSRS-memory servers) — the packaging
 is adoption, not novelty. The wrapper stays thin; the eval never uses it.
+
+### Claude Code hooks — ambient memory for real sessions
+
+[`integrations/claude-code/`](integrations/claude-code) wires Quên into
+Claude Code's lifecycle (the Mem0-style pattern): **SessionStart** loads
+relevant memories as context — trust tags, NEEDS-VERIFICATION flags and
+memory ids included, so the agent can `verify_hint`/`judge` them over MCP —
+and **SessionEnd/PreCompact** capture the conversation tail into `/ingest`,
+where the engine's own extraction/salience/dedup decides what's worth
+keeping. Stdlib-only, fail-silent: a memory layer must never break the
+session it serves.
 
 ## Dashboard
 
@@ -329,7 +354,7 @@ stack). Everything below is reproduced in `tests/test_bias_audit.py` and
 | Bias / defect | Evidence | Fix |
 |---|---|---|
 | **The store couldn't forget.** Self-test probes were built *from* the memory and answered *with* the memory in the pool → passes were near-certain and independent of R, and each GOOD review at low R multiplied stability up to ×27.8 (FSRS spacing term) — immortalizing exactly the memories closest to eviction | analytical repro on FSRS-4.5 defaults; 52-week sim: **0 evictions in a year** | self-test passes grade HARD with a ×2 growth cap and log as `retrieval_health`, never retention evidence; retention calibration re-sourced from use-judged outcomes (which *can* fail with time) |
-| **Eviction starvation.** Greedy budget-fill included barely-relevant memories, whose `last_accessed_at` touch reset the eviction TTL on every ask | same sim | inclusion relevance floor (irrelevant memories never enter the context); θ rescaled to the FSRS-4.5 curve (R<0.3 needs 43·S days — unreachable; 0.5 ≈ 12.8·S). Sim now evicts (0 → 83) and cuts tokens/query below append-only |
+| **Eviction starvation.** Greedy budget-fill included barely-relevant memories, whose `last_accessed_at` touch reset the eviction TTL on every ask | same sim | inclusion relevance floor (irrelevant memories never enter the context); θ rescaled to the FSRS-4.5 curve (R<0.3 needs 43·S days — unreachable; 0.5 ≈ 12.8·S). Evictions went 0 → 83 at the time of the fix (203/yr today with spaced rehearsal) and tokens/query dropped below append-only |
 | **Over-forgetting multi-valued facts.** The deterministic same-(s,r)-new-o rule treated *every* slot as single-valued: `(team, uses, Postgres)` + `(team, uses, Redis)` superseded Postgres — augmentation destroyed as contradiction. Our own probe hid this (its augmentation cases all used different subjects) | new same-subject augmentation probe cases | functional-relation gate (KB-style): only single-current-value relations take the deterministic path; ambiguous relations ("uses", "prefers") route to NLI, where `augments` protects both |
 | **Recency bias in trust.** `trust = conf × 2^(−age/30d)` hedged a twice-confirmed two-year-old fact like day-old gossip | construction | freshness half-life stretches with *earned* FSRS stability (each successful review is durability evidence). Caveat disclosed: S measures rehearsal, not world drift |
 | **Recency-only arbitration.** A casual chat mention could silently retire a merged-PR fact (spec says recency+authority) | construction | authority guard: a supersession whose source authority trails by ≥0.25 is blocked and audited; a ≥0.9-confidence NLI contradiction overrides. Conflicts resolve later via verify-before-answer |
@@ -365,6 +390,17 @@ functionality is a fixed list, not learned.
   never hard-delete, and every mutation is audited.
 - FSRS default weights are used as published, not re-fit to agent-memory data.
 
+## What's next
+
+The near-term roadmap lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) —
+highlights: TiMem-style temporal-hierarchical digests (recent = verbatim,
+aging = graduated roll-ups), a Letta-style sleep-time dream scheduler,
+FSRS weight re-fit from the calibration events the store already records,
+context-cache-aware prompt ordering (DashScope bills cached prefixes at
+~10% of fresh input — `usage_summary()` already counts the hits), and
+per-memory verifier suggestions so a harness can check flagged memories
+mechanically.
+
 ## Research it stands on (cite generously, claim narrowly)
 
 Retrieval scoring: Generative Agents (2304.03442). Retention: FSRS/DSR
@@ -385,7 +421,7 @@ src/quen/          engine: models · fsrs · store · llm · embeddings ·
                    write_pipeline · retrieval · supersession · dream ·
                    trust · verifiers · engine · api · mcp_server ·
                    alibaba_client (THE proof artifact)
-tests/             143 offline deterministic tests (TDD list from the spec)
+tests/             176 offline deterministic tests (TDD list from the spec)
 eval/              FAMA probe · LongMemEval · calibrations · budget curve
 dashboard/         the glass box
 scripts/           seed_demo.py + demo_repo fixture
