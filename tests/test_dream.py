@@ -202,3 +202,68 @@ def test_journal_and_stats_persisted(store, mem_factory, cfg, embedder, clock):
     assert runs[0]["journal"] == "dream journal entry"
     assert runs[0]["stats"]["self_tests"] == len(report.self_tests)
     assert runs[0]["finished_at"] is not None
+
+
+# ------------------------------------------------------ spaced self-test
+
+
+def _order_ids(mems, cfg, clock):
+    from quen.dream import _selftest_order
+    return [m.content for m in _selftest_order(mems, cfg, clock.now())]
+
+
+def test_spaced_selftest_prefers_near_forgetting(mem_factory, cfg, clock):
+    """At t=10d: S=6.1 → R≈0.85 (window), S=1.32 → R≈0.60 (window),
+    S=0.33 → R≈0.35 (floor). Spaced order tests the near-threshold pair
+    first, highest R first; the decayed floor memory goes last."""
+    high = mem_factory("fact high", stability=6.1)
+    mid = mem_factory("fact mid", stability=1.32)
+    low = mem_factory("fact low", stability=0.33)
+    clock.advance(days=10)
+
+    cfg.selftest_spaced = True
+    assert _order_ids([low, mid, high], cfg, clock) == \
+        ["fact high", "fact mid", "fact low"]
+
+
+def test_spaced_flag_off_restores_lowest_r_first(mem_factory, cfg, clock):
+    high = mem_factory("fact high", stability=6.1)
+    mid = mem_factory("fact mid", stability=1.32)
+    low = mem_factory("fact low", stability=0.33)
+    clock.advance(days=10)
+
+    cfg.selftest_spaced = False
+    assert _order_ids([high, mid, low], cfg, clock) == \
+        ["fact low", "fact mid", "fact high"]
+
+
+def test_spaced_order_ties_break_deterministically(mem_factory, cfg, clock):
+    a = mem_factory("same-a", stability=2.0)
+    b = mem_factory("same-b", stability=2.0)
+    clock.advance(days=5)
+    cfg.selftest_spaced = True
+    assert _order_ids([b, a], cfg, clock) == _order_ids([a, b], cfg, clock)
+
+
+def test_dream_selftests_respect_spaced_sampling(
+    store, mem_factory, cfg, embedder, clock
+):
+    """End-to-end through run_dream: with 2 slots, the near-threshold pair
+    is tested and the floor memory is left alone (it is eviction's problem
+    — but here TTL hasn't passed, so it just waits)."""
+    from quen.dream import run_dream
+    from quen import llm as llm_mod
+    from quen.llm import ScriptedLLM
+
+    for content, s in [("alpha binds useApi", 6.1),
+                       ("beta binds useQuery", 1.32),
+                       ("gamma binds uploadV1", 0.33)]:
+        store.add(mem_factory(content, stability=s), actor="test")
+    clock.advance(days=10)
+
+    cfg.selftest_sample_size = 2
+    llm = ScriptedLLM.with_offline_defaults()
+    report = run_dream(store, llm, embedder, cfg, now=clock.now())
+    tested = {t.memory_id for t in report.self_tests}
+    contents = {store.get(i).content for i in tested}
+    assert contents == {"alpha binds useApi", "beta binds useQuery"}

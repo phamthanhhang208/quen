@@ -75,6 +75,12 @@ class QuenConfig:
     # After a failed self-test, don't re-test the same memory for this many
     # days (failing memories otherwise monopolize the whole sample forever).
     selftest_fail_backoff_days: float = 7.0
+    # Spaced rehearsal: prefer memories whose R sits just below the desired
+    # retention (the near-forgetting point — where a review buys the most
+    # spacing), over the decayed floor. Window low = eviction θ on purpose:
+    # below θ a memory is eviction's problem, not rehearsal's.
+    selftest_spaced: bool = True
+    selftest_window_low: float = 0.5
     nli_confidence_gate: float = 0.7
     nli_knn_k: int = 8
     compress_min_chars: int = 600

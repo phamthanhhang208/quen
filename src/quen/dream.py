@@ -188,7 +188,7 @@ def run_dream(
     # store and make eviction unreachable. Dream introspection is not usage.
     evictable_ids = {m.id for m in store.active() if _evictable(m, cfg, now)}
 
-    # ---- 2. self-test (lowest R first) ------------------------------------
+    # ---- 2. self-test (spaced) ---------------------------------------------
     # Targets the at-risk-but-not-doomed band: eviction candidates are
     # excluded (see above), as are fresh memories whose R hasn't decayed
     # below the desired retention (nothing to test), and memories in
@@ -203,9 +203,7 @@ def run_dream(
             < cfg.desired_retention
             and not _in_selftest_backoff(store, m.id, cfg, now)
         ]
-        actives.sort(
-            key=lambda m: fsrs.retrievability(m.elapsed_days(now), m.stability)
-        )
+        actives = _selftest_order(actives, cfg, now)
         for mem in actives[: cfg.selftest_sample_size]:
             result = self_test_memory(
                 mem, store=store, llm=llm, embedder=embedder, cfg=cfg,
@@ -313,6 +311,35 @@ def _has_failed_selftest(store: MemoryStore, memory_id: str) -> bool:
         r["kind"] == "self_test" and r["grade"] == 1
         for r in store.reviews_for(memory_id)
     )
+
+
+def _selftest_order(
+    actives: list[MemoryItem], cfg: QuenConfig, now: datetime
+) -> list[MemoryItem]:
+    """Which memories to rehearse first, given limited sample slots.
+
+    Spaced (default): the window [selftest_window_low, desired_retention)
+    ordered by R DESCENDING — test at the moment of near-forgetting, where
+    a review buys the most spacing benefit (FSRS: the spacing increment
+    shrinks as R falls). Below the window a memory is eviction's problem,
+    not rehearsal's; those fill leftover slots lowest-R-first. Legacy
+    (flag off): plain lowest-R-first.
+    """
+
+    def r(m: MemoryItem) -> float:
+        return fsrs.retrievability(m.elapsed_days(now), m.stability)
+
+    if not cfg.selftest_spaced:
+        return sorted(actives, key=lambda m: (r(m), m.id))
+    window = sorted(
+        (m for m in actives if r(m) >= cfg.selftest_window_low),
+        key=lambda m: (-r(m), m.id),
+    )
+    floor = sorted(
+        (m for m in actives if r(m) < cfg.selftest_window_low),
+        key=lambda m: (r(m), m.id),
+    )
+    return window + floor
 
 
 def _in_selftest_backoff(
