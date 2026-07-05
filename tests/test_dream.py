@@ -237,12 +237,16 @@ def test_spaced_flag_off_restores_lowest_r_first(mem_factory, cfg, clock):
         ["fact low", "fact mid", "fact high"]
 
 
-def test_spaced_order_ties_break_deterministically(mem_factory, cfg, clock):
+def test_spaced_order_ties_keep_store_order(mem_factory, cfg, clock):
+    """Equal-R ties preserve input (store) order — ids are per-run uuids,
+    so an id tie-break would make dream sampling nondeterministic across
+    runs (it broke the seed-demo narrative once; never again)."""
     a = mem_factory("same-a", stability=2.0)
     b = mem_factory("same-b", stability=2.0)
     clock.advance(days=5)
     cfg.selftest_spaced = True
-    assert _order_ids([b, a], cfg, clock) == _order_ids([a, b], cfg, clock)
+    assert _order_ids([a, b], cfg, clock) == ["same-a", "same-b"]
+    assert _order_ids([b, a], cfg, clock) == ["same-b", "same-a"]
 
 
 def test_dream_selftests_respect_spaced_sampling(

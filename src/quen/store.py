@@ -312,7 +312,10 @@ class MemoryStore:
             args.extend([f"%{q}%", f"%{q}%"])
         if conds:
             query += " WHERE " + " AND ".join(conds)
-        query += " ORDER BY created_at DESC, id LIMIT ?"
+        # rowid = insertion sequence: a run-stable tie-break. Ordering ties
+        # by uuid `id` shuffled equal-created_at memories on every process
+        # (uuids are random per run) and made dream outcomes nondeterministic.
+        query += " ORDER BY created_at DESC, rowid LIMIT ?"
         args.append(limit)
         with self._lock:
             rows = self._conn.execute(query, args).fetchall()

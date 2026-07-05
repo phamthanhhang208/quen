@@ -362,7 +362,11 @@ def _candidate_pairs(
     """Deterministic NLI candidate pairs: entity overlap ∪ cosine kNN,
     slot-sharing pairs excluded, each pair once, oldest-``valid_from``
     first within the pair, capped at ``MAX_NLI_PAIRS``."""
-    order = sorted(actives, key=lambda m: (m.created_at, m.id))
+    # stable sort by created_at ONLY: ties keep the caller's (store) order,
+    # which is rowid-stable — sorting ties by uuid reshuffled pairs and even
+    # the A/B supersession direction on every run
+    order = sorted(actives, key=lambda m: m.created_at)
+    pos = {m.id: i for i, m in enumerate(order)}
     tokens = [_entity_tokens(m.content) for m in order]
     keys: set[tuple[int, int]] = set()
 
@@ -384,21 +388,23 @@ def _candidate_pairs(
                 keys.add((i, j))
 
     for i, a in enumerate(order):
-        sims: list[tuple[float, str, int]] = []
+        sims: list[tuple[float, int]] = []
         for j, b in enumerate(order):
             if i == j or _deterministic_owns(a, order[j]):
                 continue
             sim = cosine(a.embedding, b.embedding)
             if sim > 0.0:  # HashingEmbedder cosine can go negative — clamp out
-                sims.append((-sim, b.id, j))
+                sims.append((-sim, j))
         sims.sort()
-        for _, _, j in sims[: cfg.nli_knn_k]:
+        for _, j in sims[: cfg.nli_knn_k]:
             keys.add((min(i, j), max(i, j)))
 
     pairs: list[tuple[MemoryItem, MemoryItem]] = []
     for i, j in sorted(keys):
         a, b = order[i], order[j]
-        if (b.valid_from, b.created_at, b.id) < (a.valid_from, a.created_at, a.id):
+        if (b.valid_from, b.created_at, pos[b.id]) < (
+            a.valid_from, a.created_at, pos[a.id]
+        ):
             a, b = b, a  # A = older valid_from, B = newer
         pairs.append((a, b))
     # the pair cap is a silent-coverage risk: spend the budget on pairs that

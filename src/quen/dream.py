@@ -329,15 +329,18 @@ def _selftest_order(
     def r(m: MemoryItem) -> float:
         return fsrs.retrievability(m.elapsed_days(now), m.stability)
 
+    # ties keep STORE order (stable sort) — ids are per-run uuids, so any
+    # id tie-break would reshuffle equal-R memories on every run and make
+    # the demo narrative (and anything else downstream) nondeterministic
     if not cfg.selftest_spaced:
-        return sorted(actives, key=lambda m: (r(m), m.id))
+        return sorted(actives, key=r)
     window = sorted(
         (m for m in actives if r(m) >= cfg.selftest_window_low),
-        key=lambda m: (-r(m), m.id),
+        key=lambda m: -r(m),
     )
     floor = sorted(
         (m for m in actives if r(m) < cfg.selftest_window_low),
-        key=lambda m: (r(m), m.id),
+        key=r,
     )
     return window + floor
 
