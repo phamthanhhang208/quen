@@ -27,6 +27,11 @@ class AskBody(BaseModel):
     token_budget: Optional[int] = Field(default=None, gt=0)
 
 
+class RecallBody(BaseModel):
+    query: str
+    token_budget: int = Field(default=1500, gt=0)
+
+
 class PinBody(BaseModel):
     pinned: bool = True
 
@@ -146,6 +151,12 @@ def create_app(engine: Optional[QuenEngine] = None) -> FastAPI:
                 {"content": s.content, "reason": s.reason} for s in result.skipped
             ],
         }
+
+    @app.post("/recall")
+    def recall(body: RecallBody):
+        """Budgeted recall with trust fields, no LLM call — same payload as
+        the MCP `recall` tool (used by the harness hooks kit)."""
+        return eng().recall_dict(body.query, token_budget=body.token_budget)
 
     @app.post("/ask")
     def ask(body: AskBody):

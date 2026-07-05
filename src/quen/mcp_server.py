@@ -17,8 +17,6 @@ from typing import Optional
 from mcp.server.fastmcp import FastMCP
 
 from quen.engine import _event_dict, _snippet, get_engine
-from quen.retrieval import recall as _recall
-from quen.store import iso
 
 mcp = FastMCP("quen")
 
@@ -49,37 +47,7 @@ def recall(query: str, token_budget: int = 1500) -> dict:
     carries trust fields (confidence, freshness_days, retrievability, trust) —
     treat low-trust memories as hypotheses: verify them against the live
     source before acting, then report the outcome via verify_hint."""
-    engine = get_engine()
-    now = engine.clock()
-    rr = _recall(
-        query,
-        token_budget=token_budget,
-        store=engine.store,
-        embedder=engine.embedder,
-        cfg=engine.cfg,
-        now=now,
-    )
-    return {
-        "memories": [
-            {
-                "id": sm.memory.id,
-                "content": sm.memory.content,
-                "source_ref": sm.memory.source_ref,
-                "tokens": sm.tokens,
-                "score": round(sm.score, 4),
-                "trust": round(sm.trust, 4),
-                "confidence": round(sm.confidence, 4),
-                "freshness_days": round(sm.freshness_days, 2),
-                "retrievability": round(sm.retrievability, 4),
-                "last_verified_at": iso(sm.memory.last_verified_at),
-                "needs_verification": sm.trust < engine.cfg.trust_threshold,
-            }
-            for sm in rr.used
-        ],
-        "excluded_relevant": rr.excluded_relevant,
-        "tokens_used": rr.tokens_used,
-        "token_budget": rr.token_budget,
-    }
+    return get_engine().recall_dict(query, token_budget=token_budget)
 
 
 @mcp.tool()

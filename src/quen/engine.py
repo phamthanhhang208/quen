@@ -412,6 +412,40 @@ class QuenEngine:
             actor="engine",
         )
 
+    def recall_dict(self, query: str, token_budget: int = 1500) -> dict:
+        """Budgeted recall as a JSON-safe dict — the shared payload behind
+        the MCP `recall` tool and REST `POST /recall` (no LLM call)."""
+        now = self.clock()
+        rr = recall(
+            query,
+            token_budget=token_budget,
+            store=self.store,
+            embedder=self.embedder,
+            cfg=self.cfg,
+            now=now,
+        )
+        return {
+            "memories": [
+                {
+                    "id": sm.memory.id,
+                    "content": sm.memory.content,
+                    "source_ref": sm.memory.source_ref,
+                    "tokens": sm.tokens,
+                    "score": round(sm.score, 4),
+                    "trust": round(sm.trust, 4),
+                    "confidence": round(sm.confidence, 4),
+                    "freshness_days": round(sm.freshness_days, 2),
+                    "retrievability": round(sm.retrievability, 4),
+                    "last_verified_at": iso(sm.memory.last_verified_at),
+                    "needs_verification": sm.trust < self.cfg.trust_threshold,
+                }
+                for sm in rr.used
+            ],
+            "excluded_relevant": rr.excluded_relevant,
+            "tokens_used": rr.tokens_used,
+            "token_budget": rr.token_budget,
+        }
+
     # -------------------------------------------------------------- inspect
 
     def inspect(

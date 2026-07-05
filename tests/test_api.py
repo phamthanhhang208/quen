@@ -153,6 +153,20 @@ def test_vitals_shape(client, monkeypatch, tmp_path):
     assert len(v["confidence_by_freshness_bucket"]) == 3
 
 
+def test_recall_endpoint_budgeted_with_trust_fields(client):
+    client.post("/ingest", json={"text": "The team fetches data via useQuery.",
+                                 "source_kind": "pr", "source_ref": "PR#42"})
+    r = client.post("/recall", json={"query": "data fetching hook",
+                                     "token_budget": 300})
+    assert r.status_code == 200
+    got = r.json()
+    assert got["tokens_used"] <= 300
+    mem = got["memories"][0]
+    for key in ("id", "content", "trust", "confidence", "freshness_days",
+                "retrievability", "needs_verification"):
+        assert key in mem
+
+
 def test_dashboard_static_mount(engine, tmp_path, monkeypatch):
     """QUEN_DASHBOARD_DIST serves the built dashboard from the API origin;
     API routes are registered first and must keep winning."""
