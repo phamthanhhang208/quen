@@ -27,8 +27,8 @@ load_dotenv()  # keys live in .env (gitignored), never in code
 
 DASHSCOPE_INTL_BASE_URL = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 
-DEFAULT_CHAT_MODEL = os.environ.get("QUEN_CHAT_MODEL", "qwen3.5-plus")
-DEFAULT_FAST_MODEL = os.environ.get("QUEN_FAST_MODEL", "qwen-flash")
+DEFAULT_CHAT_MODEL = os.environ.get("QUEN_CHAT_MODEL", "qwen3.7-plus")
+DEFAULT_FAST_MODEL = os.environ.get("QUEN_FAST_MODEL", "qwen3.6-flash")
 DEFAULT_EMBED_MODEL = os.environ.get("QUEN_EMBED_MODEL", "text-embedding-v4")
 
 _usage: dict[str, dict[str, int]] = {}
