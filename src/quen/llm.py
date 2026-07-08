@@ -22,6 +22,7 @@ SELFTEST_PROBE = "selftest_probe"
 SELFTEST_ANSWER = "selftest_answer"
 ANSWER = "answer"
 JUDGE = "judge"
+LME_JUDGE = "lme_judge"
 COMPRESS = "compress"
 JOURNAL = "journal"
 
@@ -220,6 +221,34 @@ def render_judge(question: str, expected: str, answer: str) -> list[dict]:
     user = f"Question: {question}\nExpected: {expected}\nAnswer: {answer}"
     return [
         {"role": "system", "content": _task(JUDGE, body)},
+        {"role": "user", "content": user},
+    ]
+
+
+def render_lme_judge(question: str, gold: str, answer: str,
+                     expects_abstain: bool = False) -> list[dict]:
+    """Benchmark answer judging (LongMemEval-style LLM judge). Symmetric:
+    every config's answers go through the same judge."""
+    if expects_abstain:
+        body = (
+            "The question refers to something that never happened. Judge "
+            "whether the response correctly DECLINES to answer (says it "
+            "doesn't know / has no such record) WITHOUT asserting a "
+            "substantive answer or estimate. A hedge followed by a guess "
+            "counts as answering, not declining. Reply exactly YES (declines "
+            "cleanly) or NO."
+        )
+    else:
+        body = (
+            "Judge whether the response answers the question with the same "
+            "meaning as the gold answer. Accept paraphrases, digit/word "
+            "number forms, singular/plural, and extra hedging or caveats, "
+            "as long as the substantive answer matches the gold. Reply "
+            "exactly YES or NO."
+        )
+    user = f"Question: {question}\nGold answer: {gold}\nResponse: {answer}"
+    return [
+        {"role": "system", "content": _task(LME_JUDGE, body)},
         {"role": "user", "content": user},
     ]
 

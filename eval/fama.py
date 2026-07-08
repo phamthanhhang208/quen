@@ -49,11 +49,13 @@ def _fact_pattern(fact: str) -> str:
     """Word-boundary pattern tolerant of spacing/hyphens between the fact's
     camel-aware alphanumeric runs: 'Node20' also matches 'Node 20', and
     'CloudflareR2' matches 'Cloudflare R2' (real readers re-space compound
-    tokens), while 'S3' still rejects 'S3000'."""
+    tokens), while 'S3' still rejects 'S3000'. `:` and unicode dashes join
+    runs too — '6:00 pm' and '10–12 hours' must match their golds."""
     runs = _tokens(fact)
     if not runs:
         return re.escape(fact.casefold())
-    return r"(?<!\w)" + r"[\s\-_./]*".join(re.escape(r) for r in runs) + r"(?!\w)"
+    sep = r"[\s\-_./:‐-―]*"
+    return r"(?<!\w)" + sep.join(re.escape(r) for r in runs) + r"(?!\w)"
 
 
 def word_present(fact: str, text: str) -> bool:
@@ -113,6 +115,12 @@ def score_answer(
 _ABSTAIN_MARKERS = (
     "don't know", "do not know", "don't have", "no reliable memory",
     "not sure", "cannot answer", "can't answer", "unknown", "no memory",
+    # the engine's own hard-abstain phrasing — unambiguous decline. Broader
+    # hedge phrases ("cannot state with full assurance...") deliberately do
+    # NOT belong here: live readers follow them with an answer anyway, and
+    # crediting a hedge-then-answer as abstention would inflate the score
+    # without changing behavior (the LLM judge handles those cases live).
+    "no relevant memor",
 )
 
 

@@ -137,3 +137,41 @@ def test_longmemeval_dry_run_sample():
     abst = next(i for i in instances if str(i["question_id"]).endswith("_abs"))
     row = run_instance(abst, "quen", budget=300, live=False)
     assert row["correct"] and row["abstained"]
+
+
+def test_word_present_separators_colon_and_endash():
+    """Scorer bugs found in the KU failure audit: ':' and unicode dashes
+    were not join separators, failing literally-correct answers."""
+    assert fama.word_present("6:00 pm", "dinner is at 6:00 pm sharp")
+    assert fama.word_present("10-12 hours", "it took 10–12 hours")  # en-dash
+    assert not fama.word_present("S3", "we use S3000 units")  # boundary intact
+
+
+def test_abstention_markers_do_not_credit_hedge_then_answer():
+    assert fama.looks_like_abstention(
+        "There are no relevant memories recorded about that.")
+    # a hedge followed by a substantive answer is NOT an abstention
+    assert not fama.looks_like_abstention(
+        "I cannot state with full assurance, but the records indicate 12.")
+
+
+def test_lme_judge_template_shapes():
+    from quen import llm as llm_mod
+
+    msgs = llm_mod.render_lme_judge("How many?", "15", "Fifteen, I believe.")
+    assert msgs[0]["content"].startswith(f"### TASK: {llm_mod.LME_JUDGE}")
+    assert "paraphrases" in msgs[0]["content"]
+    assert "Gold answer: 15" in msgs[1]["content"]
+
+    abst = llm_mod.render_lme_judge("When did X?", "abstain", "No idea.",
+                                    expects_abstain=True)
+    assert "DECLINES" in abst[0]["content"]
+    assert "hedge followed by a guess" in abst[0]["content"]
+
+
+def test_dry_run_rows_carry_both_metrics():
+    instances = load_instances(live=False, hf_file="", limit=None)
+    ku = next(i for i in instances if i["question_type"] == "knowledge-update"
+              and not str(i["question_id"]).endswith("_abs"))
+    row = run_instance(ku, "quen", budget=300, live=False)
+    assert row["correct"] == row["correct_exact"]  # offline: judge == exact

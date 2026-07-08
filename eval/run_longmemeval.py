@@ -8,15 +8,19 @@ Live: downloads `xiaowu0162/longmemeval-cleaned` from HuggingFace
 use longmemeval_s_cleaned.json for the full haystack) and needs
 DASHSCOPE_API_KEY for the Qwen reader.
 
-Scoring: exact-match containment of the gold answer (casefold), which is
-conservative; abstention items (question_id ends with `_abs`) score correct
-when the system abstains. A Qwen judge cross-check is recommended for live
-runs — exact-match under-reports paraphrases (stated in the README).
+Scoring, live runs: an LLM judge (the LongMemEval paper's own protocol) is
+the primary metric — it accepts paraphrases, digit/word number forms and
+hedged-but-correct answers, and requires a clean decline on abstention
+items; the judge sees every config's answers symmetrically. The
+conservative exact word-boundary match is still computed and reported
+alongside as `correct_exact`. Dry-run (offline) scores with the exact
+matcher only.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -69,6 +73,31 @@ def make_system(config: str, live: bool):
     return Quen(llm, embedder, verify=False)  # no live source in this bench
 
 
+def _judge_correct(inst: dict, answer_text: str, *, live: bool,
+                   exact: bool) -> bool:
+    """LLM-judge verdict (live) with the exact matcher as the offline
+    fallback. Applied to every config identically."""
+    if not live:
+        return exact
+    from quen import alibaba_client as ac
+    from quen import llm as llm_mod
+
+    msgs = llm_mod.render_lme_judge(
+        inst["question"],
+        str(inst.get("answer", "")).strip(),
+        answer_text,
+        expects_abstain=str(inst["question_id"]).endswith("_abs"),
+    )
+    resp = ac.chat(
+        msgs,
+        model=os.environ.get("QUEN_LME_JUDGE_MODEL", "qwen3.7-plus"),
+        temperature=0.0,
+        max_tokens=8,
+        extra_body={"enable_thinking": False},
+    )
+    return (resp.choices[0].message.content or "").strip().upper().startswith("YES")
+
+
 def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
     system = make_system(config, live)
     sessions = inst.get("haystack_sessions", [])
@@ -89,17 +118,19 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
     if is_abstention:
         # judged from the delivered TEXT for every config — never from a
         # config's self-reported flag (baselines cannot emit one)
-        correct = looks_like_abstention(ans.text)
+        exact = looks_like_abstention(ans.text)
     else:
         # word-boundary match: bare containment lets short golds like
         # "before" match almost any verbose answer
-        correct = bool(gold) and word_present(gold, ans.text)
+        exact = bool(gold) and word_present(gold, ans.text)
+    correct = _judge_correct(inst, ans.text, live=live, exact=exact)
     return {
         "question_id": inst["question_id"],
         "question_type": inst["question_type"],
         "abstention": is_abstention,
         "config": config,
         "correct": correct,
+        "correct_exact": exact,
         "abstained": ans.abstained,
         "tokens_used": ans.tokens_used,
         "answer": ans.text[:300],
@@ -118,10 +149,18 @@ def aggregate(rows: list[dict]) -> dict:
                 agg[subset] = round(
                     sum(r["correct"] for r in chunk) / len(chunk), 4
                 )
+                agg[f"{subset}_exact"] = round(
+                    sum(r.get("correct_exact", r["correct"]) for r in chunk)
+                    / len(chunk), 4
+                )
         abst = [r for r in sub if r["abstention"]]
         if abst:
             agg["abstention"] = round(
                 sum(r["correct"] for r in abst) / len(abst), 4
+            )
+            agg["abstention_exact"] = round(
+                sum(r.get("correct_exact", r["correct"]) for r in abst)
+                / len(abst), 4
             )
         agg["avg_tokens"] = (
             round(sum(r["tokens_used"] for r in sub) / len(sub), 1) if sub else None
