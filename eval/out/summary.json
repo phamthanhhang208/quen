@@ -1,8 +1,8 @@
 {
   "fama": 0.9333,
-  "forgetting_precision": 0.8421,
-  "forgetting_recall": 0.9375,
-  "avg_tokens_per_query": 27.9,
+  "forgetting_precision": 0.9412,
+  "forgetting_recall": 1.0,
+  "avg_tokens_per_query": 18.6,
   "mode": "live",
   "embed_model": "text-embedding-v4",
   "budget": 300,
@@ -15,21 +15,21 @@
         0.5768
       ],
       "fama_excluding_verify_cases": 0.4074,
-      "presence": 0.9333,
-      "absence": 0.4667,
+      "presence": 0.8667,
+      "absence": 0.5333,
       "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 16.8
     },
     "full_context": {
       "cases": 30,
-      "fama": 0.4333,
+      "fama": 0.3667,
       "fama_ci95": [
-        0.2738,
-        0.608
+        0.2187,
+        0.5449
       ],
-      "fama_excluding_verify_cases": 0.4444,
-      "presence": 0.9667,
-      "absence": 0.4667,
+      "fama_excluding_verify_cases": 0.3704,
+      "presence": 0.8667,
+      "absence": 0.5,
       "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 16.8
     },
@@ -41,27 +41,27 @@
         0.9815
       ],
       "fama_excluding_verify_cases": 0.9259,
-      "presence": 0.9667,
-      "absence": 0.9667,
+      "presence": 0.9333,
+      "absence": 1.0,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 27.9,
-      "forgetting_precision": 0.8421,
-      "forgetting_recall": 0.9375
+      "avg_tokens_per_query": 18.6,
+      "forgetting_precision": 0.9412,
+      "forgetting_recall": 1.0
     },
     "quen_no_verify": {
       "cases": 30,
-      "fama": 0.8,
+      "fama": 0.8333,
       "fama_ci95": [
-        0.6269,
-        0.905
+        0.6644,
+        0.9266
       ],
-      "fama_excluding_verify_cases": 0.8519,
+      "fama_excluding_verify_cases": 0.8889,
       "presence": 0.9,
-      "absence": 0.8667,
+      "absence": 0.9333,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 30.3,
-      "forgetting_precision": 0.7778,
-      "forgetting_recall": 0.8125
+      "avg_tokens_per_query": 20.3,
+      "forgetting_precision": 0.9333,
+      "forgetting_recall": 0.875
     }
   },
   "paired_mcnemar": {
@@ -71,19 +71,19 @@
       "p_value": 3e-05
     },
     "quen_vs_full_context": {
-      "a_wins": 16,
-      "b_wins": 1,
-      "p_value": 0.00027
+      "a_wins": 17,
+      "b_wins": 0,
+      "p_value": 2e-05
     },
     "quen_vs_quen_no_verify": {
-      "a_wins": 4,
+      "a_wins": 3,
       "b_wins": 0,
-      "p_value": 0.125
+      "p_value": 0.25
     }
   },
   "confidence_calibration_by_freshness": [
     {
-      "overall_ece": 0.2272,
+      "overall_ece": 0.116,
       "events": 30
     },
     {
@@ -96,63 +96,63 @@
           "count": 1
         },
         {
-          "bin": "0.5-0.6",
-          "predicted_mean": 0.5783,
-          "empirical": 0.6667,
-          "count": 6
-        },
-        {
-          "bin": "0.8-0.9",
-          "predicted_mean": 0.8748,
-          "empirical": 1.0,
-          "count": 13
-        }
-      ],
-      "ece": 0.1454,
-      "count": 20
-    },
-    {
-      "freshness_bucket": "7-30d",
-      "bins": [
-        {
-          "bin": "0.5-0.6",
-          "predicted_mean": 0.5551,
-          "empirical": 1.0,
-          "count": 3
-        },
-        {
-          "bin": "0.6-0.7",
-          "predicted_mean": 0.6788,
-          "empirical": 1.0,
-          "count": 1
-        },
-        {
           "bin": "0.7-0.8",
-          "predicted_mean": 0.7707,
+          "predicted_mean": 0.7712,
           "empirical": 1.0,
           "count": 2
         },
         {
           "bin": "0.8-0.9",
-          "predicted_mean": 0.8055,
+          "predicted_mean": 0.807,
           "empirical": 1.0,
-          "count": 1
+          "count": 3
+        },
+        {
+          "bin": "0.9-1.0",
+          "predicted_mean": 0.9612,
+          "empirical": 1.0,
+          "count": 12
         }
       ],
-      "ece": 0.3299,
-      "count": 7
+      "ece": 0.1251,
+      "count": 18
+    },
+    {
+      "freshness_bucket": "7-30d",
+      "bins": [
+        {
+          "bin": "0.7-0.8",
+          "predicted_mean": 0.7914,
+          "empirical": 0.75,
+          "count": 4
+        },
+        {
+          "bin": "0.8-0.9",
+          "predicted_mean": 0.8706,
+          "empirical": 1.0,
+          "count": 1
+        },
+        {
+          "bin": "0.9-1.0",
+          "predicted_mean": 0.9321,
+          "empirical": 0.75,
+          "count": 4
+        }
+      ],
+      "ece": 0.1137,
+      "count": 9
     },
     {
       "freshness_bucket": ">30d",
       "bins": [
         {
           "bin": "0.9-1.0",
-          "predicted_mean": 0.9,
+          "predicted_mean": 0.968,
           "empirical": 1.0,
           "count": 1
         }
       ],
-      "ece": 0.1,
+      "ece": 0.032,
       "count": 1
     }
   ]

@@ -8,65 +8,65 @@
         0.608
       ],
       "fama_excluding_verify_cases": 0.4444,
-      "presence": 0.9667,
-      "absence": 0.4667,
+      "presence": 0.8667,
+      "absence": 0.5333,
       "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 20.4
     },
     "full_context": {
       "cases": 30,
-      "fama": 0.4333,
+      "fama": 0.4,
       "fama_ci95": [
-        0.2738,
-        0.608
+        0.2459,
+        0.5768
       ],
-      "fama_excluding_verify_cases": 0.4444,
-      "presence": 0.9333,
+      "fama_excluding_verify_cases": 0.4074,
+      "presence": 0.9,
       "absence": 0.5,
       "abstention_accuracy": 1.0,
       "avg_tokens_per_query": 20.4
     },
     "quen": {
       "cases": 30,
-      "fama": 0.9333,
+      "fama": 0.9,
       "fama_ci95": [
-        0.7868,
-        0.9815
+        0.7438,
+        0.9654
       ],
-      "fama_excluding_verify_cases": 0.9259,
-      "presence": 0.9333,
-      "absence": 1.0,
+      "fama_excluding_verify_cases": 0.8889,
+      "presence": 0.9,
+      "absence": 0.9667,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 29.4,
-      "forgetting_precision": 0.8,
+      "avg_tokens_per_query": 20.2,
+      "forgetting_precision": 0.8889,
       "forgetting_recall": 0.9375
     },
     "quen_no_verify": {
       "cases": 30,
-      "fama": 0.8667,
+      "fama": 0.9,
       "fama_ci95": [
-        0.7032,
-        0.9469
+        0.7438,
+        0.9654
       ],
       "fama_excluding_verify_cases": 0.9259,
       "presence": 0.9333,
       "absence": 0.9333,
       "abstention_accuracy": 1.0,
-      "avg_tokens_per_query": 32.8,
-      "forgetting_precision": 0.8235,
+      "avg_tokens_per_query": 22.0,
+      "forgetting_precision": 0.875,
       "forgetting_recall": 0.8125
     }
   },
   "paired_mcnemar": {
     "quen_vs_append_only": {
-      "a_wins": 16,
-      "b_wins": 1,
-      "p_value": 0.00027
+      "a_wins": 14,
+      "b_wins": 0,
+      "p_value": 0.00012
     },
     "quen_vs_full_context": {
-      "a_wins": 16,
-      "b_wins": 1,
-      "p_value": 0.00027
+      "a_wins": 15,
+      "b_wins": 0,
+      "p_value": 6e-05
     }
   },
   "mode": "live"
