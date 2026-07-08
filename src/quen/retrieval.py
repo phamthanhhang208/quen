@@ -35,7 +35,9 @@ from quen.models import MemoryItem
 from quen.store import MemoryStore
 from quen.trust import trust_score
 
-_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*")
+# bare numbers count too: "132 points" vs "132 meeples" is exactly the
+# distractor collision dense embeddings smooth over (KU failure audit)
+_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*|[0-9][0-9.]*")
 _CAMEL_RE = re.compile(r"[a-z][A-Z]")
 
 

@@ -252,3 +252,14 @@ def test_scored_memory_carries_trust_fields(store, embedder, cfg, clock, mem_fac
     assert sm.trust == pytest.approx(0.8 * 0.5)  # one half-life elapsed
     assert sm.importance_norm == pytest.approx(mem.importance / 10.0)
     assert sm.tokens == estimate_tokens(mem.content)
+
+
+def test_identifier_tokens_include_bare_numbers():
+    """KU audit: '132 points' lost to the '132 meeples' distractor because
+    pure-number tokens weren't lexical identifiers."""
+    from quen.retrieval import _identifier_tokens
+
+    assert "132" in _identifier_tokens("scored 132 points in Ticket to Ride")
+    assert "220" in _identifier_tokens("now on page 220")
+    # tiny numbers stay excluded — too common to be a signal
+    assert _identifier_tokens("I have 2 cats") == set()

@@ -87,15 +87,24 @@ def parse_json_block(text: str) -> Any:
 
 def render_extract(text: str, observed_at: str) -> list[dict]:
     body = (
-        "You extract atomic memory-worthy facts from an observation made by a "
-        "software team's agent.\n"
+        "You extract atomic memory-worthy facts from an observation (a work "
+        "note, chat transcript, document...) for an agent's long-term "
+        "memory.\n"
         "Return STRICT JSON: a list of objects "
         '{"content": str, "triple": [subject, relation, object] | null, '
         '"mtype": "episodic"|"semantic"}.\n'
         "Rules: one fact per object; keep facts self-contained; emit a triple "
         "ONLY when the fact is slot-like (a subject holds exactly one current "
         "value for a relation, e.g. [\"team\", \"fetches data via\", \"useApi\"]); "
-        "prefer stable canonical subject/relation phrasings; no commentary."
+        "prefer stable canonical subject/relation phrasings; no commentary.\n"
+        "Do NOT drop small personal facts stated in passing: counts, scores, "
+        "amounts, page/level numbers, names of specific things the speaker "
+        "owns/did/reached ('I'm on page 220 of <book>', 'scored 132 points "
+        "in <game>', 'reached Premier Silver'). Keep every number and name "
+        "VERBATIM, and bind it to its full frame (what the number measures, "
+        "which thing it belongs to). In dialogues, extract what the USER "
+        "states about themselves as fact; a suggestion or option offered by "
+        "the assistant is NOT a fact about the user."
     )
     user = f"Observed at {observed_at}.\nObservation:\n{text}\n\nJSON:"
     return [
@@ -115,10 +124,13 @@ def render_salience(facts: list[str]) -> list[dict]:
         "no project/team/user binding (e.g. 'React is a JS library', "
         "'HTTP 404 means not found'). A statement about THIS project's "
         "configuration is salient even when its value matches the common "
-        "default. When unsure, err toward storing (0.5): a wrongly-skipped "
-        "fact is unrecoverable, while the retention system safely forgets "
-        "surplus later.\n"
-        "- importance (1..10): long-term usefulness to the team's agent.\n"
+        "default. Personal facts about the user (their counts, scores, "
+        "amounts, possessions, statuses, plans) can NEVER be known by a "
+        "general model — they are salient by construction, even when stated "
+        "in passing next to chit-chat. When unsure, err toward storing "
+        "(0.5): a wrongly-skipped fact is unrecoverable, while the "
+        "retention system safely forgets surplus later.\n"
+        "- importance (1..10): long-term usefulness to the memory's owner.\n"
         'Return STRICT JSON: a list of {"salience": float, "importance": float}, '
         "same order and length as the input list."
     )

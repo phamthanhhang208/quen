@@ -175,3 +175,13 @@ def test_dry_run_rows_carry_both_metrics():
               and not str(i["question_id"]).endswith("_abs"))
     row = run_instance(ku, "quen", budget=300, live=False)
     assert row["correct"] == row["correct_exact"]  # offline: judge == exact
+
+
+def test_extract_prompt_keeps_passing_personal_facts():
+    from quen import llm as llm_mod
+
+    body = llm_mod.render_extract("x", "2026-07-05")[0]["content"]
+    assert "personal facts" in body and "VERBATIM" in body
+    assert "suggestion" in body  # assistant suggestions are not user facts
+    sal = llm_mod.render_salience(["f"])[0]["content"]
+    assert "salient by construction" in sal
