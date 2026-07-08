@@ -185,3 +185,20 @@ def test_extract_prompt_keeps_passing_personal_facts():
     assert "suggestion" in body  # assistant suggestions are not user facts
     sal = llm_mod.render_salience(["f"])[0]["content"]
     assert "salient by construction" in sal
+
+
+def test_nli_prompt_teaches_attribute_domains():
+    from quen import llm as llm_mod
+
+    body = llm_mod.render_nli("a", "b")[0]["content"]
+    assert "different attributes" in body.lower() or "DIFFERENT attributes" in body
+    assert "pnpm" in body and "tabs" in body  # the augment few-shot
+    assert "updated" in body or "update" in body
+
+
+def test_answer_prompt_recency_and_commit_rules():
+    from quen import llm as llm_mod
+
+    body = llm_mod.render_answer("q", ["- [t=0.9 1d] x"], "h")[0]["content"]
+    assert "prefer the NEWER" in body
+    assert "do not refuse to answer" in body
