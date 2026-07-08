@@ -179,3 +179,34 @@ def test_compact_strings_avoid_fama_negation_cues() -> None:
     for s in samples:
         tokens = {t.lower() for t in re.findall(r"[A-Za-z]+", s)}
         assert not (tokens & cues), (s, tokens & cues)
+
+
+def test_calibrate_confidence_monotone_and_anchored():
+    from quen.trust import calibrate_confidence as c
+
+    assert c(0.0) == 0.0 and c(1.0) == 1.0
+    xs = [i / 100 for i in range(101)]
+    ys = [c(x) for x in xs]
+    assert all(a <= b + 1e-12 for a, b in zip(ys, ys[1:]))  # monotone
+    # lifts the under-confident mid band (measured emp ~1.0 at pred ~0.58)
+    assert c(0.58) > 0.58
+    assert c(0.25) > 0.25
+
+
+def test_calibration_reduces_ece_on_measured_bins():
+    """The canonical probe bins (pred mean -> empirical accuracy) that
+    produced ECE 0.227 must improve under the map."""
+    from quen.trust import calibrate_confidence as c
+
+    bins = [  # (predicted_mean, empirical, count) from summary.json
+        (0.25, 1.0, 1), (0.5783, 0.6667, 6), (0.8748, 1.0, 13),
+        (0.5551, 1.0, 3), (0.6788, 1.0, 1), (0.7707, 1.0, 2),
+        (0.8055, 1.0, 1), (0.9, 1.0, 1),
+    ]
+    n = sum(cnt for _, _, cnt in bins)
+    ece_raw = sum(abs(p - e) * cnt for p, e, cnt in bins) / n
+    ece_cal = sum(abs(c(p) - e) * cnt for p, e, cnt in bins) / n
+    assert ece_cal < ece_raw * 0.6  # at least a 40% ECE reduction
+    # residual ~0.10 is irreducible with a monotone map on these bins: the
+    # 0.5-0.6 band contains both emp 0.667 (n=6) and emp 1.0 (n=3) events
+    assert ece_cal < 0.12

@@ -27,6 +27,7 @@ from quen.store import MemoryStore, iso
 from quen.trust import (
     answer_confidence,
     apply_verification,
+    calibrate_confidence,
     hedge_phrase,
     hedging_instruction,
     trust_score,
@@ -210,6 +211,8 @@ class QuenEngine:
         ).strip()
         prompt_tokens = sum(estimate_tokens(line) for line in context_lines)
         conf = answer_confidence(rr.used, verifications)
+        if self.cfg.calibrate_answer_confidence:
+            conf = calibrate_confidence(conf)
         # trust alone can't justify confidence when nothing strongly matched
         # the question — a fresh-but-barely-relevant memory must not produce
         # a confidently-stated answer (retrieval miss ≠ trustworthy answer)

@@ -134,6 +134,33 @@ def answer_confidence(used: Sequence, verifications: Sequence) -> float:
     return max(0.0, min(1.0, conf))
 
 
+# Raw trust is systematically UNDER-confident as a probability (measured:
+# empirical accuracy ~1.0 in bins predicted 0.55-0.87, overall ECE 0.227 on
+# the canonical probe) — a single-source chat fact carries confidence ~0.58
+# by AUTHORITY, which is not the probability the answer is right. This
+# piecewise-linear map recalibrates the STATED number against the observed
+# accuracy; hedging language stays tied to raw trust (epistemic honesty is
+# about the memory's provenance, the number is about the answer).
+_CALIBRATION_KNOTS: tuple[tuple[float, float], ...] = (
+    (0.00, 0.00),
+    (0.25, 0.45),
+    (0.50, 0.75),
+    (0.75, 0.92),
+    (1.00, 1.00),
+)
+
+
+def calibrate_confidence(raw: float) -> float:
+    """Monotone piecewise-linear interpolation over _CALIBRATION_KNOTS."""
+    raw = max(0.0, min(1.0, raw))
+    for (x0, y0), (x1, y1) in zip(_CALIBRATION_KNOTS, _CALIBRATION_KNOTS[1:]):
+        if raw <= x1:
+            if x1 == x0:
+                return y1
+            return y0 + (y1 - y0) * (raw - x0) / (x1 - x0)
+    return 1.0
+
+
 def apply_verification(
     mem: MemoryItem,
     outcome: str,

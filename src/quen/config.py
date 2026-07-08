@@ -91,6 +91,10 @@ class QuenConfig:
     # embedder (stopword-only overlap lands ~0.15-0.2); real embedding models
     # sit on a different cosine scale — retune when switching embedders.
     abstain_relevance_floor: float = 0.25
+    # Recalibrate the STATED answer confidence against measured accuracy
+    # (raw trust was under-confident: ECE 0.227 with empirical ~1.0 in
+    # mid bins). Hedging language stays tied to raw trust either way.
+    calibrate_answer_confidence: bool = True
     trust_threshold: float = 0.55
     freshness_half_life_days: float = 30.0
     # Stability-tempered freshness (anti recency-bias): a fact whose FSRS
