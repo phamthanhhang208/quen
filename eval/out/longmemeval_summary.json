@@ -1,25 +1,31 @@
 {
   "append_only": {
-    "knowledge-update": 0.5417,
-    "temporal-reasoning": 0.2047,
-    "abstention": 0.8667,
+    "knowledge-update": 0.5694,
+    "knowledge-update_exact": 0.5556,
+    "temporal-reasoning": 0.189,
+    "temporal-reasoning_exact": 0.189,
+    "abstention": 0.8,
+    "abstention_exact": 0.9333,
     "avg_tokens": 293.4,
     "knowledge-update_n": 72,
     "knowledge-update_ci": [
-      0.4274,
-      0.6517
+      0.4544,
+      0.6774
     ],
     "temporal-reasoning_n": 127,
     "temporal-reasoning_ci": [
-      0.1437,
-      0.2831
+      0.1304,
+      0.2658
     ],
     "abstention_n": 30
   },
   "full_context": {
     "knowledge-update": 0.0278,
-    "temporal-reasoning": 0.1181,
-    "abstention": 1.0,
+    "knowledge-update_exact": 0.0278,
+    "temporal-reasoning": 0.0157,
+    "temporal-reasoning_exact": 0.1024,
+    "abstention": 0.9667,
+    "abstention_exact": 1.0,
     "avg_tokens": 245.4,
     "knowledge-update_n": 72,
     "knowledge-update_ci": [
@@ -28,25 +34,28 @@
     ],
     "temporal-reasoning_n": 127,
     "temporal-reasoning_ci": [
-      0.0729,
-      0.1857
+      0.0043,
+      0.0556
     ],
     "abstention_n": 30
   },
   "quen": {
-    "knowledge-update": 0.3056,
-    "temporal-reasoning": 0.1969,
-    "abstention": 0.8667,
-    "avg_tokens": 324.6,
+    "knowledge-update": 0.6528,
+    "knowledge-update_exact": 0.5417,
+    "temporal-reasoning": 0.4094,
+    "temporal-reasoning_exact": 0.2913,
+    "abstention": 0.7333,
+    "abstention_exact": 0.7667,
+    "avg_tokens": 209.1,
     "knowledge-update_n": 72,
     "knowledge-update_ci": [
-      0.2113,
-      0.4195
+      0.5376,
+      0.7525
     ],
     "temporal-reasoning_n": 127,
     "temporal-reasoning_ci": [
-      0.137,
-      0.2745
+      0.3278,
+      0.4964
     ],
     "abstention_n": 30
   }
