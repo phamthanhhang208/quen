@@ -71,8 +71,9 @@ runtime decision, not a stored property**:
 
 ### How it's built (all Qwen, all Alibaba Cloud)
 
-`qwen-flash` (extraction/salience/judging) + `qwen3.5-plus`
-(reader/NLI/re-abstraction) + `text-embedding-v4`, all through one client
+`qwen3.6-flash` (extraction/salience/judging) + `qwen3.7-plus`
+(reader/NLI/re-abstraction/benchmark judge) + `text-embedding-v4`, all
+through one client
 (`alibaba_client.py`) on the DashScope international endpoint. Backend =
 FastAPI + SQLite (WAL, audit-logged, tombstones only) on an **Alibaba Cloud
 ECS** instance that also serves the React dashboard same-origin. A thin
