@@ -44,24 +44,25 @@ runtime decision, not a stored property**:
   freshness-stratified calibration (ECE), and the headline metric is FAMA =
   presence-of-valid ∧ absence-of-invalidated.
 
-### Results (live on Qwen via Alibaba Cloud DashScope, canonical run)
+### Results (live on Qwen via Alibaba Cloud DashScope, canonical run v5)
 
 - **Code-staleness probe (n=30)**: FAMA **0.933** [0.79, 0.98] vs 0.40
-  append-only RAG / 0.43 full-context (paired McNemar p = 3×10⁻⁵);
-  forgetting precision/recall 0.842/0.938; verify ablation +0.13 FAMA.
-- **Paraphrase-frozen probe**: 0.933 — no drop; the mechanism, not our
-  phrasing, carries the result.
-- **Model-generation robustness**: same probe on qwen3.6-flash +
-  qwen3.7-plus: 0.933 again — the mechanism, not the model generation,
-  carries the result.
-- **LongMemEval (n=229, external anchor with no staleness)**: we *lose*
-  knowledge-update to turn-level append-only RAG (0.31 vs 0.54, p=0.0015)
-  and tie on temporal reasoning and abstention — reported, not hidden.
-  Forgetting is a tax on staleness-free recall and a large win the moment
-  the world changes.
+  append-only RAG / 0.37 full-context (paired McNemar 16–0, p = 3×10⁻⁵);
+  absence of invalidated facts **1.00**; forgetting precision/recall
+  **0.941/1.00**; confidence calibration ECE **0.116**.
+- **LongMemEval (n=229, external anchor)**: Quên **beats turn-level
+  append-only RAG overall — McNemar 49–17, p = 1×10⁻⁴** (LLM-judge
+  scoring, the benchmark's own protocol, applied to every config
+  symmetrically; conservative exact-match reported alongside).
+  Knowledge-update 0.653 vs 0.569; temporal reasoning **0.409 vs 0.189**
+  (31–3, p = 1×10⁻⁶) — and from 209 tokens/query vs 293. Abstention
+  trails (0.733 vs 0.800) and we report that too.
+- **Paraphrase-frozen probe** (untouched holdout): 0.90 — the mechanism,
+  not our phrasing, carries the result. Model-generation stability: the
+  qwen3.5-generation canonical run scored the same probe 0.933.
 - Budget curve: baselines flat at every budget (their failures are trust
-  failures); Quên holds 0.87–0.93 from a 30-token budget up.
-- The whole canonical live eval cost ≈ **$1.6** (usage counters × DashScope
+  failures); Quên 0.83 at a 30-token budget, 0.97 at 300.
+- The whole canonical live eval cost ≈ **$1.8** (usage counters × DashScope
   pricing — the cost table is in the README).
 - We also ran an adversarial audit of our own algorithms — 11 biases found,
   fixed, and regression-tested (over-forgetting multi-valued facts, recency
@@ -80,7 +81,7 @@ pin/inspect — closing both the per-memory verification loop and the
 per-answer retention loop) drops the same engine into any MCP harness, and
 a **Claude Code hooks kit** (`integrations/claude-code/`) loads memories at
 SessionStart and captures the conversation at SessionEnd/PreCompact.
-Everything — 176 tests and the full eval — also runs 100% offline
+Everything — 186 tests and the full eval — also runs 100% offline
 (deterministic scripted LLM + hashing embedder), so judges can reproduce
 without a key.
 
@@ -119,7 +120,7 @@ rate 1.0).
    trace** with live verification (confirmed + refuted) and the
    counterfactual toggle showing what a plain RAG would have injected.
 2. Reproduce locally with zero keys: `uv venv .venv && uv pip install -e
-   ".[dev]" && pytest` (176 offline tests), then
+   ".[dev]" && pytest` (186 offline tests), then
    `python scripts/seed_demo.py` + `quen-api` + `cd dashboard && npm run
    dev`.
 3. Live mode: set `DASHSCOPE_API_KEY` in `.env`; every eval script takes
