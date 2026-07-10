@@ -73,3 +73,24 @@ def test_transient_server_faults_in_400_clothing_are_retried():
     import pytest as _pytest
     with _pytest.raises(BadRequestError):
         ac._with_transient_retry(genuine)
+
+
+def test_content_filter_is_not_retried_and_is_detectable():
+    import httpx
+    from openai import BadRequestError
+
+    resp = httpx.Response(400, request=httpx.Request("POST", "http://x"),
+                          json={"error": {"message": "x"}})
+    exc = BadRequestError(
+        "<400> InternalError.Algo.DataInspectionFailed: Input text data may "
+        "contain inappropriate content.", response=resp, body=None)
+    assert ac.is_content_filter(exc)
+
+    calls = {"n": 0}
+    def rejected():
+        calls["n"] += 1
+        raise exc
+    import pytest as _pytest
+    with _pytest.raises(BadRequestError):
+        ac._with_transient_retry(rejected)
+    assert calls["n"] == 1  # permanent rejection: no retries wasted

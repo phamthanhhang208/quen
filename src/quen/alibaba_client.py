@@ -85,15 +85,26 @@ def reset_usage() -> None:
         _usage.clear()
 
 
+def is_content_filter(exc: BaseException) -> bool:
+    """DashScope's input inspection (data_inspection_failed) — a PERMANENT
+    rejection of that content, not a transient fault. Callers that feed
+    third-party corpora (benchmark haystacks!) should skip the offending
+    text instead of dying."""
+    text = str(exc).casefold()
+    return "data_inspection_failed" in text or "datainspectionfailed" in text
+
+
 def _with_transient_retry(fn, attempts: int = 4):
     """DashScope sometimes surfaces SERVER faults (InternalError.Algo…) as
     HTTP 400, which the OpenAI client never retries — one hiccup would kill
-    an hours-long eval shard. Retry those; genuine 400s re-raise at once."""
+    an hours-long eval shard. Retry those; genuine 400s (including the
+    content filter) re-raise at once."""
     for attempt in range(attempts):
         try:
             return fn()
         except BadRequestError as exc:
-            if "InternalError" not in str(exc) or attempt == attempts - 1:
+            transient = "InternalError" in str(exc) and not is_content_filter(exc)
+            if not transient or attempt == attempts - 1:
                 raise
             time.sleep(2.0 * (attempt + 1))
     raise RuntimeError("unreachable")

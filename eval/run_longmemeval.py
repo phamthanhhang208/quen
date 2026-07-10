@@ -99,8 +99,11 @@ def _judge_correct(inst: dict, answer_text: str, *, live: bool,
 
 
 def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
+    from quen.alibaba_client import is_content_filter
+
     system = make_system(config, live)
     sessions = inst.get("haystack_sessions", [])
+    sessions_skipped = 0
     for day, session in enumerate(sessions):
         if day > 0:
             system.day_boundary(day)
@@ -108,13 +111,29 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
             f"{turn.get('role', 'user')}: {turn.get('content', '')}"
             for turn in session
         )
-        system.ingest(text, day=day, kind="chat",
-                      source_ref=f"session-{day}")
+        try:
+            system.ingest(text, day=day, kind="chat",
+                          source_ref=f"session-{day}")
+        except Exception as exc:
+            # DashScope's input inspection permanently rejects some benchmark
+            # session texts — skip that session (recorded on the row, same
+            # rule for every config) instead of killing the shard
+            if not is_content_filter(exc):
+                raise
+            sessions_skipped += 1
     # the pre-answer consolidation always runs in full, even under a
     # write-count dream cadence (haystack-scale histories)
     final = getattr(system, "final_boundary", system.day_boundary)
     final(len(sessions))
-    ans = system.answer(inst["question"], budget)
+    try:
+        ans = system.answer(inst["question"], budget)
+    except Exception as exc:
+        if not is_content_filter(exc):
+            raise
+        # retrieved units tripped the filter at answer time: an empty answer,
+        # scored as wrong — degraded, symmetric, and recorded
+        from configs import AnswerOut
+        ans = AnswerOut("", None, 0, abstained=False)
 
     is_abstention = str(inst["question_id"]).endswith("_abs")
     gold = str(inst.get("answer", "")).strip()
@@ -126,7 +145,12 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
         # word-boundary match: bare containment lets short golds like
         # "before" match almost any verbose answer
         exact = bool(gold) and word_present(gold, ans.text)
-    correct = _judge_correct(inst, ans.text, live=live, exact=exact)
+    try:
+        correct = _judge_correct(inst, ans.text, live=live, exact=exact)
+    except Exception as exc:
+        if not is_content_filter(exc):
+            raise
+        correct = exact  # judge input tripped the filter: exact-match stands
     return {
         "question_id": inst["question_id"],
         "question_type": inst["question_type"],
@@ -136,6 +160,7 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
         "correct_exact": exact,
         "abstained": ans.abstained,
         "tokens_used": ans.tokens_used,
+        "sessions_skipped": sessions_skipped,
         # stated confidence (quen only; None for baselines) — the raw
         # material for calibration refits at benchmark scale
         "answer_confidence": ans.confidence,
