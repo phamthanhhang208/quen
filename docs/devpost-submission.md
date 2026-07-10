@@ -60,10 +60,15 @@ runtime decision, not a stored property**:
 - **Paraphrase-frozen probe** (untouched holdout): 0.90 — the mechanism,
   not our phrasing, carries the result. Model-generation stability: the
   qwen3.5-generation canonical run scored the same probe 0.933.
+- **LongMemEval-S full haystack** (~122k-token histories, 40× the noise;
+  partial run, stopped at our cost cap, every completed row reported):
+  Quên **0.423 vs 0.253** append-only, paired McNemar 16–5, p = 0.027 —
+  the more noise, the more forgetting is worth. A one-sentence reader fix
+  also lifted oracle abstention 0.733 → **0.833**.
 - Budget curve: baselines flat at every budget (their failures are trust
   failures); Quên 0.83 at a 30-token budget, 0.97 at 300.
-- The whole canonical live eval cost ≈ **$1.8** (usage counters × DashScope
-  pricing — the cost table is in the README).
+- Canonical oracle pass ≈ **$3.7**; the haystack partial ≈ $27 — the full
+  cost table (rebuilt from actual billing) is in the README.
 - We also ran an adversarial audit of our own algorithms — 11 biases found,
   fixed, and regression-tested (over-forgetting multi-valued facts, recency
   bias in trust, eviction starvation, strawman baselines, self-serving
@@ -82,7 +87,7 @@ pin/inspect — closing both the per-memory verification loop and the
 per-answer retention loop) drops the same engine into any MCP harness, and
 a **Claude Code hooks kit** (`integrations/claude-code/`) loads memories at
 SessionStart and captures the conversation at SessionEnd/PreCompact.
-Everything — 186 tests and the full eval — also runs 100% offline
+Everything — 189 tests and the full eval — also runs 100% offline
 (deterministic scripted LLM + hashing embedder), so judges can reproduce
 without a key.
 
@@ -121,7 +126,7 @@ rate 1.0).
    trace** with live verification (confirmed + refuted) and the
    counterfactual toggle showing what a plain RAG would have injected.
 2. Reproduce locally with zero keys: `uv venv .venv && uv pip install -e
-   ".[dev]" && pytest` (186 offline tests), then
+   ".[dev]" && pytest` (189 offline tests), then
    `python scripts/seed_demo.py` + `quen-api` + `cd dashboard && npm run
    dev`.
 3. Live mode: set `DASHSCOPE_API_KEY` in `.env`; every eval script takes

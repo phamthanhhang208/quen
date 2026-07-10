@@ -1,0 +1,47 @@
+{
+  "dataset": "longmemeval_s_cleaned (full haystack, ~122k-token histories)",
+  "partial_run": true,
+  "note": "stopped at the cost cap after real model prices came in 4x the estimate; quen 141/229 instances, baselines 186/229; McNemar is paired on questions BOTH quen and append_only completed",
+  "by_config": {
+    "quen": {
+      "n": 123,
+      "judge": 0.4228,
+      "judge_ci95": [
+        0.3391,
+        0.5111
+      ],
+      "exact": 0.3984,
+      "abstention": "14/18",
+      "avg_tokens": 270.1
+    },
+    "append_only": {
+      "n": 162,
+      "judge": 0.2531,
+      "judge_ci95": [
+        0.1924,
+        0.3252
+      ],
+      "exact": 0.2469,
+      "abstention": "20/24",
+      "avg_tokens": 301.7
+    },
+    "full_context": {
+      "n": 162,
+      "judge": 0.0,
+      "judge_ci95": [
+        -0.0,
+        0.0232
+      ],
+      "exact": 0.0432,
+      "abstention": "24/24",
+      "avg_tokens": 249.8
+    }
+  },
+  "paired_mcnemar_quen_vs_append_only": {
+    "paired_qids": 102,
+    "quen_wins": 16,
+    "append_wins": 5,
+    "p_value": 0.0266
+  },
+  "sessions_skipped_by_content_filter": 1
+}

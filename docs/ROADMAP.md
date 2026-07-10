@@ -15,10 +15,16 @@ engineering debts we've disclosed in the README.
   pulled.
 - **Dream scheduler (Letta-style sleep-time compute)** *(researched:
   [letta.com/blog/sleep-time-compute](https://www.letta.com/blog/sleep-time-compute/))* —
-  today `dream()` is caller-triggered. Add write-count and idle triggers
-  plus a per-run consolidation budget, so consolidation happens between
-  interactions without a babysitter. Re-abstract and compress should scan
-  a dirty subset, not the whole active set.
+  **step 1 shipped**: `maybe_dream()` write-count trigger
+  (`dream_every_n_ingests`, used by the haystack eval at cadence 16).
+  Remaining: idle triggers, a per-run consolidation budget, and
+  re-abstract/compress scanning a dirty subset instead of the whole
+  active set.
+- **Retrieval-quality-aware confidence calibration** — measured on the
+  haystack run: a map calibrated on oracle/probe workloads runs
+  over-confident under heavy retrieval noise (accuracy 0.33–0.47 in the
+  0.5–0.75 band). Condition the calibration on a noise signal (e.g.
+  max relevance of used memories) instead of one global map.
 - **FSRS weight re-fit** — the store already records every review and
   use-judged outcome in `calibration_events`; once enough accumulate,
   re-fit the 17 FSRS weights to *agent* forgetting instead of human

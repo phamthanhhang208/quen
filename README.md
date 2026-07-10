@@ -164,14 +164,43 @@ Temporal reasoning is the decisive subset (31–3, p = 1×10⁻⁶) and it was a
 untouched holdout — none of the fixes targeted TR, yet keeping in-passing
 dates verbatim and preferring newer memories on conflict more than doubled
 it. Knowledge-update leads but is not individually significant (17–11,
-p = 0.34). Abstention trails append-only (0.733 vs 0.800): the reader still
-sometimes hedges-then-guesses where a clean decline is wanted — reported,
-not hidden. Quên does all this from **209 tokens/query vs 293** for
-append-only.
+p = 0.34). Abstention trailed append-only in this run (0.733 vs 0.800):
+the reader hedged-then-guessed where a clean decline was wanted; a
+subsequent one-sentence reader rule ("with no record of the thing asked,
+say so and stop") lifted the same subset to **0.833**
+(`eval/out/abstention_recheck.json`, 2026-07-10). Quên does all this from
+**209 tokens/query vs 293** for append-only.
 
 ² Near-perfect abstention by collapse: at this budget full-context rarely
 sees the evidence for *any* question, so it declines almost everything —
 including the 30 questions it should decline.
+
+### LongMemEval-S — the full haystack (~122k-token histories, 40× the noise)
+
+The oracle setting above hands every system evidence-only sessions. The
+**S** variant is the real needle-in-a-haystack: the same 229 questions
+buried in ~47 sessions (~122k tokens) of mostly-irrelevant chat, ingested
+with a write-count dream cadence (consolidate every 16 sessions). This run
+is **partial — stopped at our cost cap** (Quên 141/229 instances,
+baselines 186/229; real next-gen model prices came in ~4× our estimate and
+we stopped rather than overspend; every completed row is reported):
+
+| config | accuracy (judge) | 95% CI | exact | abstention | tokens/query |
+|---|---|---|---|---|---|
+| **Quên** | **0.423** | [0.34, 0.51] | 0.398 | 14/18 | **270** |
+| append-only RAG (turn-level) | 0.253 | [0.19, 0.33] | 0.247 | 20/24 | 302 |
+| full-context (truncate oldest) | 0.000 | — | 0.043 | 24/24³ | 250 |
+
+Paired McNemar on the 102 questions both systems completed: **Quên 16–5,
+p = 0.027**. Everyone falls in the haystack — but selective memory falls
+least: Quên distills 122k tokens into salient facts, so its 300-token
+budget carries signal where append-only's carries noise. **The more noise,
+the more forgetting is worth** — the mirror image of the oracle table,
+where verbatim storage had the advantage. One haystack session tripped
+DashScope's content filter and was skipped (recorded per row).
+
+³ Declining everything again — in the haystack even harder, since the
+needle almost never surfaces in its 300-token window.
 
 ### Calibration (small n — direction, not proof)
 
@@ -181,6 +210,13 @@ including the 30 questions it should decline.
   — down from 0.227 in v4 after recalibrating the stated number against
   measured accuracy (raw trust was systematically under-confident); hedging
   language stays tied to raw trust.
+- **Calibration does not transfer across noise regimes** — an honest
+  finding from the haystack run: the same stated confidences that are
+  well-calibrated on oracle/probe workloads run *over*-confident on
+  LongMemEval-S (accuracy ~0.33–0.47 in the 0.5–0.75 band; fit-set ECE 0.21
+  raw). A single monotone map cannot serve both regimes, so we keep the
+  oracle-fit map and disclose this; retrieval-quality-aware calibration is
+  on the roadmap.
 
 ### Accuracy-vs-budget curve (live)
 
@@ -203,17 +239,25 @@ context fixes that. Quên holds its margin at every budget and needs only
 
 ### What the canonical run cost (from `usage_summary()` counters × DashScope intl pricing)
 
+Prices: qwen3.6-flash $0.19/$1.13, qwen3.7-plus $0.32/$1.28 (first tier),
+text-embedding-v4 ~$0.07 per 1M tokens (intl endpoint). An earlier revision
+of this table used previous-generation prices (~4× lower) — corrected here,
+and the lesson (verify the price card before launching a big run) is now
+part of our own bias table.
+
 | stage | qwen3.6-flash in/out | qwen3.7-plus in/out | embed-v4 in | USD |
 |---|---|---|---|---|
-| LongMemEval baselines (229 × 2) | — | 244k / 22k | 1.11M | 0.23 |
-| LongMemEval Quên (229 incl. KU dev round) | 9.12M / 0.91M | 533k / 76k | 965k | 1.29 |
-| probe + paraphrase (2 × 30 × 4) | ~140k / 30k | ~60k / 10k | ~7k | ~0.07 |
-| budget curve (30 × 4 × 5 budgets) | ~420k / 90k | ~150k / 26k | ~16k | ~0.18 |
-| live demo seed (80-day narrative) | ~15k / 2k | ~3k / 0.3k | ~0.3k | ~0.003 |
-| **total (canonical v5 pass)** | | | | **≈ $1.8** |
+| LongMemEval-oracle baselines (229 × 2) | — | 244k / 22k | 1.11M | 0.19 |
+| LongMemEval-oracle Quên (229 incl. KU dev round) | 9.12M / 0.91M | 533k / 76k | 965k | 3.10 |
+| probe + paraphrase (2 × 30 × 4) | ~140k / 30k | ~60k / 10k | ~7k | ~0.09 |
+| budget curve (30 × 4 × 5 budgets) | ~420k / 90k | ~150k / 26k | ~16k | ~0.26 |
+| live demo seed (80-day narrative) | ~15k / 2k | ~3k / 0.3k | ~0.3k | ~0.01 |
+| **canonical v5 pass (oracle)** | | | | **≈ $3.7** |
+| LongMemEval-S haystack, partial (62–81%, ~28M-token histories × 3 configs) | | | | ≈ $27 (billing-actual) |
 
-A full from-scratch reproduction of every live number in this README lands
-well under $5. Since this run, `usage_summary()` also reports
+The haystack is where the money goes: every config must READ ~122k tokens
+per question, so ingestion dominates and forgetting pays for itself at
+answer time, not ingest time. `usage_summary()` also reports
 `cached_tokens`: DashScope's [implicit context
 cache](https://www.alibabacloud.com/help/en/model-studio/context-cache)
 bills repeated prompt prefixes (min 1024 cacheable tokens) at a fraction of
@@ -251,9 +295,9 @@ holds 1.0 while append-only collapses to 0.5; mean FAMA 0.90 vs 0.27).
 .venv/bin/python eval/charts.py
 ```
 
-## Status & test results (2026-07-06)
+## Status & test results (2026-07-10)
 
-- `pytest`: **186 passed** — fully offline and deterministic (hashing
+- `pytest`: **189 passed** — fully offline and deterministic (hashing
   embedder + scripted LLM; the suite never touches the network).
 - `cd dashboard && npm run build`: ✓ (Vite production build).
 - Canonical live eval on DashScope completed end-to-end: probe (30×4),
@@ -266,7 +310,7 @@ holds 1.0 while append-only collapses to 0.5; mean FAMA 0.90 vs 0.27).
 
 ```bash
 uv venv .venv && uv pip install -e ".[dev]"
-.venv/bin/pytest                    # 186 offline, deterministic tests
+.venv/bin/pytest                    # 189 offline, deterministic tests
 
 # seed the full demo narrative (no API key needed) and serve it
 .venv/bin/python scripts/seed_demo.py
@@ -377,6 +421,7 @@ stack). Everything below is reproduced in `tests/test_bias_audit.py` and
 | **Strawman baselines.** The LongMemEval baselines stored whole 2–5k-token sessions as single units against a 300-token answer budget — the greedy fill fit *nothing* and both baselines answered every question from an empty context (`tokens_used=0` on all 458 rows, knowledge-update 0.0) while we looked great | caught in the first canonical v4 run | baselines rebuilt at turn-level granularity (the round-level unit the LongMemEval paper recommends), long turns sentence-windowed; re-run — append-only now *beats* us on staleness-free knowledge-update, and we report that above |
 | **Scorer stricter than the task.** 12/50 KU "failures" were measurement: semantically-correct answers rejected by exact match ("four" vs "4", "Fridays" vs "Friday") and two outright scorer bugs (`:` and en-dash missing from the separator class — "6:00 pm" failed its own gold) | v5 failure audit of all 50 quen KU misses | separator class fixed; live scoring moved to an LLM judge (the benchmark's own protocol) applied to every config symmetrically, exact-match still reported alongside; abstain markers deliberately NOT widened (crediting hedge-then-guess would inflate without behavior change) |
 | **Additive facts tombstoned as updates.** Live NLI read "prefers pnpm" + "prefers tabs" (different attributes, same verb) as contradiction — over-forgetting still-valid facts (probe forgetting precision stuck at 0.842) and feeding wrong-value KU answers | 3 wrongful tombstones in the v4 probe run | NLI prompt teaches attribute domains with few-shots (augments vs update); reader prefers the newer memory on conflicting values; v5 forgetting precision 0.941, recall 1.00 |
+| **Cost-model bias.** The round-3 budget was estimated with previous-generation token prices (~4× too low) — the haystack run hit the coupon for ~4× the estimate before billing caught it | billing console vs our usage ledger, 2026-07-10 | run stopped at the cap (partial results reported with paired stats); price card now verified before any large run; cost table rebuilt from actual billing |
 | **Memory poisoning surface** ([2606.04329](https://arxiv.org/pdf/2606.04329), [survey](https://arxiv.org/html/2604.16548v1), [MemAudit](https://arxiv.org/pdf/2605.23723)) | literature; ~84% attack success rates reported on agent memory generally | memories are data-fenced in the answer prompt with delimiter neutralization + a no-instructions rule. *Mitigation, not a fix* — in-context defenses are bypassable; the audit log + provenance exist for post-hoc forensics (MemAudit-style). `verify_hint`/`source_kind` are trusted-harness surfaces by design |
 
 Still open, disclosed: FSRS weights are human-flashcard priors (retention
@@ -440,7 +485,7 @@ src/quen/          engine: models · fsrs · store · llm · embeddings ·
                    write_pipeline · retrieval · supersession · dream ·
                    trust · verifiers · engine · api · mcp_server ·
                    alibaba_client (THE proof artifact)
-tests/             186 offline deterministic tests (TDD list from the spec)
+tests/             189 offline deterministic tests (TDD list from the spec)
 eval/              FAMA probe · LongMemEval · calibrations · budget curve
 dashboard/         the glass box
 scripts/           seed_demo.py + demo_repo fixture
