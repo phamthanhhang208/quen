@@ -110,7 +110,10 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
         )
         system.ingest(text, day=day, kind="chat",
                       source_ref=f"session-{day}")
-    system.day_boundary(len(sessions))
+    # the pre-answer consolidation always runs in full, even under a
+    # write-count dream cadence (haystack-scale histories)
+    final = getattr(system, "final_boundary", system.day_boundary)
+    final(len(sessions))
     ans = system.answer(inst["question"], budget)
 
     is_abstention = str(inst["question_id"]).endswith("_abs")

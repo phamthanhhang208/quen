@@ -213,3 +213,28 @@ def test_compact_trust_tags_shrink_delivered_tokens(cfg, store, embedder, clock)
     assert "[trust " in answer_prompt(eng_off)   # long grammar, flag OFF
     assert "[t=" in answer_prompt(eng_on)        # compact grammar, flag ON
     assert "[trust " not in answer_prompt(eng_on)
+
+
+def test_dream_cadence_write_count_trigger(cfg, store, embedder, clock):
+    """maybe_dream() fires only after dream_every_n_ingests observations
+    (sleep-time scheduler, step 1); dream() always resets the counter;
+    knob at 0 keeps maybe_dream a no-op."""
+    cfg.dream_every_n_ingests = 3
+    eng = QuenEngine(cfg, store=store,
+                     llm=ScriptedLLM.with_offline_defaults(),
+                     embedder=embedder, clock=clock.now)
+    eng.ingest("fact one about alpha.")
+    eng.ingest("fact two about beta.")
+    assert eng.maybe_dream() is None          # 2 < 3: not yet
+    eng.ingest("fact three about gamma.")
+    report = eng.maybe_dream()
+    assert report is not None                 # 3 >= 3: fires
+    assert eng.maybe_dream() is None          # counter reset by dream()
+
+    eng.ingest("fact four about delta.")
+    eng.dream()                               # unconditional pass resets too
+    assert eng.maybe_dream() is None
+
+    cfg.dream_every_n_ingests = 0
+    eng.ingest("fact five about epsilon.")
+    assert eng.maybe_dream() is None          # knob off: never fires

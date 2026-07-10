@@ -69,6 +69,7 @@ class QuenEngine:
         self.llm = llm
         self.embedder = embedder
         self.verifiers: list[Verifier] = list(verifiers or [])
+        self._ingests_since_dream = 0
         # Embedding-space consistency guard: vectors from different models
         # (or dims) are not comparable — a store silently mixed across
         # models would corrupt every cosine. Warn loudly in the audit log.
@@ -105,6 +106,7 @@ class QuenEngine:
     ):
         from quen.write_pipeline import ingest_observation
 
+        self._ingests_since_dream += 1
         return ingest_observation(
             text,
             store=self.store,
@@ -115,6 +117,16 @@ class QuenEngine:
             source_ref=source_ref,
             source_kind=source_kind,
         )
+
+    def maybe_dream(self) -> Optional[DreamReport]:
+        """Write-count dream trigger (the first step of a sleep-time
+        scheduler): consolidate only after `dream_every_n_ingests` new
+        observations. With the knob at 0 this is a no-op — call `dream()`
+        for the unconditional pass."""
+        n = self.cfg.dream_every_n_ingests
+        if n <= 0 or self._ingests_since_dream < n:
+            return None
+        return self.dream()
 
     # ------------------------------------------------------------------- ask
 
@@ -363,6 +375,7 @@ class QuenEngine:
             )
 
     def dream(self) -> DreamReport:
+        self._ingests_since_dream = 0
         return run_dream(
             self.store, self.llm, self.embedder, self.cfg, now=self.clock()
         )

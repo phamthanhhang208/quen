@@ -8,6 +8,7 @@ so differences measure memory management, not prompting.
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -183,8 +184,14 @@ class Quen:
         verifiers = (
             [RepoGrepVerifier(repo_path)] if (verify and repo_path) else []
         )
+        # Haystack-scale histories (LongMemEval-S: 40-50 sessions) need the
+        # write-count dream trigger — dreaming at EVERY session boundary is
+        # neither realistic nor affordable there. 0 (default) = legacy
+        # dream-per-boundary, keeping oracle/probe runs bit-identical.
+        dream_every = int(os.environ.get("QUEN_EVAL_DREAM_EVERY", "0"))
         self.engine = QuenEngine(
-            QuenConfig(db_path=":memory:"),
+            QuenConfig(db_path=":memory:",
+                       dream_every_n_ingests=dream_every),
             store=MemoryStore(":memory:", clock=lambda: self._now),
             llm=llm,
             embedder=embedder,
@@ -200,6 +207,14 @@ class Quen:
         self.engine.ingest(text, source_kind=kind, source_ref=source_ref)
 
     def day_boundary(self, day):
+        self._set_day(day)
+        if self.engine.cfg.dream_every_n_ingests > 0:
+            self.engine.maybe_dream()
+        else:
+            self.engine.dream()
+
+    def final_boundary(self, day):
+        """The pre-answer consolidation always runs in full."""
         self._set_day(day)
         self.engine.dream()
 

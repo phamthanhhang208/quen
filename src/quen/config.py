@@ -64,6 +64,10 @@ class QuenConfig:
 
     # --- dream pass (§4.6) ---
     reabstract_min_episodics: int = 3
+    # Write-count dream trigger (sleep-time scheduler, step 1): engine
+    # .maybe_dream() consolidates only after this many ingests. 0 keeps the
+    # legacy caller-triggered behavior everywhere.
+    dream_every_n_ingests: int = 0
     selftest_sample_size: int = 5
     # A self-test pass is retrieval health, NOT human recall: the probe is
     # built from the memory and the memory stays in the pool, so passes are
