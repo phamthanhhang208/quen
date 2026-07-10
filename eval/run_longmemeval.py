@@ -136,6 +136,9 @@ def run_instance(inst: dict, config: str, *, budget: int, live: bool) -> dict:
         "correct_exact": exact,
         "abstained": ans.abstained,
         "tokens_used": ans.tokens_used,
+        # stated confidence (quen only; None for baselines) — the raw
+        # material for calibration refits at benchmark scale
+        "answer_confidence": ans.confidence,
         "answer": ans.text[:300],
     }
 
