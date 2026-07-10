@@ -18,10 +18,11 @@ from __future__ import annotations
 
 import os
 import threading
+import time
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 
 load_dotenv()  # keys live in .env (gitignored), never in code
 
@@ -84,9 +85,27 @@ def reset_usage() -> None:
         _usage.clear()
 
 
+def _with_transient_retry(fn, attempts: int = 4):
+    """DashScope sometimes surfaces SERVER faults (InternalError.Algo…) as
+    HTTP 400, which the OpenAI client never retries — one hiccup would kill
+    an hours-long eval shard. Retry those; genuine 400s re-raise at once."""
+    for attempt in range(attempts):
+        try:
+            return fn()
+        except BadRequestError as exc:
+            if "InternalError" not in str(exc) or attempt == attempts - 1:
+                raise
+            time.sleep(2.0 * (attempt + 1))
+    raise RuntimeError("unreachable")
+
+
 def chat(messages: list[dict], model: str = DEFAULT_CHAT_MODEL, **kw):
     """Chat completion on Qwen via DashScope."""
-    resp = _client().chat.completions.create(model=model, messages=messages, **kw)
+    resp = _with_transient_retry(
+        lambda: _client().chat.completions.create(
+            model=model, messages=messages, **kw
+        )
+    )
     _track(model, resp)
     return resp
 
@@ -96,7 +115,9 @@ def embed(texts: list[str], model: str = DEFAULT_EMBED_MODEL,
     """Text embeddings on Qwen via DashScope (text-embedding-v4 supports
     64-2048 dims; we pin explicitly for determinism)."""
     kw = {"dimensions": dimensions} if dimensions else {}
-    resp = _client().embeddings.create(model=model, input=texts, **kw)
+    resp = _with_transient_retry(
+        lambda: _client().embeddings.create(model=model, input=texts, **kw)
+    )
     _track(model, resp)
     return resp
 
