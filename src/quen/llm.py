@@ -229,7 +229,11 @@ def render_answer(
         "prefer the NEWER one (smaller age in its tag).\n"
         "When a memory does contain a relevant value, STATE that value — "
         "add a brief caveat if trust is low, but do not refuse to answer "
-        "while holding the answer."
+        "while holding the answer.\n"
+        "Conversely, if the memories contain NO record of the specific "
+        "thing asked about, say plainly that you have no record of it and "
+        "stop — do not offer estimates, guesses, or adjacent facts as a "
+        "substitute."
     )
     ctx = "\n".join(context_lines) if context_lines else "(no relevant memories)"
     user = f"<memories>\n{ctx}\n</memories>\n\nQuestion: {query}"
