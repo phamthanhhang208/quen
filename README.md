@@ -24,8 +24,9 @@ network path — no other provider, ever).
 The sharpest failure mode of agent memory isn't *forgetting too much* — it's
 **being confidently wrong from stale memory**. Stale memory rarely fails at
 retrieval; it fails by making the agent act confidently on invalidated
-assumptions (arXiv 2605.26112). Memora/FAMA (arXiv 2604.20006) measured it:
-agents *frequently reuse invalidated memories*.
+assumptions ([arXiv 2605.26112](https://arxiv.org/abs/2605.26112)).
+Memora/FAMA ([arXiv 2604.20006](https://arxiv.org/abs/2604.20006)) measured
+it: agents *frequently reuse invalidated memories*.
 
 Quên's answer, in one line:
 
@@ -77,11 +78,13 @@ The load-bearing mechanisms:
   DSR state is an *eviction/ranking prior*, not a scheduler. Reviews come from
   three places: use-in-answer judged good/bad, dream self-tests, and
   **verification outcomes** (the closed loop).
-- **Supersession is deterministic first** (MemStrata-style same-(s,r)-new-o
+- **Supersession is deterministic first**
+  ([MemStrata](https://arxiv.org/abs/2606.26511)-style same-(s,r)-new-o
   slot rule, zero LLM calls — embeddings *cannot* detect contradiction,
   AUROC ≈ 0.59), with an LLM-NLI fallback where `augments` **never**
-  supersedes (the Buddy/Scout trap). Tombstones only; bi-temporal
-  `valid_from/valid_to`; full audit log.
+  supersedes (the Buddy/Scout trap,
+  [Memory-R1](https://arxiv.org/abs/2508.19828)). Tombstones only;
+  bi-temporal `valid_from/valid_to`; full audit log.
 - **Retrieval is relevance-dominant and token-budgeted**: a low-R but highly
   relevant memory surfaces at full strength — decay never suppresses
   relevance. Every recall returns per-memory trust fields, an
@@ -457,8 +460,10 @@ functionality is a fixed list, not learned.
 ## What's next
 
 The near-term roadmap lives in [`docs/ROADMAP.md`](docs/ROADMAP.md) —
-highlights: TiMem-style temporal-hierarchical digests (recent = verbatim,
-aging = graduated roll-ups), a Letta-style sleep-time dream scheduler,
+highlights: [TiMem](https://arxiv.org/abs/2601.02845)-style
+temporal-hierarchical digests (recent = verbatim, aging = graduated
+roll-ups), a [Letta-style sleep-time](https://arxiv.org/abs/2504.13171)
+dream scheduler,
 FSRS weight re-fit from the calibration events the store already records,
 context-cache-aware prompt ordering (DashScope bills cached prefixes at
 ~10% of fresh input — `usage_summary()` already counts the hits), and
@@ -467,16 +472,103 @@ mechanically.
 
 ## Research it stands on (cite generously, claim narrowly)
 
-Retrieval scoring: Generative Agents (2304.03442). Retention: FSRS/DSR
-(open-spaced-repetition). Consolidation: Letta sleep-time compute; A-MEM
-(2502.12110). Supersession: MemStrata (2606.26511, deterministic (s,r,o) rule
-+ the AUROC-0.59 finding); TOKI (2606.06240, bitemporal operators);
-Knowledge-Conflicts survey (2403.08319); Memory-R1 (2508.19828, augmentation ≠
-contradiction). Trust at answer time: Scaling-the-Harness (2605.26112); UAM
-(2601.15703); Hindsight/CARA (2512.12818); abstention-aware retrieval for
-coding agents (2604.27283). Measurement: Memora + FAMA (2604.20006);
-LongMemEval (2410.10813). Efficiency: Mem0 (2504.19413). Anti-pattern:
-MemPalace critique (2604.21284, why `content_verbatim` never dies).
+Retrieval scoring: Generative Agents [1]. Retention: FSRS/DSR [2, 3],
+equations imported verbatim from the canonical open-spaced-repetition
+implementation [4]. Consolidation: sleep-time compute (Letta) [5, 6]; A-MEM
+[7]. Supersession: MemStrata [8] (the deterministic (s,r,o) rule + the
+AUROC-0.59 finding); TOKI [9] (bitemporal operators); the
+knowledge-conflicts survey [10]; Memory-R1 [11] (augmentation ≠
+contradiction — the Buddy/Scout trap). Trust at answer time:
+Scaling-the-Harness [12]; UAM [13]; Hindsight/CARA [14]; abstention-aware
+retrieval for coding agents [15]. Measurement: Memora + FAMA [16];
+LongMemEval [17]. Efficiency: Mem0 [18]. Anti-pattern: the MemPalace
+critique [19] (why `content_verbatim` never dies). Memory-poisoning surface
+(bias table above): attack study [20], lifecycle security survey [21],
+MemAudit [22]. Roadmap: TiMem [23].
+
+### References
+
+1. Joon Sung Park, Joseph C. O'Brien, Carrie J. Cai, Meredith Ringel
+   Morris, Percy Liang, Michael S. Bernstein. *Generative Agents:
+   Interactive Simulacra of Human Behavior.*
+   [arXiv:2304.03442](https://arxiv.org/abs/2304.03442), 2023.
+2. Ye, J., Su, J., Cao, Y. *A Stochastic Shortest Path Algorithm for
+   Optimizing Spaced Repetition Scheduling.* Proceedings of the 28th ACM
+   SIGKDD Conference on Knowledge Discovery and Data Mining (KDD '22),
+   pp. 4381–4390, 2022.
+3. Su, J., Ye, J., Nie, L., Cao, Y., Chen, Y. *Optimizing Spaced Repetition
+   Schedule by Capturing the Dynamics of Memory.* IEEE Transactions on
+   Knowledge and Data Engineering, 2023.
+4. open-spaced-repetition, *free-spaced-repetition-scheduler* — the
+   canonical FSRS-4.5 implementation.
+   <https://github.com/open-spaced-repetition/free-spaced-repetition-scheduler>
+5. Kevin Lin, Charlie Snell, Yu Wang, Charles Packer, Sarah Wooders,
+   Ion Stoica, Joseph E. Gonzalez. *Sleep-time Compute: Beyond Inference
+   Scaling at Test-time.*
+   [arXiv:2504.13171](https://arxiv.org/abs/2504.13171), 2025.
+6. Letta, *Sleep-time Compute* (blog post).
+   <https://www.letta.com/blog/sleep-time-compute>, 2025.
+7. Wujiang Xu, Zujie Liang, Kai Mei, Hang Gao, Juntao Tan, Yongfeng Zhang.
+   *A-MEM: Agentic Memory for LLM Agents.*
+   [arXiv:2502.12110](https://arxiv.org/abs/2502.12110), 2025.
+8. Neeraj Yadav. *Temporal Validity in Retrieval Memory: Eliminating
+   Stale-Fact Errors for AI Agents over Evolving Knowledge* (introduces
+   MemStrata). [arXiv:2606.26511](https://arxiv.org/abs/2606.26511), 2026.
+9. Ziming Wang. *TOKI: A Bitemporal Operator Algebra for Contradiction
+   Resolution in LLM-Agent Persistent Memory.*
+   [arXiv:2606.06240](https://arxiv.org/abs/2606.06240), 2026.
+10. Rongwu Xu, Zehan Qi, Zhijiang Guo, Cunxiang Wang, Hongru Wang,
+    Yue Zhang, Wei Xu. *Knowledge Conflicts for LLMs: A Survey.*
+    [arXiv:2403.08319](https://arxiv.org/abs/2403.08319), 2024.
+11. Sikuan Yan, Xiufeng Yang, Zuchao Huang, Ercong Nie, et al. *Memory-R1:
+    Enhancing Large Language Model Agents to Manage and Utilize Memories
+    via Reinforcement Learning.*
+    [arXiv:2508.19828](https://arxiv.org/abs/2508.19828), 2025.
+12. Shangding Gu. *From Model Scaling to System Scaling: Scaling the
+    Harness in Agentic AI.*
+    [arXiv:2605.26112](https://arxiv.org/abs/2605.26112), 2026.
+13. Jiaxin Zhang, Prafulla Kumar Choubey, Kung-Hsiang Huang, Caiming Xiong,
+    Chien-Sheng Wu. *Agentic Uncertainty Quantification* (UAM is its
+    Uncertainty-Aware Memory mechanism).
+    [arXiv:2601.15703](https://arxiv.org/abs/2601.15703), 2026.
+14. Chris Latimer, Nicoló Boschi, Andrew Neeser, Chris Bartholomew,
+    Gaurav Srivastava, Xuan Wang, Naren Ramakrishnan. *Hindsight is 20/20:
+    Building Agent Memory that Retains, Recalls, and Reflects* (CARA is its
+    reflection layer).
+    [arXiv:2512.12818](https://arxiv.org/abs/2512.12818), 2025.
+15. Mehmet Iscan. *Learning When to Remember: Risk-Sensitive Contextual
+    Bandits for Abstention-Aware Memory Retrieval in LLM-Based Coding
+    Agents.* [arXiv:2604.27283](https://arxiv.org/abs/2604.27283), 2026.
+16. Md Nayem Uddin, Kumar Shubham, Eduardo Blanco, Chitta Baral,
+    Gengyu Wang. *From Recall to Forgetting: Benchmarking Long-Term Memory
+    for Personalized Agents* (introduces Memora and FAMA).
+    [arXiv:2604.20006](https://arxiv.org/abs/2604.20006), 2026.
+17. Di Wu, Hongwei Wang, Wenhao Yu, Yuwei Zhang, Kai-Wei Chang, Dong Yu.
+    *LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive
+    Memory.* [arXiv:2410.10813](https://arxiv.org/abs/2410.10813), 2024.
+18. Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh,
+    Deshraj Yadav. *Mem0: Building Production-Ready AI Agents with Scalable
+    Long-Term Memory.*
+    [arXiv:2504.19413](https://arxiv.org/abs/2504.19413), 2025.
+19. Robin Dey, Panyanon Viradecha. *Spatial Metaphors for LLM Memory: A
+    Critical Analysis of the MemPalace Architecture.*
+    [arXiv:2604.21284](https://arxiv.org/abs/2604.21284), 2026.
+20. Pritam Dash, Tongyu Ge, Aditi Jain, Tanmay Shah, Zhiwei Shang. *From
+    Untrusted Input to Trusted Memory: A Systematic Study of Memory
+    Poisoning Attacks in LLM Agents.*
+    [arXiv:2606.04329](https://arxiv.org/abs/2606.04329), 2026.
+21. Zehao Lin, Xixuan Hao, Renyu Fu, Shaobo Cui, Kai Chen, Chunyu Li,
+    Zhiyu Li, Feiyu Xiong. *A Survey on Long-Term Memory Security in LLM
+    Agents: Attacks, Defenses, and Governance Across the Memory Lifecycle.*
+    [arXiv:2604.16548](https://arxiv.org/abs/2604.16548), 2026.
+22. Zhewen Tan, Yilun Yao, Huiyan Jin, Wenhan Yu, et al. *MemAudit:
+    Post-hoc Auditing of Poisoned Agent Memory via Causal Attribution and
+    Structural Anomaly Detection.*
+    [arXiv:2605.23723](https://arxiv.org/abs/2605.23723), 2026.
+23. Kai Li, Xuanqing Yu, Ziyi Ni, Yi Zeng, et al. *TiMem:
+    Temporal-Hierarchical Memory Consolidation for Long-Horizon
+    Conversational Agents.*
+    [arXiv:2601.02845](https://arxiv.org/abs/2601.02845), 2026.
 
 ## Repo map
 
