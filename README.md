@@ -30,13 +30,15 @@ it: agents *frequently reuse invalidated memories*.
 
 Quên's answer, in one line:
 
-> **Trust is a runtime decision, not a stored property.** Every answer's stated
-> confidence tracks the memory's validity and freshness; low-trust memories
-> trigger **verify-before-answer** against the live source; and the
-> verification outcome **feeds back into retention as an FSRS review** —
-> verification reinforces or invalidates memory. Then we *measure* the
-> epistemic honesty: FAMA on a code-staleness probe, plus retention
-> calibration and **freshness-stratified confidence calibration**.
+> **Trust is a runtime decision, not a stored property — hedge by freshness,
+> verify before asserting, and feed the verdict back into retention.**
+
+In full: every answer's stated confidence tracks the memory's validity and
+freshness; low-trust memories trigger **verify-before-answer** against the
+live source; and the verification outcome lands back in retention **as an
+FSRS review** — reinforcing or invalidating the memory. Then we *measure*
+the epistemic honesty: FAMA on a code-staleness probe, plus retention
+calibration and **freshness-stratified confidence calibration**.
 
 To our knowledge no system closes the loop *verification → retention update*,
 and none scores hedging against memory freshness. Everything else here —
